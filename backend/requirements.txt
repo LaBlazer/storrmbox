@@ -1,0 +1,7 @@
+python-dotenv
+flask
+flask-restful
+flask-httpauth
+flask-sqlalchemy
+flask-migrate
+flask-script
