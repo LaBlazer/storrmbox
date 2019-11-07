@@ -1,26 +1,27 @@
 import React from 'react';
-import './App.scss';
-import Header from './components/header/Header';
+import './sass/main.scss';
 
-import { BrowserRouter as Router } from "react-router-dom";
+import AuthWall from './components/AuthWall/AuthWall';
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { AuthContextComponent } from './contexts/auth-context';
 
-import 'primereact/resources/themes/nova-light/theme.css';
-import 'primereact/resources/primereact.min.css';
-import 'primeicons/primeicons.css';
+import MainPage from './layout/pages/MainPage';
+
 
 class App extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     render() {
         return (
             <Router>
                 <AuthContextComponent>
-                    <Header></Header>
+                    <AuthWall>
+                        <Switch>
+                            <Route path="/">
+                                <MainPage />
+                            </Route>
+                        </Switch>
+                    </AuthWall>
                 </AuthContextComponent>
             </Router>
         );

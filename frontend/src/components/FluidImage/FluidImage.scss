@@ -1,0 +1,27 @@
+.sfluid-image {
+
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .real {
+        position: absolute;
+        transform: translate(-50%,-50%);
+        top: 50%;
+        left: 50%;
+        z-index: 40;
+        max-width: 100%;
+    }
+
+    .background {
+        min-width: 100%;
+        filter: grayscale(85%) blur(7px);
+        position: absolute;
+        z-index: 30;
+        min-height: 100%;
+        transform: translate(-50%,-50%);
+        top: 50%;
+        left: 50%;
+    }
+}
