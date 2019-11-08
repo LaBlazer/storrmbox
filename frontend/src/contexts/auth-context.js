@@ -8,9 +8,9 @@ export class AuthContextComponent extends React.Component {
         super(props);
 
         this.state = {
-            auth: false,
+            loggedIn: false,
             login: () => {
-                this.setState({ auth: true });
+                this.setState({ loggedIn: true });
             }
         };
     }
