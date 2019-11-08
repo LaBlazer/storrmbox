@@ -1,0 +1,36 @@
+# Content providers
+https://snowfl.com
+https://www.torlock2.com
+https://torrentz2.eu
+https://yts.lt
+https://eztv.io
+https://www.torrentdownloads.me
+https://www.thepiratebay.org
+https://rarbgtorrents.org/
+http://glodls.to
+https://www.limetorrents.info/home/
+https://prostylex.org
+https://yourbittorrent2.com
+https://www.magnetdl.com/
+https://www.torrentdownload.info
+https://pirateiro.com
+
+
+series info api
+https://www.thetvdb.com
+
+# Subtitles
+https://subscene.com
+https://www.opensubtitles.com/en
+https://www.titulky.com
+https://yifysubtitles.com
+
+
+# Anime
+https://nyaa.si # Content provider
+https://bakabt.me # Content provider
+https://haruhichan.com # Content provider (main)
+https://horriblesubs.info # Content provider (indirectly, unsure)
+https://myanimelist.net # Database
+
+# maybe use https://trakt.docs.apiary.io/#introduction/verbs for tracking
