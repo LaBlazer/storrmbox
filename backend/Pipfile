@@ -4,14 +4,26 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+httpie = "*"
+httpie-jwt-auth = "*"
 
 [packages]
 requests = "*"
 bs4 = "*"
 python-interface = "*"
+python-dotenv = "*"
+flask = "*"
+flask-restplus = "*"
+flask-httpauth = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
+flask-script = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [scripts]
-start="python torrent_scraper.py"
+deploy="pipenv run build && pipenv run serve"
+build="echo TODO"
+serve="python manage.py runserver"
+upgradedb="python manage.py db migrate && python manage.py db upgrade"

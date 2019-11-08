@@ -9,6 +9,7 @@ from .extensions import db, migrate
 def create_app(config_object=config.Config):
     """Construct the core application."""
     app = Flask(__name__)
+    app.app_context().push()
 
     # Application Configuration
     app.config.from_object(config_object)
@@ -31,7 +32,7 @@ def create_app(config_object=config.Config):
 
 def register_extensions(app):
     db.init_app(app)
-    migrate.init_app(app)
+    migrate.init_app(app, db)
 
 
 def register_blueprints(app):

@@ -14,33 +14,40 @@ from storrmbox.database import (
 def _random_string(size=6, chars=string.ascii_lowercase + string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
+def _time_now():
+    return datetime.utcnow().replace(microsecond=0)
 
-def _time_delta(delta_hours=12, current_time=datetime.utcnow()):
+def _time_delta(delta_hours=12, current_time=_time_now()):
     return current_time + timedelta(hours=delta_hours)
 
 
-class Token(SurrogatePK, Model):
+class Token(Model):
     __tablename__ = "tokens"
 
+    id = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(32), unique=True, nullable=False)
     regeneration_token = db.Column(db.String(32), unique=True, nullable=False)
-    created_on = db.Column(db.DateTime, index=False, unique=False, nullable=False, server_default=func.now())
-    expires_on = db.Column(db.DateTime, index=False, unique=False, nullable=False, default=datetime.utcnow())
+    created_on = db.Column(db.DateTime, index=False, unique=False, nullable=False, default=func.now())
+    expires_on = db.Column(db.DateTime, index=False, unique=False, nullable=False, default=_time_now())
     user_id = ReferenceCol("users")
-    user = relationship("User")
 
-    @classmethod
+    #def __init__(self, token, regeneration_token, user, expires_on, **kwargs):
+    #    db.Model.__init__(self, token=token, regeneration_token=regeneration_token, user=user, expires_on=expires_on, **kwargs)
+
     def generate_token(user, expire_hours=12):
         """Generate random token"""
-        t = Token.create(
-            token=_random_string(32),
-            regeneration_token=_random_string(32),
-            user=user,
-            expires_on=_time_delta(12)
-        )
-        #db.session.add(t)
-        #db.commit()
-        user.user_tokens.append(t)
+
+        try:
+            t = Token.create(
+                token=_random_string(32),
+                regeneration_token=_random_string(32),
+                user=user,
+                expires_on=_time_delta(12)
+            )
+        except AttributeError as ex:
+            print(ex)
+            raise AttributeError
+        user.tokens.append(t)
         return t
 
     @classmethod

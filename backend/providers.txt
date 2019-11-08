@@ -16,7 +16,7 @@ https://www.torrentdownload.info
 https://pirateiro.com
 
 
-series info api
+# series info api
 https://www.thetvdb.com
 
 # Subtitles

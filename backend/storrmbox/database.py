@@ -1,5 +1,4 @@
 from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, check_password_hash
 
 from .extensions import db
 
@@ -38,6 +37,11 @@ class CRUDMixin(object):
         return commit and db.session.commit()
 
 
+class Model(CRUDMixin, db.Model):
+    """Base model class that includes CRUD convenience methods."""
+    __abstract__ = True
+
+
 # From Mike Bayer's "Building the app" talk
 # https://speakerdeck.com/zzzeek/building-the-app
 class SurrogatePK(object):
@@ -63,12 +67,5 @@ def ReferenceCol(tablename, nullable=False, pk_name='id', **kwargs):
         category_id = ReferenceCol('category')
         category = relationship('Category', backref='categories')
     """
-    return db.Column(
-        db.Integer,
-        db.ForeignKey("{0}.{1}".format(tablename, pk_name)),
+    return db.Column(db.ForeignKey("{0}.{1}".format(tablename, pk_name)),
         nullable=nullable, index=True, **kwargs)  # pragma: no cover
-
-
-class Model(CRUDMixin, db.Model):
-    """Base model class that includes CRUD convenience methods."""
-    __abstract__ = True

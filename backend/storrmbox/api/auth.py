@@ -1,11 +1,16 @@
-import functools
-from flask import g, abort, jsonify
-from flask_restful import Resource, reqparse, marshal_with, fields
+import functools, os
+from flask import g, abort
+from flask_restplus import Resource, Namespace, fields
+from time import time
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
-from . import api
-from storrmbox.extensions import basic_auth, token_auth, multi_auth
+from storrmbox.extensions import basic_auth, multi_auth, auth
 from storrmbox.models.user import User
-from storrmbox.models.token import Token
+
+TOKEN_EXPIRE_TIME = 3600
+
+api = Namespace('auth', description='Web app authentication')
+token_serializer = Serializer(os.getenv('SECRET_KEY'), expires_in=TOKEN_EXPIRE_TIME + 60)
 
 
 @basic_auth.verify_password
@@ -15,11 +20,18 @@ def verify_password(username, password):
     return g.user is not None and g.user.check_password(password)
 
 
-@token_auth.verify_token
-def verify_token(username, token):
-    """Validate user passwords and store user in the 'g' object"""
-    g.user = Token.query.filter_by(token=token).first().user
-    return g.user is not None
+@auth.verify_token
+@api.response(401, 'Authentication required')
+def verify_token(token):
+    g.user = None
+    try:
+        data = token_serializer.loads(token)
+    except:  # noqa: E722
+        return False
+    if "username" in data and "id" in data:
+        g.user = User.query.filter_by(username=data['username'], id=data['id']).first()
+        return True
+    return False
 
 
 def self_only(func):
@@ -32,28 +44,22 @@ def self_only(func):
             if g.user.id != kwargs['user_id']:
                 abort(403)
         return func(*args, **kwargs)
+
     return wrapper
 
 
-token_fields = {
+token_fields = api.model("Auth", {
     "token": fields.String,
-    "regeneration_token": fields.String,
-    "created_on": fields.DateTime,
-    "expires_on": fields.DateTime
-}
+    "expires_in": fields.Integer
+})
 
 
+@api.route("")
 class AuthResource(Resource):
+
     @multi_auth.login_required
-    @marshal_with(token_fields)
+    @api.marshal_with(token_fields)
+    @api.doc(security=['basic', 'bearer'])
     def get(self):
-        # If we already have valid token return it
-        t = Token.query.filter_by(user_id=g.user.id).first()
-        if t:
-            return t
-
-        # Otherwise generate new token, store it and return it
-        return Token.generate_token(g.user)
-
-
-api.add_resource(AuthResource, "/auth", "")
+        return {"token": token_serializer.dumps({"username": g.user.username, "id": g.user.id}).decode('utf-8'),
+                "expires_in": time() + TOKEN_EXPIRE_TIME}

@@ -4,6 +4,6 @@ from flask_migrate import Migrate
 
 db = SQLAlchemy()
 basic_auth = HTTPBasicAuth()
-token_auth = HTTPTokenAuth('Bearer')
-multi_auth = MultiAuth(basic_auth, token_auth)
+auth = HTTPTokenAuth('Bearer')
+multi_auth = MultiAuth(basic_auth, auth)
 migrate = Migrate()
