@@ -16,7 +16,9 @@ export function getCookie(cname) {
 
 export function setCookie(cname, cvalue, expireDate) {
     var expires = "expires=" + expireDate.toUTCString();
-    console.log(expireDate.toUTCString());
-
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+export function deleteCookie(name) {
+    setCookie(name, "", new Date(0));
 }

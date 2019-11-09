@@ -4,6 +4,7 @@ import LoginPage from '../../layout/pages/LoginPage';
 import { getCookie, setCookie } from '../../utils/CookieHelper';
 import { TOKEN_COOKIE_NAME, API_URL } from '../../configs/constants';
 import Axios from 'axios';
+import FadeIn from 'react-fade-in';
 
 class AuthWall extends React.Component {
 
@@ -17,9 +18,9 @@ class AuthWall extends React.Component {
 
     async componentDidMount() {
         var cookie = getCookie(TOKEN_COOKIE_NAME);
-        this.setState({ loading: true });
         if (cookie !== null) {
             try {
+                this.setState({ loading: true });
                 var data = await Axios.get(`${API_URL}/auth`, {
                     headers: {
                         'Accept': 'application/json',
@@ -45,11 +46,15 @@ class AuthWall extends React.Component {
         //check for renewal token
         var { loggedIn } = this.context;
 
-        if (this.state.loading) {
-            return <React.Fragment></React.Fragment>
+        if (loggedIn === true) {
+            return (
+                <FadeIn>
+                    {this.props.children}
+                </FadeIn>
+            )
         } else {
-            if (loggedIn === true) {
-                return (this.props.children);
+            if (this.state.loading) {
+                return <React.Fragment></React.Fragment>
             } else {
                 return (
                     <LoginPage />
@@ -57,7 +62,6 @@ class AuthWall extends React.Component {
             }
         }
     }
-
 }
 AuthWall.contextType = AuthContext;
 

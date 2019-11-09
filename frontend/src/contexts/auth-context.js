@@ -11,6 +11,9 @@ export class AuthContextComponent extends React.Component {
             loggedIn: false,
             login: () => {
                 this.setState({ loggedIn: true });
+            },
+            logout: () => {
+                this.setState({ loggedIn: false });
             }
         };
     }
