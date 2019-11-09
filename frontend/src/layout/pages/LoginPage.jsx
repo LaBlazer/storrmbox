@@ -1,5 +1,5 @@
 import React from 'react';
-import { API_URL } from '../../configs/api';
+import { API_URL } from '../../configs/constants';
 import Axios from 'axios';
 import { Button, Container, Card, Form, Row, Col } from 'react-bootstrap';
 import { setCookie } from '../../utils/CookieHelper';
