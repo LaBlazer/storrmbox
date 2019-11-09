@@ -1,5 +1,5 @@
 import functools, os
-from flask import g, abort
+from flask import g, abort, request
 from flask_restplus import Resource, Namespace, fields
 from time import time
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
@@ -25,7 +25,8 @@ def verify_password(username, password):
 def verify_token(token):
     g.user = None
     try:
-        data = token_serializer.loads(token)
+        print( str(request.remote_addr))
+        data = token_serializer.loads(token, str(request.remote_addr))
     except:  # noqa: E722
         return False
     if "username" in data and "id" in data:
@@ -60,6 +61,9 @@ class AuthResource(Resource):
     @multi_auth.login_required
     @api.marshal_with(token_fields)
     @api.doc(security=['basic', 'bearer'])
-    def get(self):
-        return {"token": token_serializer.dumps({"username": g.user.username, "id": g.user.id}).decode('utf-8'),
+    def post(self):
+        return {"token": token_serializer.dumps({
+                        "username": g.user.username,
+                        "id": g.user.id
+                        }, str(request.remote_addr)).decode('utf-8'),
                 "expires_in": time() + TOKEN_EXPIRE_TIME}
