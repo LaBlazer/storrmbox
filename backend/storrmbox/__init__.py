@@ -18,6 +18,9 @@ def create_app(config_object=config.Config):
     register_extensions(app)
     register_blueprints(app)
 
+    # Set up CORS handling
+    app.after_request(after_request)
+
     # Check if there is no database.
     if not os.path.exists(app.config["SQLALCHEMY_DATABASE_URI"]):
 
@@ -28,6 +31,13 @@ def create_app(config_object=config.Config):
         db.create_all()
 
     return app
+
+
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
 
 
 def register_extensions(app):
