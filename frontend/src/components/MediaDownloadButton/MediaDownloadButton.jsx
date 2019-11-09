@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Button, ProgressBar } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloudDownloadAlt, faPlayCircle } from '@fortawesome/free-solid-svg-icons'
+import './MediaDownloadButton.scss';
+import RoundProgress from '../RoundProgress/RoundProgress';
 
 //Toto bude dobre vytiahnut do nejake inej triedy
 //Stav filmu (je stiahnuty?)
 export const MDBStates = {
-    CANT_DOWNLOAD: -1,
     CAN_DOWNLOAD: 1,
     IS_DOWNLOADING: 2,
     CAN_WATCH: 3
@@ -20,28 +20,25 @@ export class MediaDownloadButton extends React.Component {
 
             case MDBStates.CAN_DOWNLOAD:
                 return (
-                    <Button variant="outline-primary" onClick={this.props.onDownloadClick}>
-                        <FontAwesomeIcon icon={faCloudDownloadAlt} />
-                    </Button>
-                )
-
-            case MDBStates.CANT_DOWNLOAD:
-                return (
-                    <Button variant="outline-primary" disabled>
-                        <FontAwesomeIcon icon={faCloudDownloadAlt} />
-                    </Button>
+                    <div className="watch-overlay">
+                        <FontAwesomeIcon className="icon" onClick={this.props.onDownloadClick} icon={faCloudDownloadAlt} />
+                    </div>
                 )
 
             case MDBStates.IS_DOWNLOADING:
-                return  (
-                    <ProgressBar now={this.props.percentsDownloaded} label={`${this.props.percentsDownloaded}%`} />
+                return (
+                    <div className="watch-overlay">
+                        <div className="icon h-5">
+                            <RoundProgress value={this.props.percentsDownloaded} />
+                        </div>
+                    </div>
                 )
 
             case MDBStates.CAN_WATCH:
                 return (
-                    <Button variant="success" onClick={this.props.onWatchClick}>
-                        <FontAwesomeIcon icon={faPlayCircle} />
-                    </Button>
+                    <div className="watch-overlay">
+                        <FontAwesomeIcon className="icon" icon={faPlayCircle} onClick={this.props.onWatchClick} />
+                    </div>
                 )
 
             default:

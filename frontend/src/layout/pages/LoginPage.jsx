@@ -1,6 +1,9 @@
 import React from 'react';
-import { AuthContext } from '../../contexts/auth-context';
+import { API_URL } from '../../configs/api';
+import Axios from 'axios';
 import { Button, Container, Card, Form, Row, Col } from 'react-bootstrap';
+import { setCookie } from '../../utils/CookieHelper';
+import { AuthContext } from '../../contexts/auth-context';
 
 
 class LoginPage extends React.Component {
@@ -12,12 +15,28 @@ class LoginPage extends React.Component {
     }
 
 
-    handleLogin(e) {
+    async handleLogin(e) {
         e.preventDefault();
-        // var data = new FormData(e.target);
 
-        //Handle login HERE
-        this.context.login()
+        var formData = new FormData(e.target);
+
+        try {
+            var data = await Axios.get(`${API_URL}/auth`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Basic ${Buffer.from(`${formData.get('username')}:${formData.get('password')}`).toString('base64')}`
+                }
+            });
+
+            if (data.status === 200) {
+                setCookie('atkn', data.data.token, new Date(data.data.expires_in * 1000));
+                this.context.login();
+            }
+
+        } catch(err) {
+            //Show error
+            alert(err.response.data);
+        }
     }
 
     render() {
@@ -34,12 +53,12 @@ class LoginPage extends React.Component {
                                 <Form onSubmit={this.handleLogin}>
                                     <Form.Group>
                                         <Form.Label>Username</Form.Label>
-                                        <Form.Control id="username" placeholder="Username" type="text" required/>
+                                        <Form.Control id="username" name="username" placeholder="Username" type="text" required />
                                     </Form.Group>
 
                                     <Form.Group>
                                         <Form.Label>Password</Form.Label>
-                                        <Form.Control placeholder="Password" type="password" required/>
+                                        <Form.Control placeholder="Password" name="password" type="password" required />
                                     </Form.Group>
 
                                     <Button variant="outline-primary" type="submit">Login</Button>

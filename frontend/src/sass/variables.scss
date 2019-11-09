@@ -1,16 +1,16 @@
-$body-bg: #202040;
+$body-bg: #2D2D2D;
 $body-color: #e4e4e4;
 
-$card-bg: #202060;
+$card-bg: #484848;
 
 $enable-shadows: true;
 
-$input-bg: #602080;
+$input-bg: #666666;
 $input-color: #e4e4e4;
 
 $theme-colors: (
-    primary: #b030b0,
-    secondary: #602080
+    primary: #0bc79e,
+    secondary: #159c7f
 );
 
-$input-border-color: map-get($map: $theme-colors, $key: "primary");
+$input-border-color: #2e2e2e;
