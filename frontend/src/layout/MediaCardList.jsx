@@ -9,9 +9,9 @@ class MediaCardList extends React.Component {
             <Fragment>
                 <Row>
                     {
-                        this.props.data.map((value, index) => {
-                            return <Col key={index} xs={12} md={6} lg={4} className="mb-3">
-                                <MediaCard data={value} />
+                        this.props.mediaList.map((media, index) => {
+                            return <Col key={media.id} xs={12} md={6} lg={4} className="mb-3">
+                                <MediaCard {...media} />
                             </Col>
                         })
                     }

@@ -1,9 +1,9 @@
 import React from 'react';
-import { API_URL } from '../../configs/constants';
-import Axios from 'axios';
+import { TOKEN_COOKIE_NAME } from '../../configs/constants';
 import { Button, Container, Card, Form, Row, Col } from 'react-bootstrap';
 import { setCookie } from '../../utils/CookieHelper';
 import { AuthContext } from '../../contexts/auth-context';
+import API from '../../utils/API';
 
 
 class LoginPage extends React.Component {
@@ -18,24 +18,20 @@ class LoginPage extends React.Component {
     async handleLogin(e) {
         e.preventDefault();
 
-        var formData = new FormData(e.target);
-
         try {
-            var data = await Axios.post(`${API_URL}/auth`, {}, {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Basic ${Buffer.from(`${formData.get('username')}:${formData.get('password')}`).toString('base64')}`
-                }
-            });
+            var formData = new FormData(e.target);
+            var data = await API.login(formData.get('username'), formData.get('password'));
 
             if (data.status === 200) {
-                setCookie('atkn', data.data.token, new Date(data.data.expires_in * 1000));
+                setCookie(TOKEN_COOKIE_NAME, data.data.token, new Date(data.data.expires_in * 1000));
                 this.context.login();
             }
 
         } catch (err) {
             //Show error
-            alert(err.response.data);
+            console.log(err);
+            
+            // alert(err.response.data);
         }
     }
 
