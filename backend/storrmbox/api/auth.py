@@ -58,7 +58,7 @@ token_fields = api.model("Auth", {
 
 auth_parser = api.parser()
 auth_parser.add_argument('extended', type=inputs.boolean, help='Should the token be valid for an extended time',
-                    required=False, location='form')
+                         required=False, location='form')
 
 
 @api.route("")
@@ -70,7 +70,6 @@ class AuthResource(Resource):
     @api.expect(auth_parser)
     def post(self):
         origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
-        print(auth_parser.parse_args()['extended'])
         expire_time = EXTENDED_TOKEN_EXPIRE_TIME if bool(auth_parser.parse_args()['extended']) else TOKEN_EXPIRE_TIME
         token_serializer.expires_in = expire_time
         token = token_serializer.dumps({"username": g.user.username,"id": g.user.id}, origin).decode('utf-8')
