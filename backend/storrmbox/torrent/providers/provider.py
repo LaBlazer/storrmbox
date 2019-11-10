@@ -1,4 +1,6 @@
 from ..scrapers import *
+from bs4 import BeautifulSoup
+from interface import implements, Interface, default
 
 
 class TorrentProvider(Interface):

@@ -7,22 +7,19 @@ from storrmbox.database import (
     relationship
 )
 from .torrent import Torrent
-from .token import Token
 
 
-class User(Model):
+class User(SurrogatePK, Model):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(40), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=True, nullable=False)
-    created_on = db.Column(db.DateTime, index=False, unique=False, nullable=False, default=func.now())
-    last_update = db.Column(db.DateTime, index=False, unique=False, nullable=True, onupdate=func.now())
-    last_login = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    created_on = db.Column(db.DateTime, nullable=False, default=func.now)
+    last_update = db.Column(db.DateTime, nullable=True, onupdate=func.now)
+    last_login = db.Column(db.DateTime, nullable=True)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
-    tokens = relationship(Token, backref="user", lazy="dynamic")
 
     #def __init__(self, **kwargs):
     #    db.Model.__init__(self, **kwargs)

@@ -1,11 +1,9 @@
-from interface import implements, Interface, default
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, ClassVar
 from enum import Enum, IntFlag
 from requests import Session
 from logging import Logger, getLogger
-from bs4 import BeautifulSoup
 
 @dataclass
 class Torrent:
@@ -44,6 +42,7 @@ class ProviderCapabilities:
 
 
 class TorrentScraper(object):
+    trackers_url = "https://combinatronics.com/ngosang/trackerslist/master/trackers_best.txt"
 
     def __init__(self):
         self._providers = []

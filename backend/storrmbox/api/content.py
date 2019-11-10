@@ -9,6 +9,10 @@ from storrmbox.torrent.scrapers import MovieTorrentScraper, VideoQuality
 
 api = Namespace('content', description='Content serving')
 
+scraper = MovieTorrentScraper()
+scraper.add_provider(LeetxProvider)
+scraper.add_provider(EztvProvider)
+
 
 class ContentType(IntFlag):
     ALL = 0xFF,
@@ -40,7 +44,6 @@ content_fields = api.model("Content", {
     "thumbnail": fields.String
 })
 
-############################### MAIL NA UDBS POSLI
 
 @api.route("/popular")
 class ContentResource(Resource):
@@ -74,9 +77,9 @@ parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lowe
 
 @api.route("/search")
 class ContentSearchResource(Resource):
-    scraper = MovieTorrentScraper()
-    scraper.add_provider(LeetxProvider)
-    scraper.add_provider(EztvProvider)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @auth.login_required
     @api.marshal_with(content_fields, as_list=True)
@@ -84,15 +87,15 @@ class ContentSearchResource(Resource):
     def get(self):
         res = []
         args = parser.parse_args()
-        type = 0
+        ctype = 0
         for t in args['type']:
-            type |= ContentType[t.upper()]
+            ctype |= ContentType[t.upper()]
 
         torrents = []
-        if type & ContentType.MOVIE:
-            torrents = self.scraper.search_movie(args['query'])
-        elif type & ContentType.SHOW:
-            torrents = self.scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
+        if ctype & ContentType.MOVIE:
+            torrents = scraper.search_movie(args['query'])
+        elif ctype & ContentType.SHOW:
+            torrents = scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
 
         for i, t in enumerate(torrents):
             res.append({
@@ -102,7 +105,7 @@ class ContentSearchResource(Resource):
                 'year_end': None,
                 'description': 'Name: {}, Seeders: {}, Leechers: {}'.format(t.name, t.seeders, t.leechers),
                 'rating': i % 5,
-                'type': type,
+                'type': ctype,
                 'thumbnail': 'https://picsum.photos/200/300'
             })
 

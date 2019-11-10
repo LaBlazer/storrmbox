@@ -1,5 +1,6 @@
 from .provider import *
 
+
 class EztvProvider(implements(TorrentProvider)):
     _caps = ProviderCapabilities(
         content_types=ContentType.MOVIES | ContentType.SERIES,

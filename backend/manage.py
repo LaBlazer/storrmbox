@@ -64,7 +64,7 @@ manager.add_command('db', MigrateCommand)
 
 if __name__ == "__main__":
     if not os.path.exists(".env"):
-        print("Generationg default .env file")
+        print("Generating default .env file")
         _make_env()
 
     load_dotenv()  # Load .env file
