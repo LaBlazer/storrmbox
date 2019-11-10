@@ -21,7 +21,7 @@ class LoginPage extends React.Component {
         var formData = new FormData(e.target);
 
         try {
-            var data = await Axios.get(`${API_URL}/auth`, {
+            var data = await Axios.post(`${API_URL}/auth`, {}, {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Basic ${Buffer.from(`${formData.get('username')}:${formData.get('password')}`).toString('base64')}`
@@ -33,7 +33,7 @@ class LoginPage extends React.Component {
                 this.context.login();
             }
 
-        } catch(err) {
+        } catch (err) {
             //Show error
             alert(err.response.data);
         }

@@ -3,6 +3,7 @@ import React from 'react';
 import { Container } from "react-bootstrap";
 import TopBar from "../TopBar";
 import MediaCardList from "../MediaCardList";
+import FadeIn from "react-fade-in/lib/FadeIn";
 
 class MainPage extends React.Component {
 
@@ -43,12 +44,14 @@ class MainPage extends React.Component {
     render() {
         return (
             <Container>
-                <TopBar siteName="Storrmbox" />
-                <h3>Search</h3>
-                <SearchInput />
-                <hr />
-                <h3>Search results</h3>
-                <MediaCardList data={this.state.data} />
+                <FadeIn>
+                    <TopBar siteName="Storrmbox" />
+                    <h3>Search</h3>
+                    <SearchInput />
+                    <hr />
+                    <h3>Search results</h3>
+                    <MediaCardList data={this.state.data} />
+                </FadeIn>
             </Container>
         )
     }
