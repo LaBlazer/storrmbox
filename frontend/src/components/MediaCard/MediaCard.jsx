@@ -40,7 +40,7 @@ class MediaCard extends React.Component {
         return (
             <Card className="media-card">
                 <Row className="no-gutters">
-                    <Col className="image" sm={6} lg={4} >
+                    <Col className={this.state.state == States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
                         <FluidImage src={this.props.data.image} alt={this.props.data.title} />
                         <MediaDownloadButton
                             state={this.state.state}

@@ -37,7 +37,7 @@ export class MediaDownloadButton extends React.Component {
             case MDBStates.CAN_WATCH:
                 return (
                     <div className="watch-overlay">
-                        <FontAwesomeIcon className="icon" icon={faPlayCircle} onClick={this.props.onWatchClick} />
+                        <FontAwesomeIcon className="icon text-primary" icon={faPlayCircle} onClick={this.props.onWatchClick} />
                     </div>
                 )
 

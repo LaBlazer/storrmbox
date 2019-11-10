@@ -9,7 +9,7 @@ class RoundProgress extends React.Component {
 
     render() {
 
-        if (this.props.value >= 0) {
+        if (this.props.value >= 0 && this.props.value <= 100) {
             var right;
             var left;
             if (this.props.value <= 50) {
@@ -31,9 +31,9 @@ class RoundProgress extends React.Component {
                 <span className="progress-right">
                     <span className={progressClasses} style={right}></span>
                 </span>
-                <div className="progress-value w-100 h-100 rounded-circle d-flex align-items-center justify-content-center">
-                    <div className="h2 font-weight-bold">{this.props.value}<sup className="small">%</sup></div>
-                </div>
+                {/* <div className="progress-value w-100 h-100 rounded-circle d-flex align-items-center justify-content-center">
+                    <div className="font-weight-bold">{this.props.value}<sup className="small">%</sup></div>
+                </div> */}
             </div>
         )
 

@@ -4,7 +4,6 @@ import LoginPage from '../../layout/pages/LoginPage';
 import { getCookie, setCookie } from '../../utils/CookieHelper';
 import { TOKEN_COOKIE_NAME, API_URL } from '../../configs/constants';
 import Axios from 'axios';
-import FadeIn from 'react-fade-in';
 
 class AuthWall extends React.Component {
 
@@ -21,7 +20,7 @@ class AuthWall extends React.Component {
         if (cookie !== null) {
             try {
                 this.setState({ loading: true });
-                var data = await Axios.get(`${API_URL}/auth`, {
+                var data = await Axios.post(`${API_URL}/auth`, {}, {
                     headers: {
                         'Accept': 'application/json',
                         'Authorization': `Bearer ${cookie}`
@@ -47,11 +46,7 @@ class AuthWall extends React.Component {
         var { loggedIn } = this.context;
 
         if (loggedIn === true) {
-            return (
-                <FadeIn>
-                    {this.props.children}
-                </FadeIn>
-            )
+            return (this.props.children)
         } else {
             if (this.state.loading) {
                 return <React.Fragment></React.Fragment>

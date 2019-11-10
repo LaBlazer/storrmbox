@@ -28,9 +28,11 @@ class TopBar extends React.Component {
                     <FontAwesomeIcon icon={faBolt} className="mr-2" />
                     {this.props.siteName}
                 </Link>
-                <Button variant="primary" onClick={this.logout}>
-                    Logout
-                </Button>
+                <div className="navbar-collapse collapse">
+                    <Button variant="outline-primary" className="ml-auto" onClick={this.logout}>
+                        Logout
+                    </Button>
+                </div>
             </Navbar>
         )
     }
