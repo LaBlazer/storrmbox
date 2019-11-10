@@ -3,7 +3,7 @@ from .provider import *
 
 class LeetxProvider(implements(TorrentProvider)):
     _caps = ProviderCapabilities(
-        content_types=ContentType.MOVIES | ContentType.SERIES | ContentType.ANIME | ContentType.NSFW,
+        content_types=ContentType.MOVIE | ContentType.SERIES | ContentType.NSFW,
         time_range=TimeRange.MONTH
     )
     url = "https://1337x.to/search/{}/1/"

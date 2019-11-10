@@ -4,10 +4,11 @@ from typing import List, ClassVar
 from enum import Enum, IntFlag
 from requests import Session
 from logging import Logger, getLogger
+from interface import Interface
 from .. import db
 
 
-class ContentScraper(object):
+class ContentScraper(Interface):
 
     def __init__(self):
         self.log = getLogger("content_scraper")

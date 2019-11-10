@@ -20,9 +20,9 @@ class Torrent:
 
 
 class ContentType(IntFlag):
-    MOVIES = 1 << 1,
+    MOVIE = 1 << 1,
     SERIES = 1 << 2,
-    ANIME = 1 << 3,
+    EPISODE = 1 << 3,
     NSFW = 1 << 4
 
 
