@@ -44,14 +44,14 @@ class MainPage extends React.Component {
     render() {
         return (
             <Container>
-                <FadeIn>
+                {/* <FadeIn> */}
                     <TopBar siteName="Storrmbox" />
-                    <h3>Search</h3>
-                    <SearchInput />
+                    {/* <h3>Search</h3> */}
+                    {/* <SearchInput /> */}
                     <hr />
-                    <h3>Search results</h3>
+                    <h3>Popular</h3>
                     <MediaCardList data={this.state.data} />
-                </FadeIn>
+                {/* </FadeIn> */}
             </Container>
         )
     }

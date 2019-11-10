@@ -1,2 +1,8 @@
 @import "variables.scss";
 @import "../../node_modules/bootstrap/scss/bootstrap";
+
+@import url('https://fonts.googleapis.com/css?family=Poppins:300,400,500,700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+}

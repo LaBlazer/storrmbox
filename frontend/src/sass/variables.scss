@@ -1,5 +1,6 @@
 $body-bg: #2D2D2D;
-$body-color: #e4e4e4;
+// $body-color: #e4e4e4;
+$body-color: #ececec;
 
 $card-bg: #484848;
 
@@ -14,3 +15,6 @@ $theme-colors: (
 );
 
 $input-border-color: #2e2e2e;
+
+$modal-content-bg: $body-bg;
+$close-color: $body-color;

@@ -1,0 +1,48 @@
+.media-modal {
+
+    .modal-content {
+        background-color: #0D0D0D;
+    }
+
+    .header {
+
+        .top-thumbnail {
+            height: 448px;
+            width: 100%;
+            overflow: hidden;
+
+            img {
+                width: 100%;
+                min-height: 100%;
+                min-width: 100%;
+            }
+        }
+
+        .info {
+            position: relative;
+            margin-top: -117px;
+            padding: 45px 11px 13px;
+            background: linear-gradient(0deg, #0D0D0D 13%, rgba(13, 13, 13, 0) 95%);
+
+            .title {
+                font-size: 36px;
+                line-height: 54px;
+                text-transform: capitalize;
+                margin-bottom: 0;
+            }
+
+            .rating {
+                font-size: 12px;
+            }
+        }
+
+        .description {
+            padding: 0 11px;
+            text-align: justify;
+            font-size: 16px;
+            line-height: 24px;
+        }
+
+    }
+
+}
