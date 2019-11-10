@@ -1,6 +1,6 @@
 import functools, os
 from flask import g, abort, request
-from flask_restplus import Resource, Namespace, fields
+from flask_restplus import Resource, Namespace, fields, inputs
 from time import time
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
@@ -8,6 +8,7 @@ from storrmbox.extensions import basic_auth, multi_auth, auth
 from storrmbox.models.user import User
 
 TOKEN_EXPIRE_TIME = 3600
+EXTENDED_TOKEN_EXPIRE_TIME = 604800  # 1 week
 
 api = Namespace('auth', description='Web app authentication')
 token_serializer = Serializer(os.getenv('SECRET_KEY'), expires_in=TOKEN_EXPIRE_TIME + 60)
@@ -20,13 +21,14 @@ def verify_password(username, password):
     return g.user is not None and g.user.check_password(password)
 
 
-@auth.verify_token
 @api.response(401, 'Authentication required')
+@auth.verify_token
 def verify_token(token):
     g.user = None
     try:
-        print( str(request.remote_addr))
-        data = token_serializer.loads(token, str(request.remote_addr))
+        origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
+        print(origin)
+        data = token_serializer.loads(token, origin)
     except:  # noqa: E722
         return False
     if "username" in data and "id" in data:
@@ -54,6 +56,10 @@ token_fields = api.model("Auth", {
     "expires_in": fields.Integer
 })
 
+auth_parser = api.parser()
+auth_parser.add_argument('extended', type=inputs.boolean, help='Should the token be valid for an extended time',
+                    required=False, location='form')
+
 
 @api.route("")
 class AuthResource(Resource):
@@ -61,9 +67,12 @@ class AuthResource(Resource):
     @multi_auth.login_required
     @api.marshal_with(token_fields)
     @api.doc(security=['basic', 'bearer'])
+    @api.expect(auth_parser)
     def post(self):
-        return {"token": token_serializer.dumps({
-                        "username": g.user.username,
-                        "id": g.user.id
-                        }, str(request.remote_addr)).decode('utf-8'),
-                "expires_in": time() + TOKEN_EXPIRE_TIME}
+        origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
+        print(auth_parser.parse_args()['extended'])
+        expire_time = EXTENDED_TOKEN_EXPIRE_TIME if bool(auth_parser.parse_args()['extended']) else TOKEN_EXPIRE_TIME
+        token_serializer.expires_in = expire_time
+        token = token_serializer.dumps({"username": g.user.username,"id": g.user.id}, origin).decode('utf-8')
+
+        return {"token": token, "expires_in": time() + expire_time}
