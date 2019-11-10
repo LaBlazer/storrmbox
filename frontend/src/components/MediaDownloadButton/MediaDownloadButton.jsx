@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCloudDownloadAlt, faPlayCircle } from '@fortawesome/free-solid-svg-icons'
+import { faCloudDownloadAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPlayCircle } from '@fortawesome/free-regular-svg-icons';
 import './MediaDownloadButton.scss';
 import RoundProgress from '../RoundProgress/RoundProgress';
 
@@ -37,7 +38,7 @@ export class MediaDownloadButton extends React.Component {
             case MDBStates.CAN_WATCH:
                 return (
                     <div className="watch-overlay">
-                        <FontAwesomeIcon className="icon text-primary" icon={faPlayCircle} onClick={this.props.onWatchClick} />
+                        <FontAwesomeIcon className="icon text-primary far" icon={faPlayCircle} onClick={this.props.onWatchClick} />
                     </div>
                 )
 
