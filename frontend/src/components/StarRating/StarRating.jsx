@@ -1,21 +1,20 @@
 import React from 'react';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
-import './StarRating.scss';
+import Star from './Star';
 
 class StarRating extends React.Component {
     render() {
         var stars = [];
 
-        for(var i = 0; i < 5; i++) {
-            if(i < this.props.stars) {
-                stars.push(<FontAwesomeIcon key={i} className="star" icon={faStar} />);
+        //Make half star more accurate (0.2-0.8) = half ?
+        for (var i = 0; i < 5; i++) {
+            if (i < this.props.stars) {
+                stars.push(<Star key={i} half={(this.props.stars - i) < 1} active={true} />);
             } else {
-                stars.push(<FontAwesomeIcon key={i} className="star star-black" icon={faStar} />);
+                stars.push(<Star key={i} half={false} active={false} />);
             }
         }
 
-        return stars;
+        return <div>{stars}</div>;
     }
 }
 
