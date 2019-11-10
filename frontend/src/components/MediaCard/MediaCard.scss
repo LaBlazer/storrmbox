@@ -1,0 +1,26 @@
+.media-card {
+
+    cursor: pointer;
+    transition: 0.15s box-shadow ease-in;
+
+    &:hover {
+        box-shadow: 3px 5px 4px rgba(0, 0, 0, 0.25);
+
+        .watch-overlay {
+            display: block;
+        }
+    }
+
+    .image {
+        height: 200px;
+    }
+
+    .title {
+        font-size: 1.2em;
+    }
+
+
+    .watch-overlay {
+        display: block;
+    }
+}
