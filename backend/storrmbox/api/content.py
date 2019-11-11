@@ -1,5 +1,6 @@
 import functools, os
 from enum import IntFlag
+from sqlalchemy import func
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
 from datetime import datetime
@@ -81,8 +82,9 @@ class ContentResource(Resource):
 parser = api.parser()
 parser.add_argument('query', type=str, help='Search query', required=True)
 parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lower() for t in ContentType),
-                    help='Type of the content', required=True)
-#parser.add_argument('in_files', type=FileStorage, location='files')
+                    help='Type of the content', required=False)
+parser.add_argument('amount', type=int, default=6,
+                    help='Maximum amount of the content returned', required=False)
 
 
 @api.route("/search")
@@ -96,22 +98,34 @@ class ContentSearchResource(Resource):
     @api.expect(parser)
     def get(self):
         args = parser.parse_args()
-        ctype = 0
-        for t in args['type']:
-            ctype |= ContentType[t.upper()]
 
-        content = content_scraper.search(args['query'])
+        # Search the query in db first
+        result = Content.query.filter(Content.title.ilike(f"%{args['query']}%")).all()
 
-        content_list = []
+        # We have enough data, return already
+        if len(result) >= int(args['amount']):
+            return result
 
-        for c in content:
-            print(c)
-            year_start, sep, year_end = c['Year'].partition("–")
+        # Query the api
+        for c in content_scraper.search(args['query']):
 
-            yt_trailer_query = "{} first season official trailer" if c['Type'] == "series" else "{} official trailer"
+            # Skip games ( why are they even there?? )
+            if c['Type'] == "game":
+                continue
+
+            # Check if the object is not already in the db/result and skip it
+            if any(r.imdb_id == c['imdbID'] for r in result):
+                continue
 
             # Only add content with poster
             if c['Poster'] != "N/A":
+                year_start, sep, year_end = c['Year'].partition("–")
+
+                # Fetch the yt trailer
+                trailer_query = "{} first season official trailer" if c['Type'] == "series" else "{} official trailer"
+                trailer_id = yt_search.search(trailer_query.format(c['Title']))[0]["id"]
+
+                # Add the content
                 cm = Content(
                     title=c['Title'],
                     type=c['Type'],
@@ -119,18 +133,27 @@ class ContentSearchResource(Resource):
                     date_end=datetime(int(year_end), 1, 1) if year_end else None,
                     imdb_id=c['imdbID'],
                     poster=c['Poster'],
-                    trailer_youtube_id=yt_search.search(yt_trailer_query.format(c['Title']))[0]["id"]
+                    trailer_youtube_id=trailer_id
                 )
                 db.session.add(cm)
-                content_list.append(cm)
+                result.append(cm)
 
-            db.session.commit()
+        # Commit all new data
+        db.session.commit()
+
+        return result
 
 
-       # print(movies)
+@api.route("/download")
+class ContentDownloadResource(Resource):
 
-
-
+    @auth.login_required
+    @api.marshal_with(content_fields)
+    # @api.expect(parser)
+    def post(self):
+        # ctype = 0
+        # for t in args['type']:
+        #    ctype |= ContentType[t.upper()]
         # torrents = []
         # if ctype & ContentType.MOVIE:
         #     torrents = scraper.search_movie(args['query'])
@@ -148,19 +171,5 @@ class ContentSearchResource(Resource):
         #         'type': ctype,
         #         'thumbnail': 'https://picsum.photos/200/300'
         #     })
-
-
-
-
-        return content_list
-
-
-@api.route("/download")
-class ContentDownloadResource(Resource):
-
-    @auth.login_required
-    @api.marshal_with(content_fields)
-    # @api.expect(parser)
-    def post(self):
         pass
 

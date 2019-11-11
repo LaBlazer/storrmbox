@@ -26,14 +26,22 @@ class OmdbScraper(ContentScraper):
         self.api_key = getenv('OMDB_API_KEY')
 
         if not self.api_key:
-            raise Exception("Invalid OMDB api key!")
+            raise Exception("Invalid OMDB api key! Please set it in the .env file.")
 
-    def search(self, query: str, page=1):
-        resp = self.req.get(url=OmdbScraper.base_url, params={"apiKey": self.api_key, "s": query, "page": page})
+    def get(self, params: dict):
+        params["apiKey"] = self.api_key
+        resp = self.req.get(url=OmdbScraper.base_url, params=params)
+
+        if resp.status_code == 401:
+            raise Exception("Invalid OMDB api key! Please set it in the .env file.")
 
         if resp.status_code != 200:
-            self.log.error(f"Error while searching content ({resp.status_code})")
-            return []
+            self.log.error(f"Error while scraping content ({resp.status_code})")
+
+        return resp
+
+    def search(self, query: str, page=1):
+        resp = self.get({"s": query, "page": page})
 
         data = resp.json()
 
