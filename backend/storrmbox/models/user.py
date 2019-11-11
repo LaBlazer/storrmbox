@@ -15,14 +15,15 @@ class User(SurrogatePK, Model):
     username = db.Column(db.String(40), unique=True, nullable=False)
     email = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(120), unique=True, nullable=False)
-    created_on = db.Column(db.DateTime, nullable=False, default=func.now)
-    last_update = db.Column(db.DateTime, nullable=True, onupdate=func.now)
+    created_on = db.Column(db.DateTime, nullable=False, default=func.now())
+    last_update = db.Column(db.DateTime, nullable=True, onupdate=func.now())
     last_login = db.Column(db.DateTime, nullable=True)
+    permission_level = db.Column(db.SmallInteger, nullable=False, default=0)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
 
-    #def __init__(self, **kwargs):
-    #    db.Model.__init__(self, **kwargs)
+    def __init__(self, *args, **kwargs):
+        db.Model.__init__(self, *args, **kwargs)
 
     def set_password(self, password):
         """Create hashed password."""

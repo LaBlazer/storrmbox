@@ -1,4 +1,5 @@
-import functools, os
+import functools
+from os import getenv
 from flask import g, abort, request
 from flask_restplus import Resource, Namespace, fields, inputs
 from time import time
@@ -11,7 +12,7 @@ TOKEN_EXPIRE_TIME = 3600
 EXTENDED_TOKEN_EXPIRE_TIME = 604800  # 1 week
 
 api = Namespace('auth', description='Web app authentication')
-token_serializer = Serializer(os.getenv('SECRET_KEY'), expires_in=TOKEN_EXPIRE_TIME + 60)
+token_serializer = Serializer(getenv('SECRET_KEY'), expires_in=TOKEN_EXPIRE_TIME + 60)
 
 
 @basic_auth.verify_password
@@ -72,6 +73,6 @@ class AuthResource(Resource):
         origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
         expire_time = EXTENDED_TOKEN_EXPIRE_TIME if bool(auth_parser.parse_args()['extended']) else TOKEN_EXPIRE_TIME
         token_serializer.expires_in = expire_time
-        token = token_serializer.dumps({"username": g.user.username,"id": g.user.id}, origin).decode('utf-8')
+        token = token_serializer.dumps({"username": g.user.username, "id": g.user.id}, origin).decode('utf-8')
 
         return {"token": token, "expires_in": time() + expire_time}

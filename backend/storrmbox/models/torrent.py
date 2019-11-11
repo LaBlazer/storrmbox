@@ -7,4 +7,6 @@ from storrmbox.database import (
 
 
 class Torrent(SurrogatePK, Model):
-    pass
+
+    def __init__(self, *args, **kwargs):
+        db.Model.__init__(self, *args, **kwargs)
