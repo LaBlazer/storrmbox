@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { AuthContext } from '../contexts/auth-context';
 import { deleteCookie } from '../utils/CookieHelper';
-import { TOKEN_COOKIE_NAME } from '../configs/constants';
+import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../configs/constants';
 
 
 class TopBar extends React.Component {
@@ -18,6 +18,7 @@ class TopBar extends React.Component {
 
     logout() {
         deleteCookie(TOKEN_COOKIE_NAME);
+        deleteCookie(REMEMBER_ME_COOKIE_NAME);
         this.context.logout();
     }
 

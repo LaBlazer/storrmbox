@@ -2,7 +2,7 @@ import React from 'react';
 import { AuthContext } from '../../contexts/auth-context';
 import LoginPage from '../../layout/pages/LoginPage';
 import { getCookie, setCookie } from '../../utils/CookieHelper';
-import { TOKEN_COOKIE_NAME } from '../../configs/constants';
+import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../../configs/constants';
 import API from '../../utils/API';
 
 class AuthWall extends React.Component {
@@ -21,10 +21,15 @@ class AuthWall extends React.Component {
         if (cookie !== null) {
             try {
                 this.setState({ loading: true });
-                var data = await API.refreshToken();
+                var rememberMeCookie = getCookie(REMEMBER_ME_COOKIE_NAME);
+                var rememberMe = (rememberMeCookie !== null && rememberMeCookie === "1");
+                var data = await API.refreshToken(rememberMe);
 
                 if (data.status === 200) {
                     setCookie(TOKEN_COOKIE_NAME, data.data.token, new Date(data.data.expires_in * 1000));
+                    if (rememberMe) {
+                        setCookie(REMEMBER_ME_COOKIE_NAME, 1, new Date(data.data.expires_in * 1000));
+                    }
                     this.context.login();
                 }
 
