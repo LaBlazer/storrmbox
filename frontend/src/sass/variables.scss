@@ -1,8 +1,9 @@
-$body-bg: #2D2D2D;
+$body-bg: #1D1D1D;
 // $body-color: #e4e4e4;
 $body-color: #ececec;
 
-$card-bg: #484848;
+$card-bg: #343434;
+$card-border-radius: 0;
 
 $enable-shadows: true;
 
@@ -18,3 +19,5 @@ $input-border-color: #2e2e2e;
 
 $modal-content-bg: $body-bg;
 $close-color: $body-color;
+
+$navbar-dark-active-color: #ececec;

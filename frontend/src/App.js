@@ -2,7 +2,7 @@ import React from 'react';
 import './sass/main.scss';
 
 import AuthWall from './components/AuthWall/AuthWall';
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 
 import { AuthContextComponent } from './contexts/auth-context';
 
@@ -16,11 +16,7 @@ class App extends React.Component {
             <Router>
                 <AuthContextComponent>
                     <AuthWall>
-                        <Switch>
-                            <Route path="/">
-                                <MainPage />
-                            </Route>
-                        </Switch>
+                        <MainPage />
                     </AuthWall>
                 </AuthContextComponent>
             </Router>

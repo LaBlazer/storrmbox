@@ -1,9 +1,10 @@
 import React from 'react';
 import { Container } from "react-bootstrap";
-import TopBar from "../TopBar";
 import MediaCardList from "../MediaCardList";
 import FadeIn from "react-fade-in/lib/FadeIn";
 import API from "../../utils/API";
+import TopBar from '../TopBar/TopBar';
+import { Switch, Route } from 'react-router-dom';
 
 class MainPage extends React.Component {
 
@@ -16,11 +17,11 @@ class MainPage extends React.Component {
     }
 
     async getMedia() {
-        try  {
-            var {data: content} = await API.getPopularContent();
-            
-            this.setState({mediaContent: content});
-        } catch (err)  {
+        try {
+            var { data: content } = await API.getPopularContent();
+
+            this.setState({ mediaContent: content });
+        } catch (err) {
             console.error(err);
         }
     }
@@ -31,12 +32,21 @@ class MainPage extends React.Component {
 
     render() {
         return (
-            <Container>
+            <Container className="pt-5">
+                <TopBar siteName="Storrmbox" />
                 <FadeIn>
-                    <TopBar siteName="Storrmbox" />
-                    <hr />
-                    <h3>Popular</h3>
-                    <MediaCardList mediaList={this.state.mediaContent} />
+                    {/* <hr /> */}
+                    <Switch>
+
+                        <Route path="/popular">
+                            <h3 className="pt-4">Popular</h3>
+                            <MediaCardList mediaList={this.state.mediaContent} />
+                        </Route>
+                        
+                        <Route path="/">
+                            <h3 className="pt-4">Home</h3>
+                        </Route>
+                    </Switch>
                 </FadeIn>
             </Container>
         )
