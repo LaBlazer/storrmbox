@@ -18,6 +18,7 @@ flask-httpauth = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-script = "*"
+searchyt = "*"
 
 [requires]
 python_version = "3.8"

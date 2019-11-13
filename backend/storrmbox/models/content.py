@@ -21,18 +21,23 @@ def _time_delta(delta_hours=12, current_time=_time_now()):
 class Content(SurrogatePK, Model):
     __tablename__ = "content"
 
-    title = Column(db.String(80), unique=True, nullable=False)
+    title = Column(db.String(190), nullable=False)
     type = Column(db.String(10), nullable=False)
-    year = Column(db.SmallInt, nullable=False)
-    year_end = Column(db.SmallInt, nullable=True, default=0)
-    imdb_id = Column(db.String(11), nullable=False)
-    rating = Column(db.SmallInt, nullable=True, default=-1)
-    plot = Column(db.Text, nullable=True, default="")
-    poster = Column(db.String(160), nullable=False, default=url_for('static', filename='img/no-poster.jpg'))
+    date_released = Column(db.Date, nullable=False)
+    date_end = Column(db.Date, nullable=True)
+    imdb_id = Column(db.String(11), nullable=False, unique=True)
+    parent_id = ReferenceCol("content", nullable=True)
+    rating = Column(db.Float, nullable=True)
+    plot = Column(db.Text, nullable=True)
+    poster = Column(db.String(160), nullable=True)  # url_for('static', filename='img/no-poster.jpg')
+    trailer_youtube_id = Column(db.String(11), nullable=True)
+    episode = Column(db.SmallInteger, nullable=True)
+    series = Column(db.SmallInteger, nullable=True)
     last_updated = Column(db.DateTime, nullable=False, default=_time_now, onupdate=_time_now)
+    children = relationship("Content")
 
-    # def __init__(self, token, regeneration_token, user, expires_on, **kwargs):
-    # db.Model.__init__(self, token=token, regeneration_token=regeneration_token, user=user, expires_on=expires_on, **kwargs)
+    def __init__(self, *args, **kwargs):
+        db.Model.__init__(self, *args, **kwargs)
 
     def __repr__(self):
         return '<Content {}>'.format(repr(self.title))

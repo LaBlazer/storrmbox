@@ -1,18 +1,54 @@
+from os import getenv
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, ClassVar
 from enum import Enum, IntFlag
 from requests import Session
 from logging import Logger, getLogger
-from interface import Interface
-from .. import db
+from interface import Interface, implements
 
 
-class ContentScraper(Interface):
+class ContentScraper(object):
 
     def __init__(self):
         self.log = getLogger("content_scraper")
         self.req = Session()
 
-    def search(self, query: str):
-        pass
+    def search(self, query: str, page=1):
+        return []
+
+
+class OmdbScraper(ContentScraper):
+    base_url = "https://www.omdbapi.com/"
+
+    def __init__(self):
+        super().__init__()
+        self.api_key = getenv('OMDB_API_KEY')
+
+        if not self.api_key:
+            raise Exception("Invalid OMDB api key! Please set it in the .env file.")
+
+    def get(self, params: dict):
+        params["apiKey"] = self.api_key
+        resp = self.req.get(url=OmdbScraper.base_url, params=params)
+
+        if resp.status_code == 401:
+            raise Exception("Invalid OMDB api key! Please set it in the .env file.")
+
+        if resp.status_code != 200:
+            self.log.error(f"Error while scraping content ({resp.status_code})")
+
+        return resp
+
+    def search(self, query: str, page=1):
+        resp = self.get({"s": query, "page": page})
+
+        data = resp.json()
+
+        if data["Response"] == "True":
+            return data["Search"]
+
+        self.log.error(f"Error while searching content '{data.get('Error', resp.text)}'")
+        return []
+
+
