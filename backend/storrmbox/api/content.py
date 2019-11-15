@@ -1,13 +1,11 @@
-import functools, os
 from enum import IntFlag
-from sqlalchemy import func
-from flask import url_for, redirect
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
 from datetime import datetime
 
 from storrmbox.extensions import auth, db
-from storrmbox.models.content import Content
+from storrmbox.exceptions import NotFoundException, InternalException
+from storrmbox.models.content import Content, ContentType
 from storrmbox.torrent.providers.eztv_provider import EztvProvider
 from storrmbox.torrent.providers.leetx_provider import LeetxProvider
 from storrmbox.torrent.scrapers import MovieTorrentScraper, VideoQuality
@@ -24,13 +22,6 @@ yt_search = searchyt()
 content_scraper = OmdbScraper()
 imdb_scraper = ImdbScraper()
 
-class ContentType(IntFlag):
-    ALL = 0xFF,
-    MOVIE = 1 << 1,
-    SHOW = 1 << 2,
-    ANIME = 1 << 3,
-    NSFW = 1 << 4
-
 
 class TypeIdToString(fields.Raw):
     def format(self, value):
@@ -45,42 +36,116 @@ class TypeIdToString(fields.Raw):
 
 content_fields = api.model("Content", {
     "uid": fields.String,
+    "type": fields.String,
     "title": fields.String,
     "date_released": fields.Date,
     "date_end": fields.Date,
+    "runtime": fields.Integer,
     "rating": fields.Float,
     "plot": fields.String,
+    "genres": fields.String,
     "poster": fields.String,
     "trailer_youtube_id": fields.String,
     "episode": fields.Integer,
-    "series": fields.Integer
+    "season": fields.Integer
 })
 
-popular_fields = api.model("Content", {
-    "uid": fields.String
-})
 
-popular_parser = api.parser()
-popular_parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lower() for t in ContentType),
-                    help='Type of the content', required=False, default=ContentType.MOVIE)
-
-
-@api.route("/popular")
+@api.route("/<string:uid>")
 class ContentResource(Resource):
 
     @auth.login_required
-    @api.marshal_with(popular_fields, as_list=True)
+    @api.marshal_with(content_fields)
+    def get(self, uid):
+        content = Content.get_by_uid(uid)
+
+        if content is None:
+            raise NotFoundException(f"Invalid uid '{uid}'")
+
+        if not content.fetched:
+            data = content_scraper.get_by_imdb_id(content.imdb_id)
+            print(data)
+            if not data or data['Response'] == "False":
+                raise InternalException("OMDB API didn't return any data")
+
+            # Skip invalid content
+            if data['Poster'] == "N/A":
+                raise InternalException("Invalid movie")
+
+            # Get the release and end years
+            year_start = datetime.strptime(data['Released'], "%d %b %Y")
+            y, sep, year_end = data['Year'].partition("–")
+
+            # Fetch the yt trailer
+            trailer_query = ("{} first season" if data['Type'] == "series" else "{} movie") + " official trailer"
+            trailer_result = yt_search.search(trailer_query.format(data['Title']))
+            if len(trailer_result) == 0:
+                raise InternalException("Unable to fetch trailer from yt")
+
+            # Calculate average rating
+            # rating_avg = 0.
+            # for r in data['Ratings']:
+            #     r_val, sep, r_max = r['Value'].partition("/")
+            #     rating_avg += float(r_val) / float(r_max or 10)
+            # rating_avg /= len(data['Ratings'])
+            rating_avg = float(data['imdbRating']) / 10.
+
+            # Update the content with new data and set the fetched field to true
+            content.update(True,
+                title=data['Title'],
+                date_released=year_start,
+                date_end=datetime(int(year_end), 1, 1) if year_end else None,
+                runtime=int(data['Runtime'][:-4]),
+                rating=rating_avg,
+                plot=data['Plot'],
+                genres=data['Genre'].replace(" ", ""),
+                poster=data['Poster'],
+                trailer_youtube_id=trailer_result[0]["id"],
+                episode=0,
+                season=data['totalSeasons'] if data['Type'] == "series" else 0,
+                fetched=True
+            )
+
+        return content
+
+
+content_list_fields = api.model("ContentList", {
+    "uids": fields.List(fields.String)
+    #"type": fields.String
+})
+
+popular_parser = api.parser()
+popular_parser.add_argument('type', type=str, choices=tuple(t.value for t in ContentType),
+                    help='Type of the content', required=False, default=ContentType.MOVIE.value)
+
+
+@api.route("/popular")
+class ContentPopularResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(content_list_fields, as_list=True)
     @api.expect(popular_parser)
     def get(self):
-        print("1")
         args = popular_parser.parse_args()
-        print("2")
-        imdb_ids = imdb_scraper.popular(ContentType(args['type']))
-        print("3")
-        print(imdb_ids)
-        uids = db.session.query(Content.uid, Content.imdb_id).filter(Content.imdb_id.in_(tuple(imdb_ids))).all()
+        ctype = args['type']
 
-        return uids
+        results = []
+        for iid in imdb_scraper.popular(ContentType(ctype)):
+            cm = Content.get_by_imdb_id(iid)
+
+            if not cm:
+                cm = Content(
+                    imdb_id=iid,
+                    type=ctype[0]
+                )
+
+            db.session.add(cm)
+            results.append(cm.uid)
+
+        # Commit all new data
+        db.session.commit()
+
+        return {"uids": results}
 
 
 search_parser = api.parser()
@@ -177,10 +242,5 @@ class ContentDownloadResource(Resource):
         #     })
         return []
 
-@api.route("/<int:uid>")
-class ContentDownloadResource(Resource):
 
-    @auth.login_required
-    @api.marshal_with(content_fields)
-    def get(self, uid):
-        return Content.get_by_uid(uid)
+

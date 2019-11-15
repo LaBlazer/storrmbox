@@ -1,11 +1,13 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load .env file
+
 import os
 import codecs
 import string
 import random
-from dotenv import load_dotenv
+
 from flask_script import Manager, Shell, Server
 from flask_migrate import MigrateCommand
-
 from storrmbox import create_app, db
 from storrmbox.models.user import User
 from storrmbox.config import DevConfig, ProdConfig
@@ -67,5 +69,4 @@ if __name__ == "__main__":
         print("Generating default .env file")
         _make_env()
 
-    load_dotenv()  # Load .env file
     manager.run()

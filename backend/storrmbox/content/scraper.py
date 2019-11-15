@@ -1,11 +1,6 @@
 from os import getenv
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import List, ClassVar
-from enum import Enum, IntFlag
 from requests import Session
 from logging import Logger, getLogger
-from interface import Interface, implements
 from bs4 import BeautifulSoup
 
 from storrmbox.torrent.scrapers import ContentType
@@ -65,7 +60,7 @@ class OmdbScraper(ContentScraper):
         return []
 
     def get_by_imdb_id(self, id: str):
-        resp = self.get({"i": id}, True)
+        resp = self.get({"i": id, "plot": "full"}, True)
 
         data = resp.json()
 
@@ -73,7 +68,7 @@ class OmdbScraper(ContentScraper):
             return data
 
         self.log.error(f"Error while searching content '{data.get('Error', resp.text)}'")
-        return []
+        return None
 
 
 class ImdbScraper(ContentScraper):
@@ -97,11 +92,11 @@ class ImdbScraper(ContentScraper):
 
         return res
 
-    def popular(self, type: ContentType):
+    def popular(self, ctype: ContentType):
         url = self.url
-        if type == ContentType.SERIES:
+        if ctype == ContentType.SERIES:
             url += "chart/tvmeter"
-        elif type == ContentType.MOVIE:
+        elif ctype == ContentType.MOVIE:
             url += "chart/moviemeter"
 
         resp = self._get_page_ids(url)
