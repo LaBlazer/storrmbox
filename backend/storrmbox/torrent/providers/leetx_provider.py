@@ -3,7 +3,7 @@ from .provider import *
 
 class LeetxProvider(implements(TorrentProvider)):
     _caps = ProviderCapabilities(
-        content_types=ContentType.MOVIE | ContentType.SERIES | ContentType.NSFW,
+        content_types=[ContentType.MOVIE, ContentType.SERIES],
         time_range=TimeRange.MONTH
     )
     url = "https://1337x.to/search/{}/1/"
@@ -25,7 +25,7 @@ class LeetxProvider(implements(TorrentProvider)):
             soup = BeautifulSoup(resp.text, features="html.parser")
             table = soup.find("table")
 
-            for row in table.find_all("tr")[1:]:  #skip the first element
+            for row in table.find_all("tr")[1:]:  # Skip the first element
                 try:
                     t = Torrent(
                         name=LeetxProvider.get_column_text(row, "name"),
@@ -34,7 +34,7 @@ class LeetxProvider(implements(TorrentProvider)):
                         date_added=LeetxProvider.parse_date(LeetxProvider.get_column_text(row, "coll-date"), ["%b. %d '%y", "%I%p %b. %d"]),
                         size=LeetxProvider.parse_size(LeetxProvider.get_column_text(row, "size", False)),
                         uploader=LeetxProvider.get_column_text(row, "coll-5"),
-                        magnet="todo"
+                        magnet="todo"  # TODO: implement this
                     )
                     torrents.append(t)
                 except Exception as ex:

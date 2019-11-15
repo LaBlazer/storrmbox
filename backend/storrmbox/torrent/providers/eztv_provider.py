@@ -3,7 +3,7 @@ from .provider import *
 
 class EztvProvider(implements(TorrentProvider)):
     _caps = ProviderCapabilities(
-        content_types=ContentType.MOVIE | ContentType.SERIES,
+        content_types=[ContentType.MOVIE, ContentType.SERIES],
         time_range=TimeRange.MONTH
     )
 

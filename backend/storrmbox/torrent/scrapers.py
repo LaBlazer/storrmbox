@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, ClassVar
-from enum import Enum, IntFlag
+from enum import Enum
 from requests import Session
 from logging import Logger, getLogger
+
+from storrmbox.models.content import ContentType
+
 
 @dataclass
 class Torrent:
@@ -19,13 +22,6 @@ class Torrent:
     torrent_url: str = field(repr=False, default="")
 
 
-class ContentType(IntFlag):
-    MOVIE = 1 << 1,
-    SERIES = 1 << 2,
-    EPISODE = 1 << 3,
-    NSFW = 1 << 4
-
-
 class TimeRange(Enum):
     DAY = 1,
     WEEK = 7,
@@ -34,11 +30,11 @@ class TimeRange(Enum):
 
 @dataclass
 class ProviderCapabilities:
-    content_types: int
+    content_types: List[Enum]
     time_range: TimeRange
 
     def serves_content(self, content_type: ContentType) -> bool:
-        return bool(self.content_types & content_type.value)
+        return content_type in self.content_types
 
 
 class TorrentScraper(object):
@@ -62,7 +58,7 @@ class TorrentScraper(object):
     def add_provider(self, provider: ClassVar):
         p = provider(self.req, getLogger(provider.__name__))
 
-        if p.caps is not None and p.caps.content_types > 0:
+        if p.caps is not None and len(p.caps.content_types) > 0:
             print(f"Adding {provider.__name__}.")
             print(" ├── Content types: {}".format(
                 ", ".join([content_type.name for content_type in ContentType if p.caps.serves_content(content_type)])

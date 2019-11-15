@@ -30,12 +30,10 @@ class DevConfig(Config):
 
 class ProdConfig(Config):
     """Development configuration."""
-    ENV = 'venv'  # TODO: create separate virtualenvs
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', '')
 
 
 class TestConfig(Config):
     """Test configuration."""
-    ENV = 'venv'  # TODO: create separate virtualenvs
     TESTING = True
     DEBUG = True
