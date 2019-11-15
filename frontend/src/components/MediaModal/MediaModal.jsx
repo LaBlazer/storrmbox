@@ -18,12 +18,12 @@ class MediaModal extends React.Component {
                 <div className="header">
                     <div className="top-thumbnail">
                         {/* <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/qYHp-5h1y5o?&showinfo=0&controls=0&autoplay=1&rel=0" frameBorder="0" allow="autoplay; encrypted-media"></iframe> */}
-                        <img src={this.props.thumbnail} alt={this.props.name} />
+                        <img src={this.props.poster} alt={this.props.title} />
                     </div>
                     <div className="info">
-                        <p className="title">{this.props.name}</p>
+                        <p className="title">{this.props.title}</p>
                         <div className="rating">
-                            <span>Year: {this.props.year}</span>
+                            <span>Year: {this.props.date_released}</span>
                             <span className="ml-2"> Rating: <StarRating stars={this.props.rating} /></span>
                         </div>
                     </div>
