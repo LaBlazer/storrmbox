@@ -1,6 +1,7 @@
 import functools, os
 from enum import IntFlag
 from sqlalchemy import func
+from flask import url_for, redirect
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
 from datetime import datetime
@@ -10,7 +11,7 @@ from storrmbox.models.content import Content
 from storrmbox.torrent.providers.eztv_provider import EztvProvider
 from storrmbox.torrent.providers.leetx_provider import LeetxProvider
 from storrmbox.torrent.scrapers import MovieTorrentScraper, VideoQuality
-from storrmbox.content.scraper import OmdbScraper
+from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 
 api = Namespace('content', description='Content serving')
 
@@ -21,6 +22,7 @@ torrent_scraper.add_provider(EztvProvider)
 yt_search = searchyt()
 
 content_scraper = OmdbScraper()
+imdb_scraper = ImdbScraper()
 
 class ContentType(IntFlag):
     ALL = 0xFF,
@@ -42,11 +44,10 @@ class TypeIdToString(fields.Raw):
 
 
 content_fields = api.model("Content", {
-    "id": fields.Integer,
+    "uid": fields.String,
     "title": fields.String,
     "date_released": fields.Date,
     "date_end": fields.Date,
-    "imdb_id": fields.String,
     "rating": fields.Float,
     "plot": fields.String,
     "poster": fields.String,
@@ -55,35 +56,38 @@ content_fields = api.model("Content", {
     "series": fields.Integer
 })
 
+popular_fields = api.model("Content", {
+    "uid": fields.String
+})
+
+popular_parser = api.parser()
+popular_parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lower() for t in ContentType),
+                    help='Type of the content', required=False, default=ContentType.MOVIE)
+
 
 @api.route("/popular")
 class ContentResource(Resource):
 
     @auth.login_required
-    @api.marshal_with(content_fields, as_list=True)
+    @api.marshal_with(popular_fields, as_list=True)
+    @api.expect(popular_parser)
     def get(self):
-        res = []
+        print("1")
+        args = popular_parser.parse_args()
+        print("2")
+        imdb_ids = imdb_scraper.popular(ContentType(args['type']))
+        print("3")
+        print(imdb_ids)
+        uids = db.session.query(Content.uid, Content.imdb_id).filter(Content.imdb_id.in_(tuple(imdb_ids))).all()
 
-        # for i in range(1, 20):
-        #     res.append({
-        #         'id': i,
-        #         'name': 'test content ' + str(i),
-        #         'year': 2019,
-        #         'year_end': None,
-        #         'description': 'This is a test content',
-        #         'rating': i % 5,
-        #         'type': ContentType.MOVIE,
-        #         'thumbnail': 'https://picsum.photos/200/300'
-        #     })
-
-        return res
+        return uids
 
 
-parser = api.parser()
-parser.add_argument('query', type=str, help='Search query', required=True)
-parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lower() for t in ContentType),
+search_parser = api.parser()
+search_parser.add_argument('query', type=str, help='Search query', required=True)
+search_parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lower() for t in ContentType),
                     help='Type of the content', required=False)
-parser.add_argument('amount', type=int, default=6,
+search_parser.add_argument('amount', type=int, default=6,
                     help='Maximum amount of the content returned', required=False)
 
 
@@ -95,9 +99,9 @@ class ContentSearchResource(Resource):
 
     @auth.login_required
     @api.marshal_with(content_fields, as_list=True)
-    @api.expect(parser)
+    @api.expect(search_parser)
     def get(self):
-        args = parser.parse_args()
+        args = search_parser.parse_args()
 
         # Search the query in db first
         result = Content.query.filter(Content.title.ilike(f"%{args['query']}%")).all()
@@ -122,7 +126,7 @@ class ContentSearchResource(Resource):
                 year_start, sep, year_end = c['Year'].partition("–")
 
                 # Fetch the yt trailer
-                trailer_query = "{} first season official trailer" if c['Type'] == "series" else "{} official trailer"
+                trailer_query = ("{} first season" if c['Type'] == "series" else "{} movie") + " official trailer"
                 trailer_id = yt_search.search(trailer_query.format(c['Title']))[0]["id"]
 
                 # Add the content
@@ -171,5 +175,12 @@ class ContentDownloadResource(Resource):
         #         'type': ctype,
         #         'thumbnail': 'https://picsum.photos/200/300'
         #     })
-        pass
+        return []
 
+@api.route("/<int:uid>")
+class ContentDownloadResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(content_fields)
+    def get(self, uid):
+        return Content.get_by_uid(uid)
