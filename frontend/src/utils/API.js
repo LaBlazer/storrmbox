@@ -20,24 +20,61 @@ AxiosI.interceptors.request.use((config) => {
     return Promise.reject(err);
 });
 
+//Refresh token if it's going to expire
+function setupTokenAutorefresh(expiration) {
+    expiration -= parseInt((new Date()).getTime() / 1000);
+
+    setTimeout(() => {
+        API.refreshToken();
+        console.log("Refreshing token!");
+    }, (expiration - 200) * 1000);
+}
 
 class API {
 
+    /**
+     * Login with username and password
+     * @param {String} username 
+     * @param {String} password 
+     * @param {Boolean} extended 
+     */
     static login(username, password, extended = false) {
-        return AxiosI.post('/auth', qs.stringify({extended: extended}), {
+        var promise = AxiosI.post('/auth', qs.stringify({ extended: extended }), {
             auth: {
                 username: username,
                 password: password
             }
         });
+
+        if (extended === false) {
+            return promise.then((data) => {
+                setupTokenAutorefresh(data.data.expires_in);
+                return data;
+            });
+        } else {
+            return promise;
+        }
     }
 
     static refreshToken(extended = false) {
-        return AxiosI.post('/auth', qs.stringify({ extended: extended }));
+        var promise = AxiosI.post('/auth', qs.stringify({ extended: extended }));
+
+        if (extended === false) {
+            return promise.then((data) => {
+                setupTokenAutorefresh(data.data.expires_in);
+                return data;
+            });
+        } else {
+            return promise;
+        }
     }
 
     static getPopularContent() {
         return AxiosI.get('/content/popular');
+    }
+
+    static search(query) {
+        return AxiosI.get('/content/search', { params: { query } });
     }
 }
 
