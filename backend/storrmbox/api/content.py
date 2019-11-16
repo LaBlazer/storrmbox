@@ -1,15 +1,15 @@
-from enum import IntFlag
-from flask_restplus import Resource, Namespace, fields
-from searchyt import searchyt
 from datetime import datetime
 
-from storrmbox.extensions import auth, db
+from flask_restplus import Resource, Namespace, fields
+from searchyt import searchyt
+
+from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 from storrmbox.exceptions import NotFoundException, InternalException
+from storrmbox.extensions import auth, db
 from storrmbox.models.content import Content, ContentType
 from storrmbox.torrent.providers.eztv_provider import EztvProvider
 from storrmbox.torrent.providers.leetx_provider import LeetxProvider
-from storrmbox.torrent.scrapers import MovieTorrentScraper, VideoQuality
-from storrmbox.content.scraper import OmdbScraper, ImdbScraper
+from storrmbox.torrent.scrapers import MovieTorrentScraper
 
 api = Namespace('content', description='Content serving')
 
@@ -21,17 +21,6 @@ yt_search = searchyt()
 
 content_scraper = OmdbScraper()
 imdb_scraper = ImdbScraper()
-
-
-class TypeIdToString(fields.Raw):
-    def format(self, value):
-        res = []
-
-        for type in ContentType:
-            if value & type.value:
-                res.append(type.name)
-
-        return res
 
 
 content_fields = api.model("Content", {
@@ -88,7 +77,7 @@ class ContentResource(Resource):
             #     r_val, sep, r_max = r['Value'].partition("/")
             #     rating_avg += float(r_val) / float(r_max or 10)
             # rating_avg /= len(data['Ratings'])
-            rating_avg = float(data['imdbRating']) / 10.
+            rating_avg = (float(data['imdbRating']) / 10.) if data['imdbRating'] != "N/A" else -1
 
             # Update the content with new data and set the fetched field to true
             content.update(True,
@@ -109,15 +98,14 @@ class ContentResource(Resource):
         return content
 
 
-content_list_fields = api.model("ContentList", {
+content_list_fields = api.model("ContentUidList", {
     "uids": fields.List(fields.String)
     #"type": fields.String
 })
 
 popular_parser = api.parser()
-popular_parser.add_argument('type', type=str, choices=tuple(t.value for t in ContentType),
-                    help='Type of the content', required=False, default=ContentType.MOVIE.value)
-
+popular_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
+                    help='Type of the content', required=True)
 
 @api.route("/popular")
 class ContentPopularResource(Resource):
@@ -130,16 +118,17 @@ class ContentPopularResource(Resource):
         ctype = args['type']
 
         results = []
-        for iid in imdb_scraper.popular(ContentType(ctype)):
+        iids = imdb_scraper.popular(ContentType[ctype.upper()])
+        for iid in iids:
             cm = Content.get_by_imdb_id(iid)
 
             if not cm:
                 cm = Content(
                     imdb_id=iid,
-                    type=ctype[0]
+                    type=ctype
                 )
+                db.session.add(cm)
 
-            db.session.add(cm)
             results.append(cm.uid)
 
         # Commit all new data
