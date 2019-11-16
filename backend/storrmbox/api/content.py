@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
+from sqlalchemy.orm import load_only
 
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 from storrmbox.exceptions import NotFoundException, InternalException
@@ -118,21 +119,61 @@ popular_parser = api.parser()
 popular_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
                     help='Type of the content', required=True)
 
+
 @api.route("/popular")
 class ContentPopularResource(Resource):
 
     @auth.login_required
-    @api.marshal_with(content_list_fields, as_list=True)
+    @api.marshal_with(content_list_fields)
     @api.expect(popular_parser)
     def get(self):
         args = popular_parser.parse_args()
         ctype = args['type']
 
         results = []
+        # Fetch popular content
         iids = imdb_scraper.popular(ContentType[ctype.upper()])
         for iid in iids:
             cm = Content.get_by_imdb_id(iid)
 
+            # If the content is not already in db create it
+            if not cm:
+                cm = Content(
+                    imdb_id=iid,
+                    type=ctype
+                )
+                db.session.add(cm)
+
+            results.append(cm.uid)
+
+        # Commit all new data
+        db.session.commit()
+
+        return {"uids": results}
+
+
+top_parser = api.parser()
+top_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
+                    help='Type of the content', required=True)
+
+
+@api.route("/top")
+class ContentTopResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(content_list_fields)
+    @api.expect(top_parser)
+    def get(self):
+        args = top_parser.parse_args()
+        ctype = args['type']
+
+        results = []
+        # Fetch top content
+        iids = imdb_scraper.top(ContentType[ctype.upper()])
+        for iid in iids:
+            cm = Content.get_by_imdb_id(iid)
+
+            # If the content is not already in db create it
             if not cm:
                 cm = Content(
                     imdb_id=iid,
@@ -150,7 +191,7 @@ class ContentPopularResource(Resource):
 
 search_parser = api.parser()
 search_parser.add_argument('query', type=str, help='Search query', required=True)
-search_parser.add_argument('type', type=str, action='append', choices=tuple(t.name.lower() for t in ContentType),
+search_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
                     help='Type of the content', required=False)
 search_parser.add_argument('amount', type=int, default=6,
                     help='Maximum amount of the content returned', required=False)
@@ -163,54 +204,67 @@ class ContentSearchResource(Resource):
         super().__init__(*args, **kwargs)
 
     @auth.login_required
-    @api.marshal_with(content_fields, as_list=True)
+    @api.marshal_with(content_list_fields, as_list=True)
     @api.expect(search_parser)
     def get(self):
         args = search_parser.parse_args()
 
         # Search the query in db first
-        result = Content.query.filter(Content.title.ilike(f"%{args['query']}%")).all()
+        results = Content.query.options(load_only("uid", "imdb_id", "title", "type"))\
+            .filter(Content.title.ilike(f"%{args['query']}%")).all()
+
+        # Filter content if type is specified
+        uids = []
+        for r in results:
+            if (not args['type']) or (r.type == args['type']):
+                uids.append(r.uid)
 
         # We have enough data, return already
-        if len(result) >= int(args['amount']):
-            return result
+        if len(uids) >= int(args['amount']):
+            return {"uids": uids}
 
-        # Query the api
-        for c in content_scraper.search(args['query']):
+        # Query the api until we have enough results, maximum up to page 5
+        continue_search = True
+        current_page = 1
+        while continue_search and current_page <= 5:
+            print(current_page)
+            content, total_results = content_scraper.search(args['query'], current_page)
+            for c in content:
+                # Skip games ( why are they even there?? )
+                if c['Type'] == "game":
+                    continue
 
-            # Skip games ( why are they even there?? )
-            if c['Type'] == "game":
-                continue
+                # Skip content with different type
+                if args['type'] and args['type'] != c['Type']:
+                    continue
 
-            # Check if the object is not already in the db/result and skip it
-            if any(r.imdb_id == c['imdbID'] for r in result):
-                continue
+                # Check if the object is not already in the db/result and skip it
+                cm = Content.get_by_imdb_id(c['imdbID'])
+                if cm:
+                    uids.append(cm.uid)
+                    continue
 
-            # Only add content with poster
-            if c['Poster'] != "N/A":
-                year_start, sep, year_end = c['Year'].partition("–")
+                # Only add content with poster
+                if c['Poster'] != "N/A":
 
-                # Fetch the yt trailer
-                trailer_query = ("{} first season" if c['Type'] == "series" else "{} movie") + " official trailer"
-                trailer_id = yt_search.search(trailer_query.format(c['Title']))[0]["id"]
+                    # Add the content
+                    cm = Content(
+                        imdb_id=c['imdbID'],
+                        type=c['Type'],
+                        title=c['Title']
+                    )
+                    db.session.add(cm)
+                    uids.append(cm.uid)
 
-                # Add the content
-                cm = Content(
-                    title=c['Title'],
-                    type=c['Type'],
-                    date_released=datetime(int(year_start or 0), 1, 1),
-                    date_end=datetime(int(year_end), 1, 1) if year_end else None,
-                    imdb_id=c['imdbID'],
-                    poster=c['Poster'],
-                    trailer_youtube_id=trailer_id
-                )
-                db.session.add(cm)
-                result.append(cm)
+            # If we are on the last page or we have enough results exit the loop
+            current_page += 1
+            if (current_page * 10) > total_results or len(uids) >= int(args['amount']):
+                continue_search = False
 
         # Commit all new data
         db.session.commit()
 
-        return result
+        return {"uids": uids}
 
 
 @api.route("/download")
@@ -241,6 +295,3 @@ class ContentDownloadResource(Resource):
         #         'thumbnail': 'https://picsum.photos/200/300'
         #     })
         return []
-
-
-
