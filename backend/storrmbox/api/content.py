@@ -1,13 +1,17 @@
 from datetime import datetime
 
+from flask import g
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
 from sqlalchemy.orm import load_only
 
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
+from storrmbox.database import time_past
 from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db
 from storrmbox.models.content import Content, ContentType
+from storrmbox.models.popular import Popular
+from storrmbox.models.search import Search
 from storrmbox.torrent.providers.eztv_provider import EztvProvider
 from storrmbox.torrent.providers.leetx_provider import LeetxProvider
 from storrmbox.torrent.scrapers import MovieTorrentScraper
@@ -131,9 +135,18 @@ class ContentPopularResource(Resource):
         ctype = args['type']
 
         results = []
-        # Fetch popular content
+
+        # Fetch popular from db first (from last 24h)
+        popular = Popular.query.order_by(Popular.index.asc())\
+            .filter(Popular.time > time_past(24)).all()
+
+        if popular:
+            uids = [p.content.uid for p in popular]
+            return {"uids": uids}
+
+        # Fetch popular from omdb
         iids = imdb_scraper.popular(ContentType[ctype.upper()])
-        for iid in iids:
+        for i, iid in enumerate(iids):
             cm = Content.get_by_imdb_id(iid)
 
             # If the content is not already in db create it
@@ -143,6 +156,12 @@ class ContentPopularResource(Resource):
                     type=ctype
                 )
                 db.session.add(cm)
+
+            # Cache the popular movies
+            db.session.add(Popular(
+                content=cm,
+                index=i
+            ))
 
             results.append(cm.uid)
 
@@ -194,7 +213,7 @@ search_parser.add_argument('query', type=str, help='Search query', required=True
 search_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
                     help='Type of the content', required=False)
 search_parser.add_argument('amount', type=int, default=6,
-                    help='Maximum amount of the content returned', required=False)
+                    help='Minimum amount of the content returned', required=False)
 
 
 @api.route("/search")
@@ -208,6 +227,12 @@ class ContentSearchResource(Resource):
     @api.expect(search_parser)
     def get(self):
         args = search_parser.parse_args()
+
+        # Store the search in db
+        db.session.add(Search(
+            user=g.user,
+            query=args['query']
+        ))
 
         # Search the query in db first
         results = Content.query.options(load_only("uid", "imdb_id", "title", "type"))\
@@ -227,8 +252,13 @@ class ContentSearchResource(Resource):
         continue_search = True
         current_page = 1
         while continue_search and current_page <= 5:
-            print(current_page)
-            content, total_results = content_scraper.search(args['query'], current_page)
+            content = content_scraper.search(args['query'], current_page)
+
+            # Break if no content was found
+            if not content:
+                break
+
+            content, total_results = content
             for c in content:
                 # Skip games ( why are they even there?? )
                 if c['Type'] == "game":
