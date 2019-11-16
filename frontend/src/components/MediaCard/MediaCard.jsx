@@ -3,8 +3,8 @@ import './MediaCard.scss';
 import { Card, Row, Col } from 'react-bootstrap';
 import FluidImage from '../FluidImage/FluidImage';
 import { MediaDownloadButton, MDBStates as States } from '../MediaDownloadButton/MediaDownloadButton';
-import MediaModal from '../MediaModal/MediaModal';
 import StarRating from '../StarRating/StarRating';
+import { Link, withRouter } from 'react-router-dom';
 
 class MediaCard extends React.Component {
 
@@ -45,26 +45,25 @@ class MediaCard extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
-                <Card className="media-card" onClick={() => this.setState({ showModal: true })}>
+            <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }}>
+                <Card className="media-card">
                     <Row className="no-gutters">
                         <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
-                            <FluidImage src={this.props.thumbnail} alt={this.props.name} />
+                            <FluidImage src={this.props.poster} alt={this.props.title} />
                             <MediaDownloadButton
                                 state={this.state.state}
                                 onDownloadClick={this.handleDownloadClick}
                                 percentsDownloaded={this.state.downloaded} />
                         </Col>
                         <Col className="info p-2 pt-3" sm={6} lg={8}>
-                            <p className="title">{this.props.name}</p>
-                            <StarRating stars={this.props.rating} />
+                            <p className="title">{this.props.title}</p>
+                            <StarRating stars={this.props.rating * 5} />
                         </Col>
                     </Row>
                 </Card>
-                <MediaModal show={this.state.showModal} onHide={() => this.setState({ showModal: false })} {...this.props} />
-            </React.Fragment>
+            </Link>
         );
     }
 }
 
-export default MediaCard;
+export default withRouter(MediaCard);
