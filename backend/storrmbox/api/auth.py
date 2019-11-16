@@ -1,8 +1,9 @@
 import functools
 from os import getenv
+from time import time
+
 from flask import g, abort, request
 from flask_restplus import Resource, Namespace, fields, inputs
-from time import time
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 from storrmbox.extensions import basic_auth, multi_auth, auth
@@ -28,7 +29,7 @@ def verify_token(token):
     g.user = None
     try:
         origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
-        print(origin)
+        print("Origin: " + origin)
         data = token_serializer.loads(token, origin)
     except:  # noqa: E722
         return False

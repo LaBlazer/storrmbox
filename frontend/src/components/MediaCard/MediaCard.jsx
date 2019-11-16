@@ -3,8 +3,8 @@ import './MediaCard.scss';
 import { Card, Row, Col } from 'react-bootstrap';
 import FluidImage from '../FluidImage/FluidImage';
 import { MediaDownloadButton, MDBStates as States } from '../MediaDownloadButton/MediaDownloadButton';
+import MediaModal from '../MediaModal/MediaModal';
 import StarRating from '../StarRating/StarRating';
-import { withRouter, Link } from 'react-router-dom';
 
 class MediaCard extends React.Component {
 
@@ -45,25 +45,26 @@ class MediaCard extends React.Component {
 
     render() {
         return (
-            <Link to={{ pathname: `/m/${this.props.id}`, state: { background: this.props.location } }}>
-                <Card className="media-card">
+            <React.Fragment>
+                <Card className="media-card" onClick={() => this.setState({ showModal: true })}>
                     <Row className="no-gutters">
                         <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
-                            <FluidImage src={this.props.poster} alt={this.props.title} />
+                            <FluidImage src={this.props.thumbnail} alt={this.props.name} />
                             <MediaDownloadButton
                                 state={this.state.state}
                                 onDownloadClick={this.handleDownloadClick}
                                 percentsDownloaded={this.state.downloaded} />
                         </Col>
                         <Col className="info p-2 pt-3" sm={6} lg={8}>
-                            <p className="title">{this.props.title}</p>
+                            <p className="title">{this.props.name}</p>
                             <StarRating stars={this.props.rating} />
                         </Col>
                     </Row>
                 </Card>
-            </Link>
+                <MediaModal show={this.state.showModal} onHide={() => this.setState({ showModal: false })} {...this.props} />
+            </React.Fragment>
         );
     }
 }
 
-export default withRouter(MediaCard);
+export default MediaCard;

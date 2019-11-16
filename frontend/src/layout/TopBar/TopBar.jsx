@@ -34,18 +34,13 @@ class TopBar extends React.Component {
                     <div className="navbar-collapse collapse">
                         <ul className="navbar-nav mx-auto">
                             <li className="nav-item">
-                                <NavLink to="/series" className="nav-link" activeClassName="active">
-                                    Series
-                                </NavLink>
-                            </li>
-                            <li className="nav-item">
                                 <NavLink to="/" exact className="nav-link" activeClassName="active">
-                                    All
+                                    Home
                                 </NavLink>
                             </li>
                             <li className="nav-item">
-                                <NavLink to="/movies" className="nav-link" activeClassName="active">
-                                    Movies
+                                <NavLink to="/popular" className="nav-link" activeClassName="active">
+                                    Popular
                                 </NavLink>
                             </li>
                         </ul>

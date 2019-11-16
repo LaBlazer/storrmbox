@@ -1,9 +1,10 @@
 import random
 import string
-
-from enum import Enum
 from datetime import timedelta, datetime
+from enum import Enum
+
 from sqlalchemy import Column
+
 from storrmbox.database import (
     db,
     SurrogatePK,
@@ -23,15 +24,15 @@ def _time_delta(delta_hours=12, current_time=_time_now()):
     return current_time + timedelta(hours=delta_hours)
 
 
-def _gen_uid(len=7):
-    #rand.seed(seed)
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=len))
+def _gen_uid(seed: str, len=7):
+    rand.seed(seed)
+    return ''.join(rand.choices(string.ascii_letters + string.digits, k=len))
 
 
 class ContentType(Enum):
-    MOVIE = "movie",
-    SERIES = "series",
-    EPISODE = "episode",
+    MOVIE = 1,
+    SERIES = 2,
+    EPISODE = 3,
 
 
 class Content(SurrogatePK, Model):
@@ -42,7 +43,7 @@ class Content(SurrogatePK, Model):
     type = Column(db.String(10), nullable=False)
 
     # Optional
-    uid = Column(db.String(7), nullable=False, unique=True, default=_gen_uid, server_default="")
+    uid = Column(db.String(7), nullable=False, unique=True)
     title = Column(db.String(190), nullable=True)
     date_released = Column(db.Date, nullable=True)
     date_end = Column(db.Date, nullable=True)
@@ -50,7 +51,7 @@ class Content(SurrogatePK, Model):
     rating = Column(db.Float, nullable=True)
     plot = Column(db.Text, nullable=True)
     genres = Column(db.String(100), nullable=True)
-    poster = Column(db.String(160), nullable=True)  # url_for('static', filename='img/no-poster.jpg')
+    poster = Column(db.String(160), nullable=True)
     trailer_youtube_id = Column(db.String(11), nullable=True)
     episode = Column(db.SmallInteger, nullable=True)
     season = Column(db.SmallInteger, nullable=True)
@@ -60,6 +61,7 @@ class Content(SurrogatePK, Model):
     children = relationship("Content")
 
     def __init__(self, *args, **kwargs):
+        kwargs['uid'] = _gen_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed
         db.Model.__init__(self, *args, **kwargs)
 
     def __repr__(self):
