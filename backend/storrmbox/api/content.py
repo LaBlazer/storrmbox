@@ -53,7 +53,8 @@ class ContentResource(Resource):
 
         if not content.fetched:
             data = content_scraper.get_by_imdb_id(content.imdb_id)
-            print(data)
+            fetched = True  # Fix for omdb being too slow
+
             if not data or data['Response'] == "False":
                 raise InternalException("OMDB API didn't return any data")
 
@@ -77,14 +78,24 @@ class ContentResource(Resource):
             #     r_val, sep, r_max = r['Value'].partition("/")
             #     rating_avg += float(r_val) / float(r_max or 10)
             # rating_avg /= len(data['Ratings'])
-            rating_avg = (float(data['imdbRating']) / 10.) if data['imdbRating'] != "N/A" else -1
+            rating_avg = -1
+            if data['imdbRating'] != "N/A":
+                rating_avg = (float(data['imdbRating']) / 10.)
+            else:
+                fetched = False
+
+            runtime = -1
+            if data['Runtime'] != "N/A":
+                runtime = int(data['Runtime'][:-4])
+            else:
+                fetched = False
 
             # Update the content with new data and set the fetched field to true
             content.update(True,
                 title=data['Title'],
                 date_released=year_start,
                 date_end=datetime(int(year_end), 1, 1) if year_end else None,
-                runtime=int(data['Runtime'][:-4]),
+                runtime=runtime,
                 rating=rating_avg,
                 plot=data['Plot'],
                 genres=data['Genre'].replace(" ", ""),
@@ -92,7 +103,7 @@ class ContentResource(Resource):
                 trailer_youtube_id=trailer_result[0]["id"],
                 episode=0,
                 season=data['totalSeasons'] if data['Type'] == "series" else 0,
-                fetched=True
+                fetched=fetched
             )
 
         return content
