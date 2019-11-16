@@ -1,56 +1,51 @@
 import React from 'react';
 import { Container } from "react-bootstrap";
-import MediaCardList from "../MediaCardList";
 import FadeIn from "react-fade-in/lib/FadeIn";
-import API from "../../utils/API";
 import TopBar from '../TopBar/TopBar';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, withRouter } from 'react-router-dom';
+import ModalUrlListener from '../ModalUrlListener';
+import MediaPage from '../MediaPage';
 
 class MainPage extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            mediaContent: []
-        }
-    }
-
-    async getMedia() {
-        try {
-            var { data: content } = await API.getPopularContent();
-
-            this.setState({ mediaContent: content });
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    componentDidMount() {
-        this.getMedia();
-    }
-
     render() {
+        let location = this.props.location;
+        let background = location.state && location.state.background;
+
+        if (this.props.history.length <= 2) {
+            background = { pathname: "/" }
+        }
+
         return (
             <Container className="pt-5">
                 <TopBar siteName="Storrmbox" />
                 <FadeIn>
                     {/* <hr /> */}
-                    <Switch>
+                    <Switch location={background || location}>
 
-                        <Route path="/popular">
-                            <h3 className="pt-4">Popular</h3>
-                            <MediaCardList mediaList={this.state.mediaContent} />
+                        <Route path="/movies">
+                            <MediaPage key="movie" category="movie" title="Movies" />
                         </Route>
-                        
-                        <Route path="/">
-                            <h3 className="pt-4">Home</h3>
+
+                        <Route path="/series">
+                            <MediaPage key="series" category="series" title="Series" />
+                        </Route>
+
+                        <Route path={["/", "/all"]}>
+                            <h3 className="pt-5">All</h3>
+                            {/* <form onSubmit={this.search}>
+                                <input type="text" name="text" />
+                            </form> */}
+
+                            {/* <MediaCardList mediaList={this.state.result} /> */}
+
                         </Route>
                     </Switch>
                 </FadeIn>
+                {background && <Route path="/m/:id" children={<ModalUrlListener />} />}
             </Container>
         )
     }
 }
 
-export default MainPage;
+export default withRouter(MainPage);
