@@ -44,25 +44,38 @@ class MediaCard extends React.Component {
     }
 
     render() {
-        return (
-            <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }}>
-                <Card className="media-card">
-                    <Row className="no-gutters">
-                        <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
-                            <FluidImage src={this.props.poster} alt={this.props.title} />
-                            <MediaDownloadButton
-                                state={this.state.state}
-                                onDownloadClick={this.handleDownloadClick}
-                                percentsDownloaded={this.state.downloaded} />
-                        </Col>
-                        <Col className="info p-2 pt-3" sm={6} lg={8}>
+
+        var card = (
+            <Card className="media-card">
+                <Row className="no-gutters">
+                    <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
+                        <FluidImage className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} />
+                        <MediaDownloadButton
+                            state={this.state.state}
+                            onDownloadClick={this.handleDownloadClick}
+                            percentsDownloaded={this.state.downloaded} />
+                    </Col>
+                    <Col className="info p-2 pt-3" sm={6} lg={8}>
+                        {this.props.loading ?
+                            <p className="title skeleton">&nbsp;</p>
+                            :
                             <p className="title">{this.props.title}</p>
-                            <StarRating stars={this.props.rating * 5} />
-                        </Col>
-                    </Row>
-                </Card>
-            </Link>
+                        }
+                        <StarRating stars={this.props.rating * 5} />
+                    </Col>
+                </Row>
+            </Card>
         );
+
+        if (this.props.uid) {
+            return (
+                <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }}>
+                    {card}
+                </Link>
+            )
+        } else {
+            return card;
+        }
     }
 }
 
