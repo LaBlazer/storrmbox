@@ -88,7 +88,19 @@ class ImdbScraper(ContentScraper):
         for row in table.find_all("tr"):
             # title = row.find(class_="titleColumn").find("a").text
             # print(title)
-            cid = row.find(class_="watchlistColumn").find("div").attrs["data-tconst"]
+
+            # If the content has no rating skip it
+            stars = row.find("td", class_="imdbRating").find("strong")
+            if not stars:
+                continue
+
+            # If the release year is larger than current year skip it
+            # year = row.find(class_="secondaryInfo").text[1:-1]
+            # print(year)
+            # if datetime.date.today().year < int(year):
+            #     continue
+
+            cid = row.find("td", class_="watchlistColumn").find("div").attrs["data-tconst"]
             res.append(cid)
 
         return res

@@ -14,6 +14,7 @@ class Popular(SurrogatePK, Model):
     content_id = ReferenceCol("content")
     index = Column(db.SmallInteger, nullable=False)
     time = Column(db.DateTime, nullable=False, default=time_now)
+    type = Column(db.String(10), nullable=False)
 
     def __init__(self, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)

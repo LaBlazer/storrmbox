@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import g
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
+from sqlalchemy import and_
 from sqlalchemy.orm import load_only
 
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
@@ -57,6 +58,7 @@ class ContentResource(Resource):
             raise NotFoundException(f"Invalid uid '{uid}'")
 
         if not content.fetched:
+            print("Fetching content")
             data = content_scraper.get_by_imdb_id(content.imdb_id)
             fetched = True  # Fix for omdb being too slow
 
@@ -68,8 +70,13 @@ class ContentResource(Resource):
                 raise InternalException("Invalid movie")
 
             # Get the release and end years
-            year_start = datetime.strptime(data['Released'], "%d %b %Y")
-            y, sep, year_end = data['Year'].partition("–")
+            year_start = None
+            year_end = None
+            if data['Released'] != "N/A" and data['Year']:
+                year_start = datetime.strptime(data['Released'], "%d %b %Y")
+                y, sep, year_end = data['Year'].partition("–")
+            else:
+                fetched = False
 
             # Fetch the yt trailer
             trailer_query = ("{} first season" if data['Type'] == "series" else "{} movie") + " official trailer"
@@ -83,17 +90,24 @@ class ContentResource(Resource):
             #     r_val, sep, r_max = r['Value'].partition("/")
             #     rating_avg += float(r_val) / float(r_max or 10)
             # rating_avg /= len(data['Ratings'])
-            rating_avg = -1
+            rating_avg = None
             if data['imdbRating'] != "N/A":
                 rating_avg = (float(data['imdbRating']) / 10.)
             else:
                 fetched = False
 
-            runtime = -1
+            runtime = None
             if data['Runtime'] != "N/A":
                 runtime = int(data['Runtime'][:-4])
             else:
                 fetched = False
+
+            total_seasons = None
+            if data['Type'] == ContentType.SERIES.value and "totalSeasons" in data:
+                if data['totalSeasons'] != "N/A":
+                    total_seasons = int(data['totalSeasons'])
+                else:
+                    fetched = False
 
             # Update the content with new data and set the fetched field to true
             content.update(True,
@@ -106,8 +120,8 @@ class ContentResource(Resource):
                 genres=data['Genre'].replace(" ", ""),
                 poster=data['Poster'],
                 trailer_youtube_id=trailer_result[0]["id"],
-                episode=0,
-                season=data['totalSeasons'] if data['Type'] == "series" else 0,
+                episode=None,
+                season=total_seasons,
                 fetched=fetched
             )
 
@@ -138,7 +152,8 @@ class ContentPopularResource(Resource):
 
         # Fetch popular from db first (from last 24h)
         popular = Popular.query.order_by(Popular.index.asc())\
-            .filter(Popular.time > time_past(24)).all()
+            .filter(and_(Popular.type == args['type'],
+                         Popular.time > time_past(24))).all()
 
         if popular:
             uids = [p.content.uid for p in popular]
@@ -160,7 +175,8 @@ class ContentPopularResource(Resource):
             # Cache the popular movies
             db.session.add(Popular(
                 content=cm,
-                index=i
+                index=i,
+                type=args['type']
             ))
 
             results.append(cm.uid)

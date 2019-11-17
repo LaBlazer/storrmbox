@@ -1,3 +1,4 @@
+from sqlalchemy.orm import relationship
 from datetime import timedelta, datetime
 
 from .extensions import db
