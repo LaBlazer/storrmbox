@@ -13,8 +13,7 @@ class MediaCard extends React.Component {
 
         this.state = {
             state: States.CAN_DOWNLOAD,
-            downloaded: 0,
-            showModal: false
+            downloaded: 0
         }
 
         this.handleDownloadClick = this.handleDownloadClick.bind(this);
@@ -43,10 +42,20 @@ class MediaCard extends React.Component {
         this.simulateDownloading();
     }
 
+    shouldComponentUpdate(nextProps) {
+        if (this.props.loading != nextProps.loading) {
+            return true;
+        }
+
+        console.log("Card doesn't need update");
+        
+        return false;
+    }
+
     render() {
 
         var card = (
-            <Card className="media-card">
+            <Card className="media-card m-2">
                 <Row className="no-gutters">
                     <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
                         <FluidImage className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} />

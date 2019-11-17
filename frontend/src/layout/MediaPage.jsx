@@ -1,6 +1,6 @@
 import React from 'react';
 import API from '../utils/API';
-import MediaCardList from './MediaCardList';
+import MediaListSlider from './MediaCarousel/MediaListSlider';
 
 class MediaPage extends React.Component {
 
@@ -16,7 +16,13 @@ class MediaPage extends React.Component {
         try {
             var data = await API.getPopularContent(this.props.category);
 
-            this.setState({ uidList: data });
+            // var half_length = Math.ceil(data.length / 2);
+
+            // var leftSide = data.splice(0, half_length);
+            var leftSide = data;
+
+            this.setState({ uidList: leftSide });
+            
         } catch (err) {
             console.error(err);
         }
@@ -26,7 +32,7 @@ class MediaPage extends React.Component {
         return (
             <React.Fragment>
                 <h3 className="pt-5">{this.props.title}</h3>
-                <MediaCardList uidList={this.state.uidList} />
+                <MediaListSlider uidList={this.state.uidList} />
             </React.Fragment>
         )
     }

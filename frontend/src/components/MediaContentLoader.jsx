@@ -19,6 +19,16 @@ class MediaContentLoader extends React.Component {
         this.setState({data: result, loading: false});
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        if(this.state.loading != nextState.loading) {
+            return true;
+        }
+
+        console.log("Dont update me!");
+        
+        return false;
+    }
+
     render() {
         return (
             <MediaCard loading={this.state.loading} {...this.state.data} />

@@ -3,6 +3,9 @@
     cursor: pointer;
     transition: 0.15s box-shadow ease-in;
 
+    width: 350px;
+    display: inline-block;
+
     &:hover {
         box-shadow: 3px 5px 4px rgba(0, 0, 0, 0.25);
 
