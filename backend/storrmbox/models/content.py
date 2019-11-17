@@ -1,6 +1,5 @@
 import random
 import string
-from datetime import timedelta, datetime
 from enum import Enum
 
 from sqlalchemy import Column
@@ -10,18 +9,10 @@ from storrmbox.database import (
     SurrogatePK,
     Model,
     relationship,
-    ReferenceCol
-)
+    ReferenceCol,
+    time_now)
 
 rand = random.Random()
-
-
-def _time_now():
-    return datetime.utcnow().replace(microsecond=0)
-
-
-def _time_delta(delta_hours=12, current_time=_time_now()):
-    return current_time + timedelta(hours=delta_hours)
 
 
 def _gen_uid(seed: str, len=7):
@@ -55,10 +46,12 @@ class Content(SurrogatePK, Model):
     trailer_youtube_id = Column(db.String(11), nullable=True)
     episode = Column(db.SmallInteger, nullable=True)
     season = Column(db.SmallInteger, nullable=True)
-    last_updated = Column(db.DateTime, nullable=False, default=_time_now, onupdate=_time_now)
+    last_updated = Column(db.DateTime, nullable=False, default=time_now, onupdate=time_now)
     fetched = Column(db.Boolean, nullable=False, default=False)
     parent_id = ReferenceCol("content", nullable=True)
+
     children = relationship("Content")
+    popular = relationship("Popular", backref="content")
 
     def __init__(self, *args, **kwargs):
         kwargs['uid'] = _gen_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed

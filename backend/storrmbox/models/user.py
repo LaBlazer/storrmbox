@@ -1,12 +1,12 @@
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from storrmbox.database import (
     db,
     SurrogatePK,
     Model,
     relationship
 )
-from .torrent import Torrent
 
 
 class User(SurrogatePK, Model):
@@ -21,6 +21,7 @@ class User(SurrogatePK, Model):
     permission_level = db.Column(db.SmallInteger, nullable=False, default=0)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
+    searches = relationship("Search", backref="user")
 
     def __init__(self, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)

@@ -1,7 +1,8 @@
+from logging import getLogger
 from os import getenv
-from requests import Session
-from logging import Logger, getLogger
+
 from bs4 import BeautifulSoup
+from requests import Session
 
 from storrmbox.torrent.scrapers import ContentType
 
@@ -54,7 +55,7 @@ class OmdbScraper(ContentScraper):
         data = resp.json()
 
         if data["Response"] == "True":
-            return data["Search"]
+            return data["Search"], int(data['totalResults'])
 
         self.log.error(f"Error while searching content '{data.get('Error', resp.text)}'")
         return []
@@ -78,8 +79,8 @@ class ImdbScraper(ContentScraper):
         self.url = "https://www.imdb.com/"
         self.omdb = OmdbScraper()
 
-    def _get_page_ids(self, url: str):
-        resp = self.get(url=url)
+    def _get_page_ids(self, url: str, params={}):
+        resp = self.get(params, url=url)
         soup = BeautifulSoup(resp.text, features="html.parser")
         table = soup.find("tbody")
 
@@ -101,7 +102,15 @@ class ImdbScraper(ContentScraper):
 
         resp = self._get_page_ids(url)
 
-        # return [self.omdb.get_by_imdb_id(iid) for iid in resp]
         return resp
 
+    def top(self, ctype: ContentType):
+        url = self.url
+        if ctype == ContentType.SERIES:
+            url += "chart/toptv"
+        elif ctype == ContentType.MOVIE:
+            url += "chart/top"
 
+        resp = self._get_page_ids(url, {"sort": "us,des"})
+
+        return resp

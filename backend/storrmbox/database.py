@@ -1,6 +1,18 @@
-from sqlalchemy.orm import relationship
+from datetime import timedelta, datetime
 
 from .extensions import db
+
+
+def time_now():
+    return datetime.utcnow().replace(microsecond=0)
+
+
+def time_future(delta_hours=12, current_time=time_now()):
+    return current_time + timedelta(hours=delta_hours)
+
+
+def time_past(delta_hours=12, current_time=time_now()):
+    return current_time - timedelta(hours=delta_hours)
 
 
 class CRUDMixin(object):
