@@ -7,30 +7,9 @@ const AxiosI = Axios.create({
     baseURL: API_URL
 });
 
-AxiosI.interceptors.request.use((config) => {
-
-    var cookie = getCookie(TOKEN_COOKIE_NAME);
-    if (cookie !== null) {
-        config.headers['Authorization'] = `Bearer ${cookie}`;
-        config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    }
-
-    return config;
-}, (err) => {
-    return Promise.reject(err);
-});
-
-//Refresh token if it's going to expire
-function setupTokenAutorefresh(expiration) {
-    expiration -= parseInt((new Date()).getTime() / 1000);
-
-    setTimeout(() => {
-        API.refreshToken();
-        console.log("Refreshing token!");
-    }, (expiration - 200) * 1000);
-}
-
 class API {
+
+    static AxiosI = AxiosI;
 
     static contentCache = {};
     static uidCache = {};
@@ -95,9 +74,35 @@ class API {
         return AxiosI.get(`/content/${uid}`).then((data) => {
             data = data.data;
             this.contentCache[data.uid] = data;
-            return Promise.resolve(data);
+            return data;
         });
     }
+}
+
+//Add authorization headers to every request
+AxiosI.interceptors.request.use((config) => {
+
+    var cookie = getCookie(TOKEN_COOKIE_NAME);
+    if (cookie !== null) {
+        config.headers['Authorization'] = `Bearer ${cookie}`;
+        config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    }
+
+    return config;
+}, (err) => {
+    console.log(err);
+
+    return Promise.reject(err);
+});
+
+//Refresh token if it's going to expire
+function setupTokenAutorefresh(expiration) {
+    expiration -= parseInt((new Date()).getTime() / 1000);
+
+    setTimeout(() => {
+        API.refreshToken();
+        console.log("Refreshing token!");
+    }, (expiration - 200) * 1000);
 }
 
 export default API;

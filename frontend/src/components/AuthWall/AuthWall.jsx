@@ -13,9 +13,26 @@ class AuthWall extends React.Component {
         this.state = {
             loading: false
         }
+
+        this.interceptor = null;
     }
 
     async componentDidMount() {
+
+        //Check if user is not authorized
+        this.interceptor = API.AxiosI.interceptors.response.use((response) => {
+            return response;
+        }, (error) => {
+            if (error.response) {
+                if (error.response.status == 401) {
+                    this.context.logout();
+                }
+            }
+
+            return Promise.reject(error);
+        });
+
+
         //Refresh token when site loads
         var cookie = getCookie(TOKEN_COOKIE_NAME);
         if (cookie !== null) {
@@ -40,6 +57,11 @@ class AuthWall extends React.Component {
                 this.setState({ loading: false });
             }
         }
+    }
+
+    componentWillUnmount() {
+        if (this.interceptor != null)
+            API.AxiosI.interceptors.response.eject(this.interceptor);
     }
 
     render() {
