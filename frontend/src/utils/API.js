@@ -67,7 +67,7 @@ class API {
         return AxiosI.get('/content/search', { params: { query } });
     }
 
-    static getContentById(uid) {
+    static getContentByID(uid) {
         if (this.contentCache[uid] != null)
             return Promise.resolve(this.contentCache[uid]);
 
