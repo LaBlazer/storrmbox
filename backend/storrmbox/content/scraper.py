@@ -107,9 +107,9 @@ class ImdbScraper(ContentScraper):
 
     def popular(self, ctype: ContentType):
         url = self.url
-        if ctype == ContentType.SERIES:
+        if ctype == ContentType.series:
             url += "chart/tvmeter"
-        elif ctype == ContentType.MOVIE:
+        elif ctype == ContentType.movie:
             url += "chart/moviemeter"
 
         resp = self._get_page_ids(url)
@@ -118,9 +118,9 @@ class ImdbScraper(ContentScraper):
 
     def top(self, ctype: ContentType):
         url = self.url
-        if ctype == ContentType.SERIES:
+        if ctype == ContentType.series:
             url += "chart/toptv"
-        elif ctype == ContentType.MOVIE:
+        elif ctype == ContentType.movie:
             url += "chart/top"
 
         resp = self._get_page_ids(url, {"sort": "us,des"})
