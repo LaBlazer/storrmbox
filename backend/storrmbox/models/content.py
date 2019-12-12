@@ -2,10 +2,10 @@ import random
 import string
 from enum import Enum
 
-from sqlalchemy import Column
-
 from storrmbox.database import (
     db,
+    sa,
+    IntEnum,
     SurrogatePK,
     Model,
     relationship,
@@ -21,33 +21,36 @@ def _gen_uid(seed: str, len=7):
 
 
 class ContentType(Enum):
-    MOVIE = 1,
-    SERIES = 2,
-    EPISODE = 3,
+    movie = 1
+    series = 2
+    episode = 3
+
+    def get(self):
+        return self.value
 
 
 class Content(SurrogatePK, Model):
     __tablename__ = "content"
 
     # Required
-    imdb_id = Column(db.String(11), nullable=False, unique=True)
-    type = Column(db.String(10), nullable=False)
+    imdb_id = sa.Column(sa.String(11), nullable=False, unique=True)
+    type = sa.Column(db.String(10), nullable=False)
 
     # Optional
-    uid = Column(db.String(7), nullable=False, unique=True)
-    title = Column(db.String(190), nullable=True)
-    date_released = Column(db.Date, nullable=True)
-    date_end = Column(db.Date, nullable=True)
-    runtime = Column(db.SmallInteger, nullable=True)
-    rating = Column(db.Float, nullable=True)
-    plot = Column(db.Text, nullable=True)
-    genres = Column(db.String(100), nullable=True)
-    poster = Column(db.String(160), nullable=True)
-    trailer_youtube_id = Column(db.String(11), nullable=True)
-    episode = Column(db.SmallInteger, nullable=True)
-    season = Column(db.SmallInteger, nullable=True)
-    last_updated = Column(db.DateTime, nullable=False, default=time_now, onupdate=time_now)
-    fetched = Column(db.Boolean, nullable=False, default=False)
+    uid = sa.Column(sa.String(7), nullable=False, unique=True)
+    title = sa.Column(sa.String(190), nullable=True)
+    date_released = sa.Column(sa.Date, nullable=True)
+    date_end = sa.Column(sa.Date, nullable=True)
+    runtime = sa.Column(sa.SmallInteger, nullable=True)
+    rating = sa.Column(sa.Float, nullable=True)
+    plot = sa.Column(sa.Text, nullable=True)
+    genres = sa.Column(sa.String(100), nullable=True)
+    poster = sa.Column(sa.String(160), nullable=True)
+    trailer_youtube_id = sa.Column(sa.String(11), nullable=True)
+    episode = sa.Column(sa.SmallInteger, nullable=True)
+    season = sa.Column(sa.SmallInteger, nullable=True)
+    last_updated = sa.Column(sa.DateTime, nullable=False, default=time_now, onupdate=time_now)
+    fetched = sa.Column(sa.Boolean, nullable=False, default=False)
     parent_id = ReferenceCol("content", nullable=True)
 
     children = relationship("Content")

@@ -31,7 +31,7 @@ imdb_scraper = ImdbScraper()
 
 content_fields = api.model("Content", {
     "uid": fields.String,
-    "type": fields.String,
+    "type": fields.Integer,
     "title": fields.String,
     "date_released": fields.Date,
     "date_end": fields.Date,
@@ -103,7 +103,7 @@ class ContentResource(Resource):
                 fetched = False
 
             total_seasons = None
-            if data['Type'] == ContentType.SERIES.value and "totalSeasons" in data:
+            if data['Type'] == ContentType.series.name and "totalSeasons" in data:
                 if data['totalSeasons'] != "N/A":
                     total_seasons = int(data['totalSeasons'])
                 else:
@@ -134,7 +134,7 @@ content_list_fields = api.model("ContentUidList", {
 })
 
 popular_parser = api.parser()
-popular_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
+popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
                     help='Type of the content', required=True)
 
 
@@ -146,13 +146,12 @@ class ContentPopularResource(Resource):
     @api.expect(popular_parser)
     def get(self):
         args = popular_parser.parse_args()
-        ctype = args['type']
+        ctype = ContentType[args['type']]
 
         results = []
-
         # Fetch popular from db first (from last 24h)
-        popular = Popular.query.order_by(Popular.index.asc())\
-            .filter(and_(Popular.type == args['type'],
+        popular = Popular.query.order_by(Popular.id.asc())\
+            .filter(and_(Popular.type == ctype.name,
                          Popular.time > time_past(24))).all()
 
         if popular:
@@ -160,7 +159,7 @@ class ContentPopularResource(Resource):
             return {"uids": uids}
 
         # Fetch popular from omdb
-        iids = imdb_scraper.popular(ContentType[ctype.upper()])
+        iids = imdb_scraper.popular(ctype)
         for i, iid in enumerate(iids):
             cm = Content.get_by_imdb_id(iid)
 
@@ -168,15 +167,15 @@ class ContentPopularResource(Resource):
             if not cm:
                 cm = Content(
                     imdb_id=iid,
-                    type=ctype
+                    type=ctype.value
                 )
                 db.session.add(cm)
 
             # Cache the popular movies
             db.session.add(Popular(
                 content=cm,
-                index=i,
-                type=args['type']
+                #index=i,
+                type=ctype.value
             ))
 
             results.append(cm.uid)
@@ -188,7 +187,7 @@ class ContentPopularResource(Resource):
 
 
 top_parser = api.parser()
-top_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
+top_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
                     help='Type of the content', required=True)
 
 
@@ -200,11 +199,11 @@ class ContentTopResource(Resource):
     @api.expect(top_parser)
     def get(self):
         args = top_parser.parse_args()
-        ctype = args['type']
+        ctype = ContentType[args['type']]
 
         results = []
         # Fetch top content
-        iids = imdb_scraper.top(ContentType[ctype.upper()])
+        iids = imdb_scraper.top(ctype)
         for iid in iids:
             cm = Content.get_by_imdb_id(iid)
 
@@ -212,7 +211,7 @@ class ContentTopResource(Resource):
             if not cm:
                 cm = Content(
                     imdb_id=iid,
-                    type=ctype
+                    type=ctype.value
                 )
                 db.session.add(cm)
 
@@ -226,7 +225,7 @@ class ContentTopResource(Resource):
 
 search_parser = api.parser()
 search_parser.add_argument('query', type=str, help='Search query', required=True)
-search_parser.add_argument('type', type=str, choices=tuple(t.name.lower() for t in ContentType),
+search_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
                     help='Type of the content', required=False)
 search_parser.add_argument('amount', type=int, default=6,
                     help='Minimum amount of the content returned', required=False)
@@ -257,7 +256,7 @@ class ContentSearchResource(Resource):
         # Filter content if type is specified
         uids = []
         for r in results:
-            if (not args['type']) or (r.type == args['type']):
+            if (not args['type']) or (r.type.name == args['type']):
                 uids.append(r.uid)
 
         # We have enough data, return already
@@ -296,7 +295,7 @@ class ContentSearchResource(Resource):
                     # Add the content
                     cm = Content(
                         imdb_id=c['imdbID'],
-                        type=c['Type'],
+                        type=ContentType[c['Type']].value,
                         title=c['Title']
                     )
                     db.session.add(cm)

@@ -96,7 +96,7 @@ class MovieTorrentScraper(TorrentScraper):
             name=name, season=season, episode=episode, quality=str(quality.value[0]))
 
         # print(query)
-        return self.search(query, ContentType.SERIES)
+        return self.search(query, ContentType.series)
 
 
 # if __name__ == "__main__":
