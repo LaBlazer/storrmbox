@@ -14,9 +14,15 @@ class MediaContentLoader extends React.Component {
     }
 
     async componentDidMount() {
-        let result = await API.getContentByID(this.props.mediaId);
+        try {
+            let result = await API.getContentByID(this.props.mediaId);
+            this.setState({ data: result });
 
-        this.setState({ data: result, loading: false });
+        } catch (err) {
+
+        } finally {
+            this.setState({ loading: false });
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {

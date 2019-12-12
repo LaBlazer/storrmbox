@@ -8,31 +8,30 @@ class MediaPage extends React.Component {
         super(props);
 
         this.state = {
-            uidList: []
+            popularUidList: [],
+            topUidList: []
         }
     }
 
     async componentDidMount() {
-        try {
-            var data = await API.getPopularContent(this.props.category);
 
-            // var half_length = Math.ceil(data.length / 2);
+        API.getPopularIDList(this.props.category).then((data) => {
+            this.setState({ popularUidList: data });
+        }).catch(err => console.error(err));
 
-            // var leftSide = data.splice(0, half_length);
-            var leftSide = data;
+        API.getTopIDList(this.props.category).then((data) => {
+            this.setState({ topUidList: data });
+        }).catch(err => console.error(err));
 
-            this.setState({ uidList: leftSide });
-            
-        } catch (err) {            
-            console.error(err);
-        }
     }
 
     render() {
         return (
             <React.Fragment>
-                <h3 className="pt-5">{this.props.title}</h3>
-                <MediaListSlider uidList={this.state.uidList} />
+                <h3 className="pt-5">Top Rated {this.props.title}</h3>
+                <MediaListSlider uidList={this.state.topUidList} />
+                <h3 className="pt-5">Popular {this.props.title}</h3>
+                <MediaListSlider uidList={this.state.popularUidList} />
             </React.Fragment>
         )
     }

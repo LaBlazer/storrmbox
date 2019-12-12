@@ -48,7 +48,7 @@ class MediaCard extends React.Component {
         }
 
         console.log("Card doesn't need update");
-        
+
         return false;
     }
 
@@ -58,7 +58,7 @@ class MediaCard extends React.Component {
             <Card className="media-card m-2">
                 <Row className="no-gutters">
                     <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
-                        <FluidImage className={this.props.loading ? '' : ''} src={this.props.poster} alt={this.props.title} />
+                        <FluidImage className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} />
                         <MediaDownloadButton
                             state={this.state.state}
                             onDownloadClick={this.handleDownloadClick}
@@ -66,7 +66,7 @@ class MediaCard extends React.Component {
                     </Col>
                     <Col className="info p-2 pt-3" sm={6} lg={8}>
                         {this.props.loading ?
-                            <p className="title">&nbsp;</p>
+                            <p className={this.props.loading ? 'skeleton title' : 'title'}>&nbsp;</p>
                             :
                             <p className="title">{this.props.title}</p>
                         }
