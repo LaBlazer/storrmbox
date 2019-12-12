@@ -23,7 +23,7 @@ class MediaPage extends React.Component {
 
             this.setState({ uidList: leftSide });
             
-        } catch (err) {
+        } catch (err) {            
             console.error(err);
         }
     }
