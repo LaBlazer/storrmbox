@@ -1,14 +1,11 @@
 import React from 'react';
 import MediaContentLoader from '../../components/MediaContentLoader';
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
-import MediaCard from '../../components/MediaCard/MediaCard';
+import { FixedSizeList as List } from 'react-window';
 
-const FIRST_PRELOAD_COUNT = 5;
-const LOAD_OFFSET = 5;
-const NEW_LOAD_COUNT = 6;
-
+/**
+ * Media slider, that dynamicly adjusts it's width and 
+ * loads only MediaCards that are visible
+ */
 class MediaListSlider extends React.Component {
 
     constructor(props) {
@@ -16,101 +13,47 @@ class MediaListSlider extends React.Component {
 
         this.state = {
             loaded: 0,
-            items: [-1, -1, -1]
+            width: 0,
+            lastWidth: -1
         }
 
-        this.onMove = this.onMove.bind(this);
+        this.parentRef = React.createRef();
+        this.updateSliderWidth = this.updateSliderWidth.bind(this);
     }
 
-    onMove(oldIndex, newIndex) {
-        if (newIndex + LOAD_OFFSET >= this.state.loaded) {
-            this.setState(function (prevState, props) {
-                let loadCount = prevState.loaded + NEW_LOAD_COUNT;
-                let items = props.uidList.map((media, i) => (i < loadCount) ? media : -1);
-
-                return {
-                    loaded: loadCount, items: items
-                };
-            });
+    updateSliderWidth() {
+        if (this.parentRef.current && this.parentRef.current.clientWidth !== this.state.lastWidth) {
+            this.setState((lastState) => ({ width: this.parentRef.current.clientWidth, lastWidth: lastState.width }));
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if(this.props.uidList != nextProps.uidList) {
-            return true;
-        }
-
-        if(this.state.loaded !== nextState.loaded) {
-            return true;
-        }
-        
-        console.log("Dont need to update");
-        
-        return false;
+    componentDidMount() {
+        this.updateSliderWidth();
+        window.addEventListener('resize', this.updateSliderWidth);
     }
 
-    static getDerivedStateFromProps(props, state) {
-        if (props.uidList && props.uidList.length > 0 && state.loaded == 0) {
-            let items = props.uidList.map((media, i) => (i < FIRST_PRELOAD_COUNT) ? media : -1);
-            return { items: items, loaded: FIRST_PRELOAD_COUNT };
-        }
-
-        return null;
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateSliderWidth);
     }
 
     render() {
-        var settings = {
-            dots: false,
-            infinite: false,
-            speed: 500,
-            slidesToShow: 3,
-            slidesToScroll: 2,
-            draggable: false,
-            beforeChange: this.onMove,
-            lazyLoad: true,
-            swipeToSlide: true,
-            responsive: [
-                {
-                    breakpoint: 1024,
-                    settings: {
-                        slidesToShow: 3,
-                        slidesToScroll: 3,
-                        infinite: true,
-                        dots: true
-                    }
-                },
-                {
-                    breakpoint: 600,
-                    settings: {
-                        slidesToShow: 2,
-                        slidesToScroll: 2,
-                        initialSlide: 2
-                    }
-                },
-                {
-                    breakpoint: 480,
-                    settings: {
-                        slidesToShow: 1,
-                        slidesToScroll: 1
-                    }
-                }
-            ]
-        };
+        const Row = ({ index, style }) => (
+            <div style={style}>{<MediaContentLoader mediaId={this.props.uidList[index]} />}</div>
+        );
 
         return (
-            <Slider {...settings}>
-                {
-                    this.state.items.map((media, i) =>
-                        (
-                            <React.Fragment key={this.props.uidList[i] || i}>
-                                {(media === -1) ?
-                                    <MediaCard loading={true} />
-                                    : <MediaContentLoader mediaId={this.state.items[i]} />
-                                }
-                            </React.Fragment>
-                        ))
-                }
-            </Slider>
+            <div ref={this.parentRef}>
+                <List
+                    height={250}
+                    itemCount={this.props.uidList.length}
+                    itemSize={366}
+                    layout="horizontal"
+                    width={this.state.width}
+                    overscanCount={2}
+                >
+                    {Row}
+                </List>
+            </div>
         )
     }
 }

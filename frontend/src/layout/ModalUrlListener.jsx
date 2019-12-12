@@ -27,7 +27,7 @@ class ModalUrlListener extends React.Component {
 
     async componentDidMount() {
         let { id } = this.props.match.params;
-        var data = await API.getContentById(id);
+        var data = await API.getContentByID(id);
         this.setState({ media: data, loading: false });
     }
 

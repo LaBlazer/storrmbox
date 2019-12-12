@@ -1,7 +1,6 @@
 import React from 'react';
 import API from '../utils/API';
 import MediaListSlider from './MediaCarousel/MediaListSlider';
-import MediaListSliderNew from './MediaCarousel/MediaListSliderNew';
 
 class MediaPage extends React.Component {
 
@@ -33,7 +32,7 @@ class MediaPage extends React.Component {
         return (
             <React.Fragment>
                 <h3 className="pt-5">{this.props.title}</h3>
-                <MediaListSliderNew uidList={this.state.uidList} />
+                <MediaListSlider uidList={this.state.uidList} />
             </React.Fragment>
         )
     }

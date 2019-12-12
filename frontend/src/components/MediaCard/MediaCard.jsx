@@ -43,7 +43,7 @@ class MediaCard extends React.Component {
     }
 
     shouldComponentUpdate(nextProps) {
-        if (this.props.loading != nextProps.loading) {
+        if (this.props.loading !== nextProps.loading) {
             return true;
         }
 

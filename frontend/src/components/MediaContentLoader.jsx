@@ -20,7 +20,7 @@ class MediaContentLoader extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (this.state.loading != nextState.loading) {
+        if (this.state.loading !== nextState.loading) {
             return true;
         }
 

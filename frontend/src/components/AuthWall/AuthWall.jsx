@@ -24,7 +24,7 @@ class AuthWall extends React.Component {
             return response;
         }, (error) => {
             if (error.response) {
-                if (error.response.status == 401) {
+                if (error.response.status === 401) {
                     this.context.logout();
                 }
             }
