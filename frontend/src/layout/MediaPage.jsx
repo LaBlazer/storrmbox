@@ -30,7 +30,7 @@ class MediaPage extends React.Component {
             <React.Fragment>
                 <h3 className="pt-5">Top Rated {this.props.title}</h3>
                 <MediaListSlider uidList={this.state.topUidList} />
-                <h3 className="pt-5">Popular {this.props.title}</h3>
+                <h3 className="pt-4">Popular {this.props.title}</h3>
                 <MediaListSlider uidList={this.state.popularUidList} />
             </React.Fragment>
         )

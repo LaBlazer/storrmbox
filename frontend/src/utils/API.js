@@ -60,7 +60,9 @@ class API {
     }
 
     static search(query) {
-        return AxiosI.get('/content/search', { params: { query } });
+        return AxiosI.get('/content/search', { params: { query } }).then((data) => {
+            return data.data.uids;
+        });
     }
 
     static getContentByID(uid) {
@@ -73,7 +75,7 @@ class API {
             return data;
         });
     }
- 
+
 }
 
 //Add authorization headers to every request
@@ -93,8 +95,8 @@ AxiosI.interceptors.request.use((config) => {
 });
 
 function getContentIDList(type, filter, refresh = false) {
-    if(type !== "popular" && type !== "top") throw "[API] Unknown content type";
-    
+    if (type !== "popular" && type !== "top") throw "[API] Unknown content type";
+
     var cacheKey = type + "_" + filter;
     if (!refresh && API.uidCache[cacheKey])
         return Promise.resolve(API.uidCache[cacheKey]);

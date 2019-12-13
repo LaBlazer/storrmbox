@@ -47,8 +47,6 @@ class MediaCard extends React.Component {
             return true;
         }
 
-        console.log("Card doesn't need update");
-
         return false;
     }
 

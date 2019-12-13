@@ -30,8 +30,6 @@ class MediaContentLoader extends React.Component {
             return true;
         }
 
-        console.log("Dont update me!");
-
         return false;
     }
 
