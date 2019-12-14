@@ -250,7 +250,7 @@ class ContentSearchResource(Resource):
         ))
 
         # Search the query in db first
-        results = Content.query.options(load_only("uid", "imdb_id", "title", "type"))\
+        results = Content.query.options(load_only("uid"))\
             .filter(Content.title.ilike(f"%{args['query']}%")).all()
 
         # Filter content if type is specified
@@ -286,7 +286,8 @@ class ContentSearchResource(Resource):
                 # Check if the object is not already in the db/result and skip it
                 cm = Content.get_by_imdb_id(c['imdbID'])
                 if cm:
-                    uids.append(cm.uid)
+                    if cm.uid not in uids:
+                        uids.append(cm.uid)
                     continue
 
                 # Only add content with poster

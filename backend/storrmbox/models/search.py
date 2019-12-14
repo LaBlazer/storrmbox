@@ -4,10 +4,11 @@ from storrmbox.database import (
     db,
     Model,
     ReferenceCol,
+    SurrogatePK,
     time_now)
 
 
-class Search(Model):
+class Search(SurrogatePK, Model):
     __tablename__ = "search"
 
     user_id = ReferenceCol("users")
