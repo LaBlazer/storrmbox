@@ -51,20 +51,18 @@ class API {
         }
     }
 
-    static getPopularContent(filter, refresh = false) {
-        if (!refresh && this.uidCache[filter])
-            return Promise.resolve(this.uidCache[filter]);
+    static getPopularIDList(type, refresh = false) {
+        return getContentIDList("popular", type, refresh);
+    }
 
-        return AxiosI.get('/content/popular', { params: { type: filter } }).then((data) => {
-            data = data.data.uids;
-            this.uidCache[filter] = data;
-
-            return data;
-        });
+    static getTopIDList(type, refresh = false) {
+        return getContentIDList("top", type, refresh);
     }
 
     static search(query) {
-        return AxiosI.get('/content/search', { params: { query } });
+        return AxiosI.get('/content/search', { params: { query } }).then((data) => {
+            return data.data.uids;
+        });
     }
 
     static getContentByID(uid) {
@@ -77,6 +75,7 @@ class API {
             return data;
         });
     }
+
 }
 
 //Add authorization headers to every request
@@ -94,6 +93,21 @@ AxiosI.interceptors.request.use((config) => {
 
     return Promise.reject(err);
 });
+
+function getContentIDList(type, filter, refresh = false) {
+    if (type !== "popular" && type !== "top") throw "[API] Unknown content type";
+
+    var cacheKey = type + "_" + filter;
+    if (!refresh && API.uidCache[cacheKey])
+        return Promise.resolve(API.uidCache[cacheKey]);
+
+    return AxiosI.get(`/content/${type}`, { params: { type: filter } }).then((data) => {
+        data = data.data.uids;
+        API.uidCache[cacheKey] = data;
+
+        return data;
+    });
+}
 
 //Refresh token if it's going to expire
 function setupTokenAutorefresh(expiration) {

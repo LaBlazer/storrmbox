@@ -1,6 +1,7 @@
 import React from 'react';
 import MediaContentLoader from '../../components/MediaContentLoader';
 import { FixedSizeList as List } from 'react-window';
+import MediaCard from '../../components/MediaCard/MediaCard';
 
 /**
  * Media slider, that dynamicly adjusts it's width and 
@@ -37,15 +38,24 @@ class MediaListSlider extends React.Component {
     }
 
     render() {
-        const Row = ({ index, style }) => (
-            <div style={style}>{<MediaContentLoader mediaId={this.props.uidList[index]} />}</div>
-        );
+        //Show loading media cards when list is empty
+        if (this.props.uidList && this.props.uidList.length == 0) {
+            var listSize = 3;
+            var Row = ({ index, style }) => (
+                <div style={style}>{<MediaCard show={true} loading={true} />}</div>
+            );
+        } else {
+            var listSize = this.props.uidList.length;
+            var Row = ({ index, style }) => (
+                <div style={style}>{<MediaContentLoader mediaId={this.props.uidList[index]} />}</div>
+            );
+        }
 
         return (
             <div ref={this.parentRef}>
                 <List
                     height={250}
-                    itemCount={this.props.uidList.length}
+                    itemCount={listSize}
                     itemSize={366}
                     layout="horizontal"
                     width={this.state.width}

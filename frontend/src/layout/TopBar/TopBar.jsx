@@ -1,26 +1,44 @@
 import React from 'react';
-import { Navbar, Button, Container } from 'react-bootstrap';
+import { Navbar, Button, Container, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { AuthContext } from '../../contexts/auth-context';
 import { deleteCookie } from '../../utils/CookieHelper';
 import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../../configs/constants';
 import './TopBar.scss';
-import { NavLink } from 'react-router-dom';
+import { NavLink, withRouter } from 'react-router-dom';
 
 class TopBar extends React.Component {
 
     constructor(props) {
         super(props);
 
+        this.state = {
+            searchValue: this.props.match.params.query || ""
+        }
+
         this.logout = this.logout.bind(this);
+        this.onSearch = this.onSearch.bind(this);
+    }
+
+    componentDidUpdate(prevProps) {
+
+        if (this.state.searchValue !== "" && prevProps.match.params.query !== undefined && prevProps.match.params.query !== "" && this.props.match.params.query === undefined) {
+            this.setState({ searchValue: "" });
+        }
     }
 
     logout() {
         deleteCookie(TOKEN_COOKIE_NAME);
         deleteCookie(REMEMBER_ME_COOKIE_NAME);
         this.context.logout();
+    }
+
+    onSearch(e) {
+        e.preventDefault();
+        this.props.history.push(`/search/${this.state.searchValue}`);
     }
 
     render() {
@@ -49,7 +67,22 @@ class TopBar extends React.Component {
                                 </NavLink>
                             </li>
                         </ul>
-                        <Button variant="outline-primary" onClick={this.logout}>Logout</Button>
+                        <Form inline onSubmit={this.onSearch}>
+                            <InputGroup>
+                                <FormControl
+                                    type="text"
+                                    placeholder="Search text..."
+                                    value={this.state.searchValue}
+                                    onChange={(e) => this.setState({ searchValue: e.target.value })}
+                                />
+                                <InputGroup.Append>
+                                    <Button type="submit" variant="outline-primary">
+                                        <FontAwesomeIcon icon={faSearch} />
+                                    </Button>
+                                </InputGroup.Append>
+                            </InputGroup>
+                        </Form>
+                        <Button variant="outline-primary ml-3" onClick={this.logout}>Logout</Button>
                     </div>
                 </Container>
             </Navbar>
@@ -63,4 +96,4 @@ TopBar.defaultProps = {
     siteName: "Web title"
 }
 
-export default TopBar;
+export default withRouter(TopBar);
