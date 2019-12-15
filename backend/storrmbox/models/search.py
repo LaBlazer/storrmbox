@@ -13,7 +13,7 @@ class Search(SurrogatePK, Model):
 
     user_id = ReferenceCol("users")
     query = Column(db.String(150), nullable=False)
-    time = Column(db.DateTime, primary_key=True, nullable=False, default=time_now) # TODO maybe change the primary key
+    time = Column(db.DateTime, nullable=False, default=time_now)
 
     def __init__(self, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)
