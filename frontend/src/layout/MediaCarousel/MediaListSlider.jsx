@@ -37,18 +37,22 @@ class MediaListSlider extends React.Component {
         window.removeEventListener('resize', this.updateSliderWidth);
     }
 
+    loadingRow = ({ index, style }) => (
+        <div style={style}>{<MediaCard show={true} loading={true} />}</div>
+    )
+
+    row = ({ index, style }) => ( 
+        <div style={style}>{<MediaContentLoader mediaId={this.props.uidList[index]} />}</div>
+    )
+
     render() {
         //Show loading media cards when list is empty
         if (this.props.uidList && this.props.uidList.length == 0) {
             var listSize = 3;
-            var Row = ({ index, style }) => (
-                <div style={style}>{<MediaCard show={true} loading={true} />}</div>
-            );
+            var loading = true;
         } else {
             var listSize = this.props.uidList.length;
-            var Row = ({ index, style }) => (
-                <div style={style}>{<MediaContentLoader mediaId={this.props.uidList[index]} />}</div>
-            );
+            var loading = false;
         }
 
         return (
@@ -61,7 +65,7 @@ class MediaListSlider extends React.Component {
                     width={this.state.width}
                     overscanCount={2}
                 >
-                    {Row}
+                    {loading ? this.loadingRow : this.row}
                 </List>
             </div>
         )
