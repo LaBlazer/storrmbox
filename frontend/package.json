@@ -20,7 +20,8 @@
     "react-slick": "^0.25.2",
     "react-window": "^1.8.5",
     "react-window-infinite-loader": "^1.0.5",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "smoothscroll-polyfill": "^0.4.4"
   },
   "scripts": {
     "start": "react-scripts start",
