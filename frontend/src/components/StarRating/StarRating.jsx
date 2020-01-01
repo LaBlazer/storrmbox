@@ -14,7 +14,7 @@ class StarRating extends React.Component {
             }
         }
 
-        return <span>{stars}</span>;
+        return <span className={this.props.className}>{stars}</span>;
     }
 }
 

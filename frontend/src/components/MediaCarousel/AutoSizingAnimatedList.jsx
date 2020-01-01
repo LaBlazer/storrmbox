@@ -7,6 +7,10 @@ import smoothscroll from 'smoothscroll-polyfill';
 
 export class AutoSizingAnimatedList extends Component {
 
+    static defaultProps = {
+        itemFillMaxWidth: 545
+    }
+
     constructor(props) {
         super(props);
 
@@ -23,18 +27,26 @@ export class AutoSizingAnimatedList extends Component {
         const { width } = contentRect.bounds;
 
         if (this.state[item] !== width) {
-            var obj = {};
-            obj[item] = width;
-            this.setState(obj);
+            if (item === "listWidth" && width <= this.props.itemFillMaxWidth) {
+                this.setState({ listWidth: width, itemWidth: width });
+            } else if (item === "itemWidth" && width <= this.state.listWidth && this.state.listWidth <= this.props.itemFillMaxWidth) {
+                this.setState({ itemWidth: this.state.listWidth });
+            } else {
+                let obj = {};
+                obj[item] = width;
+                this.setState(obj);
+            }
         }
     }
 
     componentDidMount() {
         smoothscroll.polyfill();
+
+        // this.handleListWidthUpdate()
     }
 
     _row = ({ index, style }) => {
-        if (index == 0) {
+        if (true) {
             return (
                 <Measure
                     bounds
