@@ -1,6 +1,6 @@
 import React from 'react';
 import './MediaCard.scss';
-import { Card, Row, Col } from 'react-bootstrap';
+import { Card, Row, Col, Image } from 'react-bootstrap';
 import FluidImage from '../FluidImage/FluidImage';
 import { MediaDownloadButton, MDBStates as States } from '../MediaDownloadButton/MediaDownloadButton';
 import StarRating from '../StarRating/StarRating';
@@ -55,20 +55,21 @@ class MediaCard extends React.Component {
         var card = (
             <Card className="media-card m-2">
                 <Row className="no-gutters">
-                    <Col className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} sm={6} lg={4} >
-                        <FluidImage className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} />
+                    <div className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} >
+                        <Image className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} fluid />
                         <MediaDownloadButton
                             state={this.state.state}
                             onDownloadClick={this.handleDownloadClick}
                             percentsDownloaded={this.state.downloaded} />
-                    </Col>
-                    <Col className="info p-2 pt-3" sm={6} lg={8}>
+                    </div>
+                    <Col className="info p-2 pt-3">
                         {this.props.loading ?
-                            <p className={this.props.loading ? 'skeleton title' : 'title'}>&nbsp;</p>
+                            <p className='skeleton title'>&nbsp;</p>
                             :
                             <p className="title">{this.props.title}</p>
                         }
-                        <StarRating stars={this.props.rating * 5} />
+                        <StarRating className="rating" stars={this.props.rating * 5} />
+                        {!this.props.loading && <p className="plot">{this.props.plot}</p>}
                     </Col>
                 </Row>
             </Card>
@@ -76,7 +77,7 @@ class MediaCard extends React.Component {
 
         if (this.props.uid) {
             return (
-                <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }}>
+                <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }} style={{ color: "inherit" }}>
                     {card}
                 </Link>
             )

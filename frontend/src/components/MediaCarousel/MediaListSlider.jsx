@@ -1,9 +1,8 @@
 import React from 'react';
 import MediaContentLoader from '../../components/MediaContentLoader';
 import MediaCard from '../../components/MediaCard/MediaCard';
-import smoothscroll from 'smoothscroll-polyfill';
 import { Button } from 'react-bootstrap';
-import AnimatedList from './AnimatedList';
+import { AutoSizingAnimatedList } from './AutoSizingAnimatedList';
 
 function easeInOutQuint(t) {
     return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
@@ -20,33 +19,11 @@ class MediaListSlider extends React.Component {
 
         this.state = {
             loaded: 0,
-            width: 0,
-            lastWidth: -1,
             isAnimating: false,
             scrollToItem: 0
         }
 
         this.height = 250;
-
-        this.parentRef = React.createRef();
-        this.updateSliderWidth = this.updateSliderWidth.bind(this);
-    }
-
-    updateSliderWidth() {
-        if (this.parentRef.current && this.parentRef.current.clientWidth !== this.state.lastWidth) {
-            this.setState((lastState) => ({ width: this.parentRef.current.clientWidth, lastWidth: lastState.width }));
-        }
-    }
-
-    componentDidMount() {
-        smoothscroll.polyfill();
-
-        this.updateSliderWidth();
-        window.addEventListener('resize', this.updateSliderWidth);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.updateSliderWidth);
     }
 
     _scrollLeft = () => {
@@ -75,12 +52,12 @@ class MediaListSlider extends React.Component {
         }
     }
 
-    _loadingRow = ({ index, style }) => (
-        <div style={style}>{<MediaCard show={true} loading={true} />}</div>
+    _emptyRow = ({ index, style }) => (
+        <MediaCard show={true} loading={true} />
     )
 
     _row = ({ index, style }) => (
-        <div style={style}>{<MediaContentLoader mediaId={this.props.uidList[index]} />}</div>
+        <MediaContentLoader mediaId={this.props.uidList[index]} />
     )
 
     animationComplete = () => {
@@ -93,33 +70,35 @@ class MediaListSlider extends React.Component {
         //Show loading media cards when list is empty
         if (this.props.uidList && this.props.uidList.length == 0) {
             var listSize = 3;
-            var loading = true;
+            var empty = true;
         } else {
             var listSize = this.props.uidList.length;
-            var loading = false;
+            var empty = false;
         }
 
         return (
             <>
-                <div ref={this.parentRef} style={{ overflow: "hidden", height: this.height - 20 }}>
-                    <AnimatedList
+                <div style={{ overflow: "hidden", height: this.height - 20 }}>
+                    <AutoSizingAnimatedList
                         layout="horizontal"
-                        duration={800}
+                        duration={1000}
                         easing={easeInOutQuint}
-                        width={this.state.width}
                         height={this.height}
                         onAnimationComplete={this.animationComplete}
                         itemCount={listSize}
-                        itemSize={366}
                         overscanCount={2}
                         scrollToItem={this.state.scrollToItem}
                     >
-                        {loading ? this._loadingRow : this._row}
-                    </AnimatedList>
+                        {empty ? this._emptyRow : this._row}
+                    </AutoSizingAnimatedList>
                 </div>
                 <div className="d-flex justify-content-between">
-                    <Button onClick={this._scrollLeft} disabled={this.state.isAnimating}>&lt;</Button>
-                    <Button onClick={this._scrollRight} disabled={this.state.isAnimating}>&gt;</Button>
+                    <Button onClick={this._scrollLeft} disabled={this.state.isAnimating} style={{
+                        padding: "0 1em", fontSize: "1.4rem"
+                    }}>&lt;</Button>
+                    <Button onClick={this._scrollRight} disabled={this.state.isAnimating} style={{
+                        padding: "0 1em", fontSize: "1.4rem"
+                    }}>&gt;</Button>
                 </div>
             </>
         )
