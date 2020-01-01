@@ -1,11 +1,14 @@
+import json
 from datetime import datetime
+from threading import Thread
 
 from flask import g
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 from sqlalchemy.orm import load_only
 
+from storrmbox.content.helpers import ProfiledThread
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 from storrmbox.database import time_past
 from storrmbox.exceptions import NotFoundException, InternalException
@@ -151,7 +154,7 @@ class ContentPopularResource(Resource):
         results = []
         # Fetch popular from db first (from last 24h)
         popular = Popular.query.order_by(Popular.id.asc())\
-            .filter(and_(Popular.type == ctype.name,
+            .filter(and_(Popular.type == ctype,
                          Popular.time > time_past(24))).all()
 
         if popular:
@@ -159,7 +162,7 @@ class ContentPopularResource(Resource):
             return {"uids": uids}
 
         # Fetch popular from omdb
-        iids = imdb_scraper.popular(ctype)
+        iids = imdb_scraper.get_popular(ctype)
         for i, iid in enumerate(iids):
             cm = Content.get_by_imdb_id(iid)
 
@@ -174,7 +177,6 @@ class ContentPopularResource(Resource):
             # Cache the popular movies
             db.session.add(Popular(
                 content=cm,
-                #index=i,
                 type=ctype.value
             ))
 
@@ -203,7 +205,7 @@ class ContentTopResource(Resource):
 
         results = []
         # Fetch top content
-        iids = imdb_scraper.top(ctype)
+        iids = imdb_scraper.get_top(ctype)
         for iid in iids:
             cm = Content.get_by_imdb_id(iid)
 
@@ -256,7 +258,7 @@ class ContentSearchResource(Resource):
         # Filter content if type is specified
         uids = []
         for r in results:
-            if (not args['type']) or (r.type.name == args['type']):
+            if not args['type'] or r.type.name == args['type']:
                 uids.append(r.uid)
 
         # We have enough data, return already
@@ -340,3 +342,35 @@ class ContentDownloadResource(Resource):
         #         'thumbnail': 'https://picsum.photos/200/300'
         #     })
         return []
+
+    def get(self):
+        thread = ProfiledThread(target=self.update_data)
+        thread.start()
+        thread.join()
+
+    @staticmethod
+    def update_data():
+        chunk = 0
+        objects = []
+        try:
+            # Disable FK triggers
+            db.engine.execute(text("SET session_replication_role = replica;").execution_options(autocommit=True))
+
+            for c in imdb_scraper.get_content():
+                c["uid"] = Content.generate_uid(c["imdb_id"])
+                objects.append(c)
+                chunk += 1
+
+                if chunk >= 100000:
+                    db.session.bulk_insert_mappings(Content, objects)
+                    db.session.commit()
+                    objects = []
+                    chunk = 0
+
+            db.session.bulk_insert_mappings(Content, objects)
+            db.session.commit()
+
+        finally:
+            pass
+            # Enable FK triggers
+            db.engine.execute(text("SET session_replication_role = DEFAULT;").execution_options(autocommit=True))

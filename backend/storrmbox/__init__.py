@@ -21,14 +21,11 @@ def create_app(config_object=config.Config):
     # Set up CORS handling
     app.after_request(after_request)
 
-    # Check if there is no database.
-    if not os.path.exists(app.config["SQLALCHEMY_DATABASE_URI"]):
+    # New db app if no database.
+    db.app = app
 
-        # New db app if no database.
-        db.app = app
-
-        # Create all database tables.
-        db.create_all()
+    # Create all database tables.
+    db.create_all()
 
     return app
 
