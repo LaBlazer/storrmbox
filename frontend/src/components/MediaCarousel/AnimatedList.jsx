@@ -67,7 +67,7 @@ export default class AnimatedList extends Component {
     }
 
     onScroll = ({ scrollOffset, scrollUpdateWasRequested }) => {
-        if (!scrollUpdateWasRequested) {
+        if (!scrollUpdateWasRequested && this._animationStartTime === undefined) {
             this._scrollOffsetInitial = scrollOffset;
         }
     };

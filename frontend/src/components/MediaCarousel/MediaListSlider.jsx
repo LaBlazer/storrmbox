@@ -1,6 +1,5 @@
 import React from 'react';
 import MediaContentLoader from '../../components/MediaContentLoader';
-import { FixedSizeList as List } from 'react-window';
 import MediaCard from '../../components/MediaCard/MediaCard';
 import smoothscroll from 'smoothscroll-polyfill';
 import { Button } from 'react-bootstrap';
@@ -105,7 +104,7 @@ class MediaListSlider extends React.Component {
                 <div ref={this.parentRef} style={{ overflow: "hidden", height: this.height - 20 }}>
                     <AnimatedList
                         layout="horizontal"
-                        duration={2500}
+                        duration={800}
                         easing={easeInOutQuint}
                         width={this.state.width}
                         height={this.height}

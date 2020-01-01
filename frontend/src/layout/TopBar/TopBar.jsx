@@ -40,7 +40,7 @@ class TopBar extends React.Component {
 
     onSearch(e) {
         e.preventDefault();
-        var searched = encodeURI(this.state.searchValue.replace(/\s/g, ' '));
+        var searched = encodeURIComponent(this.state.searchValue.replace(/\s/g, ' '));
         this.props.history.push(`/search/${searched}`);
     }
 

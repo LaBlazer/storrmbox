@@ -1,6 +1,6 @@
 import React from 'react';
 import API from '../utils/API';
-import MediaListSlider from './MediaCarousel/MediaListSlider';
+import MediaListSlider from '../components/MediaCarousel/MediaListSlider';
 
 class MediaPage extends React.Component {
 
