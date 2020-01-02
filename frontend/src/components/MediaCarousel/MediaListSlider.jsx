@@ -20,7 +20,7 @@ class MediaListSlider extends React.Component {
         this.state = {
             loaded: 0,
             isAnimating: false,
-            scrollToItem: 0
+            scrollSide: 0,
         }
 
         this.height = 250;
@@ -29,10 +29,9 @@ class MediaListSlider extends React.Component {
     _scrollLeft = () => {
         if (!this.state.isAnimating) {
             this.setState((prevState) => {
-                var scrollToItem = Math.max(0, (prevState.scrollToItem || 0) - 3);
                 return {
                     isAnimating: true,
-                    scrollToItem
+                    scrollSide: -1
                 }
             });
         }
@@ -40,14 +39,9 @@ class MediaListSlider extends React.Component {
 
     _scrollRight = () => {
         if (!this.state.isAnimating) {
-            var length = (this.props.uidList && this.props.uidList.length == 0) ? 3 : this.props.uidList.length;
-
-            this.setState((prevState) => {
-                var scrollToItem = Math.min((prevState.scrollToItem || 0) + 3, length);
-                return {
-                    isAnimating: true,
-                    scrollToItem
-                }
+            this.setState({
+                isAnimating: true,
+                scrollSide: 1
             });
         }
     }
@@ -63,6 +57,7 @@ class MediaListSlider extends React.Component {
     animationComplete = () => {
         this.setState({
             isAnimating: false,
+            scrollSide: 0
         });
     }
 
@@ -87,7 +82,7 @@ class MediaListSlider extends React.Component {
                         onAnimationComplete={this.animationComplete}
                         itemCount={listSize}
                         overscanCount={2}
-                        scrollToItem={this.state.scrollToItem}
+                        scrollSide={this.state.scrollSide}
                     >
                         {empty ? this._emptyRow : this._row}
                     </AutoSizingAnimatedList>

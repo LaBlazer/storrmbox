@@ -16,7 +16,8 @@ export class AutoSizingAnimatedList extends Component {
 
         this.state = {
             listWidth: 500,
-            itemWidth: 100
+            itemWidth: 100,
+            scrollToItem: 0
         }
 
         this.handleItemWidthUpdate = this.handleWidthUpdate.bind(this, "itemWidth");
@@ -41,31 +42,34 @@ export class AutoSizingAnimatedList extends Component {
 
     componentDidMount() {
         smoothscroll.polyfill();
-
-        // this.handleListWidthUpdate()
     }
 
-    _row = ({ index, style }) => {
-        if (true) {
-            return (
-                <Measure
-                    bounds
-                    onResize={this.handleItemWidthUpdate}
-                >
-                    {({ measureRef }) => (
-                        <div style={style}>
-                            <div ref={measureRef} style={{ display: "inline-block" }}>
-                                {this.props.children({ index, style })}
-                            </div>
-                        </div>
-                    )}
-                </Measure>
-            )
-        } else {
-            return <div style={style}>
-                {this.props.children({ index, style })}
-            </div>
+    componentDidUpdate(prevProps) {
+        if (this.props.scrollSide !== prevProps.scrollSide && this.props.scrollSide !== 0) {
+            const itemsPerScreen = Math.round(this.state.listWidth / this.state.itemWidth);
+
+            this.setState((prevState) => ({
+                scrollToItem: prevState.scrollToItem + itemsPerScreen * this.props.scrollSide
+            }));
         }
+    }
+
+
+    _row = ({ index, style }) => {
+        return (
+            <Measure
+                bounds
+                onResize={this.handleItemWidthUpdate}
+            >
+                {({ measureRef }) => (
+                    <div style={style}>
+                        <div ref={measureRef} style={{ display: "inline-block" }}>
+                            {this.props.children({ index, style })}
+                        </div>
+                    </div>
+                )}
+            </Measure>
+        )
     }
 
     render() {
@@ -80,6 +84,7 @@ export class AutoSizingAnimatedList extends Component {
                             {...this.props}
                             width={this.state.listWidth}
                             itemSize={this.state.itemWidth}
+                            scrollToItem={this.state.scrollToItem}
                         >
                             {this._row}
                         </AnimatedList>
