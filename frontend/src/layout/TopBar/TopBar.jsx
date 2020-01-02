@@ -24,8 +24,10 @@ class TopBar extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        var prevQuery = prevProps.match.params.query,
+            currQuery = this.props.match.params.query;
 
-        if (this.state.searchValue !== "" && prevProps.match.params.query !== undefined && prevProps.match.params.query !== "" && this.props.match.params.query === undefined) {
+        if (this.state.searchValue !== "" && prevQuery !== undefined && prevQuery !== "" && currQuery === undefined) {
             this.setState({ searchValue: "" });
         }
     }
@@ -38,7 +40,8 @@ class TopBar extends React.Component {
 
     onSearch(e) {
         e.preventDefault();
-        this.props.history.push(`/search/${this.state.searchValue}`);
+        var searched = encodeURIComponent(this.state.searchValue.replace(/\s/g, ' '));
+        this.props.history.push(`/search/${searched}`);
     }
 
     render() {

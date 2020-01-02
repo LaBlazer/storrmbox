@@ -5,14 +5,19 @@ $body-color: #ececec;
 $card-bg: #343434;
 $card-border-radius: 0;
 
+$primary: #0bc79e;
+$secondary: #159c7f;
+
+$input-placeholder-color: #aaaaaa;
+
 $enable-shadows: true;
 
 $input-bg: #666666;
 $input-color: #e4e4e4;
 
 $theme-colors: (
-    primary: #0bc79e,
-    secondary: #159c7f
+    primary: $primary,
+    secondary: $secondary
 );
 
 $input-border-color: #2e2e2e;

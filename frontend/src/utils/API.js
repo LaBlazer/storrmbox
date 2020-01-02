@@ -1,6 +1,6 @@
 import Axios from "axios";
 import { API_URL, TOKEN_COOKIE_NAME } from "../configs/constants";
-import { getCookie } from "./CookieHelper";
+import { getCookie, setCookie } from "./CookieHelper";
 import qs from 'qs';
 
 const AxiosI = Axios.create({
@@ -113,9 +113,12 @@ function getContentIDList(type, filter, refresh = false) {
 function setupTokenAutorefresh(expiration) {
     expiration -= parseInt((new Date()).getTime() / 1000);
 
-    setTimeout(() => {
-        API.refreshToken();
-        console.log("Refreshing token!");
+    setTimeout(async () => {
+        var data = await API.refreshToken();
+        if (data.status === 200) {
+            setCookie(TOKEN_COOKIE_NAME, data.data.token, new Date(data.data.expires_in * 1000));
+        }
+        console.log("Refreshing token!", data);
     }, (expiration - 200) * 1000);
 }
 

@@ -16,7 +16,7 @@ class MainPage extends React.Component {
         const siteName = "Storrmbox";
 
         if (this.props.history.length <= 2) {
-            background = { pathname: "/" }
+            background = this.props.location || { pathname: "/" }
         }
 
         return (
