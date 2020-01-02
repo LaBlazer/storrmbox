@@ -344,9 +344,8 @@ class ContentDownloadResource(Resource):
         return []
 
     def get(self):
-        thread = ProfiledThread(target=self.update_data)
+        thread = Thread(target=self.update_data)
         thread.start()
-        thread.join()
 
     @staticmethod
     def update_data():

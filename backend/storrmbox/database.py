@@ -32,6 +32,17 @@ class CRUDMixin(object):
         instance = cls(**kwargs)
         return instance.save()
 
+    @classmethod
+    def purge(cls):
+        try:
+            rows_deleted = db.session.query(cls).delete()
+            db.session.commit()
+            return rows_deleted
+        except:
+            db.session.rollback()
+
+        return 0
+
     def update(self, commit=True, **kwargs):
         """Update specific fields of a record."""
         # Prevent changing ID of object

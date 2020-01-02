@@ -1,6 +1,6 @@
 from multiprocessing.dummy import Pool as ThreadPool
 from logging import getLogger
-from os import getenv, remove, path
+from os import getenv, remove, path, rename
 import gzip
 import shutil
 import time
@@ -123,11 +123,17 @@ class ImdbScraper(ContentScraper):
         return res
 
     def _download_and_extract_datasets(self, name, force = False):
+        do_diff = False
         # Check date and skip if we already have fresh datasets
-        file_date = dt.datetime.fromtimestamp(path.getmtime(f"datasets/{name}.tsv")).date()
-        if not force and file_date == dt.datetime.now().date():
-            print(f"Dataset '{name}' already up to date...")
-            return
+        if path.isfile(f"datasets/{name}.tsv"):
+            file_date = dt.datetime.fromtimestamp(path.getmtime(f"datasets/{name}.tsv")).date()
+            if not force and file_date == dt.datetime.now().date():
+                print(f"Dataset '{name}' already up to date...")
+                return
+
+            # Rename the old dataset
+            rename(f"datasets/{name}.tsv", f"datasets/{name}_old.tsv")
+            do_diff = True
 
         print(f"Downloading and extracting dataset '{name}'...")
 
@@ -143,6 +149,7 @@ class ImdbScraper(ContentScraper):
         remove(f"datasets/{name}.tsv.gz")
 
         print(f"'{name}' downloaded!")
+        return do_diff
 
     def get_content(self, threads = 3):
         start_time = time.time()
@@ -152,14 +159,14 @@ class ImdbScraper(ContentScraper):
         pool.close()
         pool.join()
 
-        basics = DatasetReader(f"datasets/basics.tsv", self.dataset_parser, 0)
-        episodes = DatasetReader(f"datasets/episode.tsv", self.dataset_parser, 0)
-        ratings = DatasetReader(f"datasets/ratings.tsv", self.dataset_parser, 0)
+        basics = DatasetReader(f"datasets/basics.tsv", self.dataset_parser, 0, True, str, str, str, str, int, int, int, int, str)
+        episodes = DatasetReader(f"datasets/episode.tsv", self.dataset_parser, 0, True, str, str, int, int)
+        ratings = DatasetReader(f"datasets/ratings.tsv", self.dataset_parser, 0, True, str, float, int)
 
         # Get series and movies
         print("Getting series and movies")
         for iid, content_type, title, original_title, adult, start_year, end_year, runtime, genres in \
-                basics.iterate_data(str, str, str, str, int, int, int, int, str):
+                basics.iterate_data():
 
             # Skip adult content
             if adult == 1:
@@ -179,7 +186,7 @@ class ImdbScraper(ContentScraper):
                 content_type = ContentType.movie
 
             # Join rating
-            x, average_rating, vote_count = ratings.get_data(iid, str, float, int)
+            x, average_rating, vote_count = ratings.get_data(iid)
 
             # Skip content with small number of votes (unpopular content)
             if not vote_count or\
@@ -203,7 +210,7 @@ class ImdbScraper(ContentScraper):
 
         # Get episodes
         print("Getting episodes")
-        for iid, parent_iid, season, episode in episodes.iterate_data(str, str, int, int):
+        for iid, parent_iid, season, episode in episodes.iterate_data():
 
             # Skip episodes without parent content
             if not basics.has_key(parent_iid):
@@ -214,9 +221,8 @@ class ImdbScraper(ContentScraper):
                 continue
 
             # Join rating and basic data
-            x, average_rating, vote_count = ratings.get_data(iid, str, float, int)
-            x, content_type, title, original_title, adult, start_year, end_year, runtime, genres = basics.get_data(
-                iid, str, str, str, str, int, int, int, int, str)
+            x, average_rating, vote_count = ratings.get_data(iid)
+            x, content_type, title, original_title, adult, start_year, end_year, runtime, genres = basics.get_data(iid)
 
             yield {
                 "imdb_id": iid,
