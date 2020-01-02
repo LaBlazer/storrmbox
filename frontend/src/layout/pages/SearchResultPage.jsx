@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import API from '../../utils/API';
 import MediaCardList from '../MediaCardList';
-import FadeIn from 'react-fade-in/lib/FadeIn';
 
 class SearchResultPage extends React.Component {
 

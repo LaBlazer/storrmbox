@@ -7,6 +7,8 @@ class MediaContentLoader extends React.Component {
     constructor(props) {
         super(props);
 
+        this._mounted = false;
+
         this.state = {
             loading: true,
             data: {}
@@ -15,14 +17,22 @@ class MediaContentLoader extends React.Component {
 
     async componentDidMount() {
         try {
+            this._mounted = true;
             let result = await API.getContentByID(this.props.mediaId);
-            this.setState({ data: result });
-
+            if (this._mounted) {
+                this.setState({ data: result, loading: false });
+            }
         } catch (err) {
-
+            console.error("Error", err);
         } finally {
-            this.setState({ loading: false });
+            if (this._mounted) {
+                this.setState({ loading: false });
+            }
         }
+    }
+
+    componentWillUnmount() {
+        this._mounted = false;
     }
 
     shouldComponentUpdate(nextProps, nextState) {
