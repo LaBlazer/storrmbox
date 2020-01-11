@@ -12,7 +12,7 @@ class Config(object):
     DEBUG = False
 
     # Database
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///:memory:')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Restplus
@@ -23,14 +23,10 @@ class DevConfig(Config):
     """Development configuration."""
     ENV = 'venv'
     DEBUG = True
-    DB_NAME = 'dev.db'
-    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
 
 
 class ProdConfig(Config):
     """Development configuration."""
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', '')
 
 
 class TestConfig(Config):

@@ -34,7 +34,7 @@ def _make_context():
 
 def _make_env():
     """Creates default .env file"""
-    env = 'SECRET_KEY={}\nOMDB_API_KEY=\n'.format(codecs.encode(os.urandom(32), "hex").decode())
+    env = 'SECRET_KEY={}\nOMDB_API_KEY=\nDATABASE_URI='.format(codecs.encode(os.urandom(32), "hex").decode())
 
     with open(".env", "w") as f:
         f.write(env)
