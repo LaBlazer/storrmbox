@@ -7,6 +7,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { AuthContextComponent } from './contexts/auth-context';
 
 import MainPage from './layout/pages/MainPage';
+import { UIErrorBoundary } from './layout/UIErrorBoundary';
 
 
 class App extends React.Component {
@@ -15,9 +16,11 @@ class App extends React.Component {
         return (
             <Router>
                 <AuthContextComponent>
-                    <AuthWall>
-                        <MainPage />
-                    </AuthWall>
+                    <UIErrorBoundary>
+                        <AuthWall>
+                            <MainPage />
+                        </AuthWall>
+                    </UIErrorBoundary>
                 </AuthContextComponent>
             </Router>
         );
