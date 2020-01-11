@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 httpie = "*"
 httpie-jwt-auth = "*"
+snakeviz = "*"
 
 [packages]
 requests = "*"
@@ -19,6 +20,7 @@ flask-sqlalchemy = "*"
 flask-migrate = "*"
 flask-script = "*"
 searchyt = "*"
+psycopg2 = "*"
 
 [requires]
 python_version = "3.8"
