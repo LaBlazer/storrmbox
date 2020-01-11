@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 
 export class UIErrorBoundary extends Component {
 
@@ -20,10 +20,12 @@ export class UIErrorBoundary extends Component {
 
     render() {
         if (this.state.error) {
-            return <div className="text-center">
-                <h2>Ooops!</h2>
-                <h4>An error has occured!</h4>
-                <Button onClick={() => window.location.reload()}>Refresh page</Button>
+            return <div className="center-container">
+                <Container>
+                    <h2>Ooops!</h2>
+                    <h4>An error has occured!</h4>
+                    <Button onClick={() => window.location.reload()}>Refresh page</Button>
+                </Container>
             </div>
         }
 
