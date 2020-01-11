@@ -18,10 +18,11 @@ class ModalUrlListener extends React.Component {
     }
 
     handleClose() {
-        if (this.props.history.length <= 2) {
-            this.setState({forceClose: true});
-        } else  {
-            this.props.history.goBack();
+        let { history } = this.props;
+        if (history.length <= 2 || history.location.state?.background === undefined) {
+            this.setState({ forceClose: true });
+        } else {
+            history.goBack();
         }
     }
 
@@ -33,7 +34,7 @@ class ModalUrlListener extends React.Component {
 
     render() {
 
-        if(this.state.forceClose) {
+        if (this.state.forceClose) {
             return (
                 <Redirect push to="/" />
             )
