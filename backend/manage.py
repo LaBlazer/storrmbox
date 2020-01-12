@@ -12,7 +12,7 @@ from storrmbox import create_app, db
 from storrmbox.models.user import User
 from storrmbox.config import DevConfig, ProdConfig
 
-if os.environ.get('PROD', False) is True:
+if os.environ.get('PROD', False):
     DefaultConfig = ProdConfig
 else:
     DefaultConfig = DevConfig
