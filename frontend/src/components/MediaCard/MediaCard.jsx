@@ -1,7 +1,6 @@
 import React from 'react';
 import './MediaCard.scss';
 import { Card, Row, Col, Image } from 'react-bootstrap';
-import FluidImage from '../FluidImage/FluidImage';
 import { MediaDownloadButton, MDBStates as States } from '../MediaDownloadButton/MediaDownloadButton';
 import StarRating from '../StarRating/StarRating';
 import { Link, withRouter } from 'react-router-dom';
@@ -67,7 +66,7 @@ class MediaCard extends React.Component {
                             {this.props.loading ?
                                 <p className='skeleton title'>&nbsp;</p>
                                 :
-                                <p className="title">{this.props.title}</p>
+                                <p className={this.props.title?.length > 25 ? "small title" : "title"}>{this.props.title}</p>
                             }
                             <StarRating className="rating" stars={this.props.rating * 5} />
                             {!this.props.loading && <p className="plot">{this.props.plot}</p>}

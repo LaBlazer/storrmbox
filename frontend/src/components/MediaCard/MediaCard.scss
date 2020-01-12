@@ -46,6 +46,10 @@
         -webkit-box-orient: vertical;  
         overflow: hidden;
         margin-bottom: 0.5rem;
+
+        &.small {
+            font-size: 1em;
+        }
     }
 
     .rating {
