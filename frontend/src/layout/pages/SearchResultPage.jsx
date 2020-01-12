@@ -27,7 +27,7 @@ class SearchResultPage extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.match.params.query != this.props.match.params.query) {
+        if (prevProps.match.params.query !== this.props.match.params.query) {
             this.fetchSearch(this.props.match.params.query);
         }
     }
