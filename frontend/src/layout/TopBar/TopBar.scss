@@ -12,5 +12,15 @@
 }
 
 .navbar-brand {
-    width: 10em;
+
+    .fullsize {
+        width: 10em;
+        margin-top: 0;
+        margin-bottom: 0.6rem;
+    }
+
+    .smallsize {
+        width: 2.3em;
+    }
 }
+
