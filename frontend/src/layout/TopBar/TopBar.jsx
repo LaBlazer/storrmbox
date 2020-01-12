@@ -1,15 +1,14 @@
 import React from 'react';
 import { Navbar, Button, Container, Form, FormControl, InputGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { AuthContext } from '../../contexts/auth-context';
 import { deleteCookie } from '../../utils/CookieHelper';
 import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../../configs/constants';
 import './TopBar.scss';
 import { ReactComponent as Logo } from '../../assets/logo.svg';
-import { NavLink, withRouter } from 'react-router-dom';
+import { ReactComponent as SmallLogo } from '../../assets/logo_icon.svg';
+import { NavLink, withRouter, Link } from 'react-router-dom';
 
 class TopBar extends React.Component {
 
@@ -50,9 +49,10 @@ class TopBar extends React.Component {
             <Navbar bg="coal" variant="dark" className="top-bar" fixed="top">
                 <Container>
                     
-                    <Navbar.Brand href="/">
-                        <Logo height="100%" width="100%"/>
-                    </Navbar.Brand>                 
+                    <Link to="/" className="navbar-brand">
+                        <Logo className="d-none d-md-inline fullsize" height="100%" width="100%"/>
+                        <SmallLogo className="d-md-none smallsize" height="100%" width="100%"/>
+                    </Link>                 
                     
                     <div className="navbar-collapse collapse">
                         <ul className="navbar-nav mx-auto">
