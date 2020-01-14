@@ -12,9 +12,6 @@ from storrmbox.database import (
     ReferenceCol,
     time_now)
 
-rand = random.Random()
-
-
 class ContentType(int, Enum):
     movie = 1
     series = 2
@@ -25,6 +22,7 @@ class ContentType(int, Enum):
 
 
 class Content(Model):
+    _rand = random.Random()
     __tablename__ = "content"
 
     # PK
@@ -66,8 +64,8 @@ class Content(Model):
 
     @staticmethod
     def generate_uid(seed: str):
-        rand.seed(seed)
-        return ''.join(rand.choices(string.ascii_letters + string.digits, k=Content.uid.type.length))
+        Content._rand.seed(seed)
+        return ''.join(Content._rand.choices(string.ascii_letters + string.digits, k=Content.uid.type.length))
 
     @classmethod
     def get_by_uid(cls, uid: str):

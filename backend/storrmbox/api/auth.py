@@ -28,14 +28,15 @@ def verify_password(username, password):
 def verify_token(token):
     g.user = None
     try:
+        # Salted with IP + token_nonce
         origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
         print("Origin: " + origin)
-        data = token_serializer.loads(token, origin)
+        data = token_serializer.loads(token, salt=origin)
     except:  # noqa: E722
         return False
-    if "username" in data and "id" in data:
-        g.user = User.query.filter_by(username=data['username'], id=data['id']).first()
-        return True
+    if "username" in data and "n" in data:
+        g.user = User.query.filter_by(username=data['username'], token_nonce=data['n']).first()
+        return g.user is not None
     return False
 
 
@@ -71,9 +72,23 @@ class AuthResource(Resource):
     @api.doc(security=['basic', 'bearer'])
     @api.expect(auth_parser)
     def post(self):
-        origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
+        # Invalidate the token if request is coming from a different IP
+        salt = str(request.headers.get('X-Forwarded-For', request.remote_addr))
+
         expire_time = EXTENDED_TOKEN_EXPIRE_TIME if bool(auth_parser.parse_args()['extended']) else TOKEN_EXPIRE_TIME
         token_serializer.expires_in = expire_time
-        token = token_serializer.dumps({"username": g.user.username, "id": g.user.id}, origin).decode('utf-8')
 
-        return {"token": token, "expires_in": time() + expire_time}
+        token = token_serializer.dumps({"username": g.user.username, "n": g.user.token_nonce}, salt=salt).decode('utf-8')
+
+        return { "token": token, "expires_in": time() + expire_time }
+
+
+@api.route("/purge")
+class AuthPurgeResource(Resource):
+
+    @auth.login_required
+    @api.doc(description="Purges/invalidates all active user tokens")
+    def post(self):
+        g.user.regenerate_token_nonce()
+
+        return { "success": True }

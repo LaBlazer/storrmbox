@@ -1,7 +1,10 @@
+import random
+import string
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from storrmbox.database import (
+    sa,
     db,
     SurrogatePK,
     Model,
@@ -10,15 +13,22 @@ from storrmbox.database import (
 
 
 class User(SurrogatePK, Model):
+    _rand = random.Random()
+
+    @staticmethod
+    def generate_token_nonce():
+        return ''.join(User._rand.choices(string.printable, k=User.token_nonce.type.length))
+
     __tablename__ = "users"
 
-    username = db.Column(db.String(40), unique=True, nullable=False)
-    email = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(120), unique=True, nullable=False)
-    created_on = db.Column(db.DateTime, nullable=False, default=func.now())
-    last_update = db.Column(db.DateTime, nullable=True, onupdate=func.now())
-    last_login = db.Column(db.DateTime, nullable=True)
-    permission_level = db.Column(db.SmallInteger, nullable=False, default=0)
+    username = sa.Column(sa.String(40), unique=True, nullable=False)
+    email = sa.Column(sa.String(50), unique=True, nullable=False)
+    password = sa.Column(sa.String(120), unique=True, nullable=False)
+    created_on = sa.Column(sa.DateTime, nullable=False, default=func.now())
+    last_update = sa.Column(sa.DateTime, nullable=True, onupdate=func.now())
+    last_login = sa.Column(sa.DateTime, nullable=True)
+    permission_level = sa.Column(sa.SmallInteger, nullable=False, default=0)
+    token_nonce = sa.Column(sa.String(5), unique=False, nullable=False, default=generate_token_nonce)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
     searches = relationship("Search", backref="user")
@@ -33,6 +43,11 @@ class User(SurrogatePK, Model):
     def check_password(self, password):
         """Check hashed password."""
         return check_password_hash(self.password, password)
+
+    def regenerate_token_nonce(self):
+        nonce = User.generate_token_nonce()
+        self.token_nonce = nonce if self.token_nonce != nonce else User.generate_token_nonce()
+        self.save()
 
     @classmethod
     def get_by_username(cls, username):
