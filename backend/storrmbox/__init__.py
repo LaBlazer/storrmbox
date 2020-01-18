@@ -33,7 +33,8 @@ def create_app(config_object=config.Config):
 
 def before_request():
     # Hack to fix reverse proxy and Cloudflare IP issue
-    request.environ["REMOTE_ADDR"] = request.environ.get('True-Client-IP', request.environ.get('X-Forwarded-For', request.environ["REMOTE_ADDR"]))
+    # 'X-Forwarded-For' header can sometimes have multiple IPs (203.0.113.1,198.51.100.101,198.51.100.102,...)
+    request.environ["REMOTE_ADDR"] = request.headers.get('CF-Connecting-IP', request.headers.get('X-Forwarded-For', request.environ["REMOTE_ADDR"]).split(',')[0])
 
 
 def after_request(response):
