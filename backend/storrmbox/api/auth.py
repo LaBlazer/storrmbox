@@ -80,7 +80,7 @@ class AuthResource(Resource):
 
         token = token_serializer.dumps({"username": g.user.username, "n": g.user.token_nonce}, salt=salt).decode('utf-8')
 
-        return { "token": token, "expires_in": time() + expire_time }
+        return {"token": token, "expires_in": time() + expire_time}
 
 
 @api.route("/purge")
@@ -91,4 +91,4 @@ class AuthPurgeResource(Resource):
     def post(self):
         g.user.regenerate_token_nonce()
 
-        return { "success": True }
+        return {"success": True}
