@@ -23,7 +23,7 @@ searchyt = "*"
 psycopg2 = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.7"
 
 [scripts]
 deploy="pipenv run build && pipenv run serve"
