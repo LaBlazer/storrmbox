@@ -32,8 +32,8 @@ def create_app(config_object=config.Config):
 
 
 def before_request():
-    # Hack to fix reverse proxy IP issue
-    request.environ["REMOTE_ADDR"] = request.environ.get('HTTP_X_REAL_IP', request.environ["REMOTE_ADDR"])
+    # Hack to fix reverse proxy and Cloudflare IP issue
+    request.environ["REMOTE_ADDR"] = request.environ.get('True-Client-IP', request.environ.get('X-Forwarded-For', request.environ["REMOTE_ADDR"]))
 
 
 def after_request(response):
