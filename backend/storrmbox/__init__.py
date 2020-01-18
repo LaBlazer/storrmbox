@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, request
 
 from . import config
 from .api import api_blueprint
@@ -20,6 +20,7 @@ def create_app(config_object=config.Config):
 
     # Set up CORS handling
     app.after_request(after_request)
+    app.before_request(before_request)
 
     # New db app if no database.
     db.app = app
@@ -28,6 +29,11 @@ def create_app(config_object=config.Config):
     db.create_all()
 
     return app
+
+
+def before_request():
+    # Hack to fix reverse proxy IP issue
+    request.environ["REMOTE_ADDR"] = request.environ.get('HTTP_X_REAL_IP', request.environ["REMOTE_ADDR"])
 
 
 def after_request(response):
