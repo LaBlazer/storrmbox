@@ -28,13 +28,13 @@ def verify_password(username, password):
 def verify_token(token):
     g.user = None
     try:
-        # Salted with IP + token_nonce
-        origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
-        print("Origin: " + origin)
-        data = token_serializer.loads(token, salt=origin)
+        # Salted with IP
+        print("Origin: " + request.remote_addr)
+        data = token_serializer.loads(token, salt=request.remote_addr)
     except:  # noqa: E722
         return False
     if "username" in data and "n" in data:
+        # Token nonce must match too
         g.user = User.query.filter_by(username=data['username'], token_nonce=data['n']).first()
         return g.user is not None
     return False
@@ -72,13 +72,11 @@ class AuthResource(Resource):
     @api.doc(security=['basic', 'bearer'])
     @api.expect(auth_parser)
     def post(self):
-        # Invalidate the token if request is coming from a different IP
-        salt = str(request.headers.get('X-Forwarded-For', request.remote_addr))
-
         expire_time = EXTENDED_TOKEN_EXPIRE_TIME if bool(auth_parser.parse_args()['extended']) else TOKEN_EXPIRE_TIME
         token_serializer.expires_in = expire_time
 
-        token = token_serializer.dumps({"username": g.user.username, "n": g.user.token_nonce}, salt=salt).decode('utf-8')
+        # Invalidate the token if request is coming from a different IP
+        token = token_serializer.dumps({"username": g.user.username, "n": g.user.token_nonce}, salt=request.remote_addr).decode('utf-8')
 
         return {"token": token, "expires_in": time() + expire_time}
 
