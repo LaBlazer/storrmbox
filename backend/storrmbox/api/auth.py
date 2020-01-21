@@ -28,13 +28,13 @@ def verify_password(username, password):
 def verify_token(token):
     g.user = None
     try:
-        # Salted with IP + token_nonce
-        origin = str(request.headers.get('X-Forwarded-For', request.remote_addr))
-        print("Origin: " + origin)
-        data = token_serializer.loads(token, salt=origin)
+        # Salted with IP
+        print("Origin: " + request.remote_addr)
+        data = token_serializer.loads(token, salt=request.remote_addr)
     except:  # noqa: E722
         return False
     if "username" in data and "n" in data:
+        # Token nonce must match too
         g.user = User.query.filter_by(username=data['username'], token_nonce=data['n']).first()
         return g.user is not None
     return False
