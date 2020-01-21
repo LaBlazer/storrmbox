@@ -104,11 +104,9 @@ export class AutoSizingAnimatedList extends Component {
                 </Measure>
             )
         } else {
-            return (
-                <div style={style}>
-                    {this.props.children({ index, style })}
-                </div>
-            )
+            return <div style={style}>
+                {this.props.children({ index, style })}
+            </div>
         }
     }
 

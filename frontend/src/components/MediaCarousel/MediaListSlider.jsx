@@ -62,13 +62,14 @@ class MediaListSlider extends React.Component {
     }
 
     render() {
+        let listSize, empty;
         //Show loading media cards when list is empty
-        if (this.props.uidList && this.props.uidList.length == 0) {
-            var listSize = 3;
-            var empty = true;
+        if (this.props.uidList && this.props.uidList.length === 0) {
+            listSize = 3;
+            empty = true;
         } else {
-            var listSize = this.props.uidList.length;
-            var empty = false;
+            listSize = this.props.uidList.length;
+            empty = false;
         }
 
         return (

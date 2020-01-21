@@ -88,14 +88,10 @@ AxiosI.interceptors.request.use((config) => {
     }
 
     return config;
-}, (err) => {
-    console.log(err);
-
-    return Promise.reject(err);
-});
+}, (err) => Promise.reject(err));
 
 function getContentIDList(type, filter, refresh = false) {
-    if (type !== "popular" && type !== "top") throw "[API] Unknown content type";
+    if (type !== "popular" && type !== "top") throw new Error("[API] Unknown content type");
 
     var cacheKey = type + "_" + filter;
     if (!refresh && API.uidCache[cacheKey])
