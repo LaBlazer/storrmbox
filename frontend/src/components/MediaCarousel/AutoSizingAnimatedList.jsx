@@ -4,7 +4,13 @@ import Measure from 'react-measure';
 import smoothscroll from 'smoothscroll-polyfill';
 
 
-
+/**
+ * Handles resizing list & items to elements CSS sizes
+ *
+ * @export
+ * @class AutoSizingAnimatedList
+ * @extends {Component}
+ */
 export class AutoSizingAnimatedList extends Component {
 
     static defaultProps = {
@@ -27,7 +33,6 @@ export class AutoSizingAnimatedList extends Component {
 
     handleListWidthUpdate(contentRect) {
         const { width } = contentRect.bounds;
-        console.log("List", width, this.state);
 
         if (this.state.listWidth !== width) {
             //If list shrinks, shrink items too
@@ -41,7 +46,6 @@ export class AutoSizingAnimatedList extends Component {
 
     handleItemWidthUpdate(contentRect) {
         const { width } = contentRect.bounds;
-        console.log("Item", width, this.state);
 
         if (this.state.itemWidth !== width) {
             //If list is samller than itemFillMaxWidth, then resize Items to list width
@@ -73,10 +77,15 @@ export class AutoSizingAnimatedList extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.scrollSide !== prevProps.scrollSide && this.props.scrollSide !== 0) {
+        if (this.props.scrollDirection !== prevProps.scrollDirection && this.props.scrollDirection !== 0) {
             const itemsPerScreen = Math.round(this.state.listWidth / this.state.itemWidth);
 
-            this.moveTo(this.state.scrollToItem + itemsPerScreen * this.props.scrollSide);
+            let scrollTo = this.state.scrollToItem + itemsPerScreen * this.props.scrollDirection;
+            if (scrollTo >= 0 && scrollTo <= this.props.itemCount - itemsPerScreen) {
+                this.moveTo(scrollTo);
+            } else {
+                if (this.props.onAnimationComplete) this.props.onAnimationComplete();
+            }
         }
     }
 
@@ -123,7 +132,6 @@ export class AutoSizingAnimatedList extends Component {
                             width={this.state.listWidth}
                             itemSize={this.state.itemWidth}
                             scrollToItem={this.state.scrollToItem}
-                            forceScrolling={this.state.forceScroll}
                             onAnimationComplete={this.animationComplete}
                         >
                             {this._row}
