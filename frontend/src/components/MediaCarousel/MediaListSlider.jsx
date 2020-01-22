@@ -18,9 +18,8 @@ class MediaListSlider extends React.Component {
         super(props);
 
         this.state = {
-            loaded: 0,
             isAnimating: false,
-            scrollSide: 0,
+            scrollDirection: 0,
         }
 
         this.height = 250;
@@ -28,11 +27,9 @@ class MediaListSlider extends React.Component {
 
     _scrollLeft = () => {
         if (!this.state.isAnimating) {
-            this.setState((prevState) => {
-                return {
-                    isAnimating: true,
-                    scrollSide: -1
-                }
+            this.setState({
+                isAnimating: true,
+                scrollDirection: -1
             });
         }
     }
@@ -41,7 +38,7 @@ class MediaListSlider extends React.Component {
         if (!this.state.isAnimating) {
             this.setState({
                 isAnimating: true,
-                scrollSide: 1
+                scrollDirection: 1
             });
         }
     }
@@ -57,7 +54,7 @@ class MediaListSlider extends React.Component {
     animationComplete = () => {
         this.setState({
             isAnimating: false,
-            scrollSide: 0
+            scrollDirection: 0
         });
     }
 
@@ -77,13 +74,13 @@ class MediaListSlider extends React.Component {
                 <div style={{ overflow: "hidden", height: this.height - 20 }}>
                     <AutoSizingAnimatedList
                         layout="horizontal"
-                        duration={1000}
+                        duration={700}
                         easing={easeInOutQuint}
                         height={this.height}
                         onAnimationComplete={this.animationComplete}
                         itemCount={listSize}
                         overscanCount={2}
-                        scrollSide={this.state.scrollSide}
+                        scrollDirection={this.state.scrollDirection}
                     >
                         {empty ? this._emptyRow : this._row}
                     </AutoSizingAnimatedList>
