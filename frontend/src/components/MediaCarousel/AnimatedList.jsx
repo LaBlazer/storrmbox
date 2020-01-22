@@ -56,8 +56,10 @@ export default class AnimatedList extends Component {
 
     _initAnimation() {
         if (this._animationStartTime) {
-            throw Error('Animation in progress'); // You handle this however you want.
-        }                                         // https://i.imgur.com/ddXt0p1.jpg
+            // throw Error('Animation in progress'); // You handle this however you want.
+            // https://i.imgur.com/ddXt0p1.jpg
+            return;
+        }
 
         const { itemSize, scrollToItem } = this.props;
 
