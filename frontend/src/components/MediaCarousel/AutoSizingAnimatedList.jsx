@@ -24,7 +24,8 @@ export class AutoSizingAnimatedList extends Component {
             animating: false,
             listWidth: 500,
             itemWidth: 100,
-            scrollToItem: 0
+            scrollToItem: 0,
+            forceScrolling: 0
         }
 
         this.handleItemWidthUpdate = this.handleItemWidthUpdate.bind(this);
@@ -36,11 +37,14 @@ export class AutoSizingAnimatedList extends Component {
 
         if (this.state.listWidth !== width) {
             //If list shrinks, shrink items too
+            let obj = {};
             if (width <= this.props.itemFillMaxWidth) {
-                this.setState({ listWidth: width, itemWidth: width });
+                obj = { listWidth: width, itemWidth: width };
             } else {
-                this.setState({ listWidth: width });
+                obj = { listWidth: width };
             }
+
+            this.setState((prevState) => ({ ...obj, forceScrolling: prevState.forceScrolling + 1 }));
         }
     }
 
@@ -133,6 +137,7 @@ export class AutoSizingAnimatedList extends Component {
                             itemSize={this.state.itemWidth}
                             scrollToItem={this.state.scrollToItem}
                             onAnimationComplete={this.animationComplete}
+                            forceScrolling={this.state.forceScrolling}
                         >
                             {this._row}
                         </AnimatedList>
