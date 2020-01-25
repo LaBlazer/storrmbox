@@ -6,12 +6,12 @@ import StarRating from '../StarRating/StarRating';
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
 type MediaCardProps = RouteComponentProps<{}> & {
-    loading: boolean,
-    uid: string,
-    title: string,
-    poster: string,
-    rating: number,
-    plot: string
+    loading?: boolean,
+    uid?: string,
+    title?: string,
+    poster?: string,
+    rating?: number,
+    plot?: string
 }
 
 type MediaCardState = {
@@ -51,16 +51,8 @@ class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
 
     handleDownloadClick() {
         this.setState({ state: MDBStates.IS_DOWNLOADING });
-        
+
         this.simulateDownloading();
-    }
-
-    shouldComponentUpdate(nextProps: MediaCardProps) {
-        if (this.props.loading !== nextProps.loading) {
-            return true;
-        }
-
-        return false;
     }
 
     render() {
@@ -80,9 +72,9 @@ class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
                             {this.props.loading ?
                                 <p className='skeleton title'>&nbsp;</p>
                                 :
-                                <p className={this.props.title?.length > 25 ? "small title" : "title"}>{this.props.title}</p>
+                                <p className={(this.props.title?.length ?? 0) > 25 ? "small title" : "title"}>{this.props.title}</p>
                             }
-                            <StarRating className="rating" stars={this.props.rating * 5} />
+                            <StarRating className="rating" stars={(this.props.rating ?? 0) * 5} />
                             {!this.props.loading && <p className="plot">{this.props.plot}</p>}
                         </Col>
                     </Row>
