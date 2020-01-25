@@ -1,9 +1,6 @@
 import React from 'react';
-import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../../configs/constants';
 import { Button, Container, Card, Form, Row, Col } from 'react-bootstrap';
-import { setCookie } from '../../utils/CookieHelper';
-import { AuthContext } from '../../contexts/auth-context';
-import API from '../../utils/API';
+import AuthStore from '../../stores/AuthStore';
 
 
 class LoginPage extends React.Component {
@@ -14,28 +11,12 @@ class LoginPage extends React.Component {
         this.handleLogin = this.handleLogin.bind(this);
     }
 
-
-    async handleLogin(e) {
+    handleLogin(e) {
         e.preventDefault();
 
-        try {
-            var formData = new FormData(e.target);
-            var rememberMe = formData.get('rememberme') !== null;
-            var data = await API.login(formData.get('username'), formData.get('password'), rememberMe);
-
-            if (data.status === 200) {
-                setCookie(TOKEN_COOKIE_NAME, data.data.token, new Date(data.data.expires_in * 1000));
-                if (rememberMe) {
-                    setCookie(REMEMBER_ME_COOKIE_NAME, 1, new Date(data.data.expires_in * 1000));
-                }
-                this.context.login();
-            }
-
-        } catch (err) {
-            //Show error
-            console.log(err);
-            // alert(err.response.data);
-        }
+        var formData = new FormData(e.target);
+        var rememberMe = formData.get('rememberme') !== null;
+        AuthStore.login(formData.get('username'), formData.get('password'), rememberMe);
     }
 
     render() {
@@ -74,6 +55,5 @@ class LoginPage extends React.Component {
     }
 
 }
-LoginPage.contextType = AuthContext;
 
 export default LoginPage;

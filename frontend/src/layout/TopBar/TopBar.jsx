@@ -2,13 +2,11 @@ import React from 'react';
 import { Navbar, Button, Container, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import { AuthContext } from '../../contexts/auth-context';
-import { deleteCookie } from '../../utils/CookieHelper';
-import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../../configs/constants';
 import './TopBar.scss';
 import { ReactComponent as Logo } from '../../assets/logo.svg';
 import { ReactComponent as SmallLogo } from '../../assets/logo_icon.svg';
 import { NavLink, withRouter, Link } from 'react-router-dom';
+import AuthStore from '../../stores/AuthStore';
 
 class TopBar extends React.Component {
 
@@ -19,7 +17,6 @@ class TopBar extends React.Component {
             searchValue: this.props.match.params.query || ""
         }
 
-        this.logout = this.logout.bind(this);
         this.onSearch = this.onSearch.bind(this);
     }
 
@@ -30,12 +27,6 @@ class TopBar extends React.Component {
         if (this.state.searchValue !== "" && prevQuery !== undefined && prevQuery !== "" && currQuery === undefined) {
             this.setState({ searchValue: "" });
         }
-    }
-
-    logout() {
-        deleteCookie(TOKEN_COOKIE_NAME);
-        deleteCookie(REMEMBER_ME_COOKIE_NAME);
-        this.context.logout();
     }
 
     onSearch(e) {
@@ -87,15 +78,13 @@ class TopBar extends React.Component {
                                 </InputGroup.Append>
                             </InputGroup>
                         </Form>
-                        <Button variant="outline-primary ml-3" onClick={this.logout}>Logout</Button>
+                        <Button variant="outline-primary ml-3" onClick={AuthStore.logout}>Logout</Button>
                     </div>
                 </Container>
             </Navbar>
         )
     }
 }
-
-TopBar.contextType = AuthContext;
 
 TopBar.defaultProps = {
     siteName: "Web title"

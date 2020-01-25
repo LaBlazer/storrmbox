@@ -7,13 +7,20 @@ import RoundProgress from '../RoundProgress/RoundProgress';
 
 //Toto bude dobre vytiahnut do nejake inej triedy
 //Stav filmu (je stiahnuty?)
-export const MDBStates = {
-    CAN_DOWNLOAD: 1,
-    IS_DOWNLOADING: 2,
-    CAN_WATCH: 3
+export enum MDBStates {
+    CAN_DOWNLOAD = 1,
+    IS_DOWNLOADING = 2,
+    CAN_WATCH = 3
 };
 
-export class MediaDownloadButton extends React.Component {
+type MDBProps = {
+    state: MDBStates,
+    percentsDownloaded?: number,
+    onDownloadClick?: (event: React.MouseEvent<SVGSVGElement>) => void,
+    onWatchClick?: (event: React.MouseEvent<SVGSVGElement>) => void
+}
+
+export class MediaDownloadButton extends React.Component<MDBProps> {
 
     render() {
 

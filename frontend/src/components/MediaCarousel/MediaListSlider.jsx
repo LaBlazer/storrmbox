@@ -48,7 +48,7 @@ class MediaListSlider extends React.Component {
     )
 
     _row = ({ index, style }) => (
-        <MediaContentLoader mediaId={this.props.uidList[index]} />
+        <MediaContentLoader mediaID={this.props.uidList[index]} />
     )
 
     animationComplete = () => {
@@ -59,12 +59,8 @@ class MediaListSlider extends React.Component {
     }
 
     render() {
-        let listSize, empty;
-        //Show loading media cards when list is empty
-        if (this.props.uidList && this.props.uidList.length === 0) {
-            listSize = 3;
-            empty = true;
-        } else {
+        let listSize = 3, empty = true;
+        if (this.props.uidList && this.props.uidList.length !== 0) {
             listSize = this.props.uidList.length;
             empty = false;
         }
