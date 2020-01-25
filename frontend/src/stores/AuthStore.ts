@@ -10,6 +10,9 @@ class AuthStore {
     @observable
     auth: boolean = false
 
+    @observable
+    fetching: boolean = false
+
     private refreshTimeout: NodeJS.Timeout | null = null
 
     constructor() {
@@ -42,6 +45,7 @@ class AuthStore {
      */
     public login = async (username: string, password: string, extended: boolean = false) => {
         try {
+            this.fetching = true;
             let response = await AuthService.login(username, password, extended);
 
             let { data } = response;
@@ -56,18 +60,16 @@ class AuthStore {
                     this.setupTokenAutorefresh(response.data.expires_in);
                 }
 
-                runInAction(() => {
-                    this.auth = true;
-                })
+                this.auth = true;
             } else {
                 console.error("Bad status on login: ", response.status, response.statusText);
             }
         } catch (err) {
             console.error(err);
 
-            runInAction(() => {
-                this.auth = false;
-            })
+            this.auth = false;
+        } finally {
+            this.fetching = false;
         }
     }
 
@@ -87,6 +89,7 @@ class AuthStore {
         let exists = getCookie(TOKEN_COOKIE_NAME) !== null;
 
         if (!exists) return;
+        this.fetching = true;
         let response = await AuthService.refreshToken(extended);
 
         if (response.status === 200) {
@@ -99,10 +102,9 @@ class AuthStore {
                 this.setupTokenAutorefresh(data.expires_in);
             }
 
-            runInAction(() => {
-                this.auth = true;
-            })
+            this.auth = true;
         }
+        this.fetching = false;
     }
 
     //Refresh token if it's going to expire

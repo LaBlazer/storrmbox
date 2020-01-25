@@ -6,21 +6,17 @@ import { observer } from 'mobx-react';
 @observer
 class AuthWall extends React.Component {
 
-    state = {
-        loading: false
-    }
-
     componentDidMount() {
         AuthStore.refreshToken();
     }
 
     render() {
-        var { auth } = AuthStore;
+        var { auth, fetching } = AuthStore;
 
         if (auth === true) {
             return this.props.children;
         } else {
-            if (this.state.loading) {
+            if (fetching) {
                 return <React.Fragment></React.Fragment>
             } else {
                 return (
