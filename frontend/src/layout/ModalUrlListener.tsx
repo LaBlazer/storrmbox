@@ -1,16 +1,19 @@
 import React from 'react';
 import MediaModal from '../components/MediaModal/MediaModal';
-import { withRouter, Redirect } from 'react-router-dom';
-import API from '../utils/API';
+import { withRouter, Redirect, RouteComponentProps } from 'react-router-dom';
+import ContentStore from '../stores/ContentStore';
+import { observer } from 'mobx-react';
 
-class ModalUrlListener extends React.Component {
+type MULProps = RouteComponentProps<{ id: string }, any, { background: string }>;
 
-    constructor(props) {
+
+@observer
+class ModalUrlListener extends React.Component<MULProps, { forceClose: boolean }> {
+
+    constructor(props: MULProps) {
         super(props);
 
         this.state = {
-            media: null,
-            loading: true,
             forceClose: false
         }
 
@@ -26,10 +29,9 @@ class ModalUrlListener extends React.Component {
         }
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         let { id } = this.props.match.params;
-        var data = await API.getContentByID(id);
-        this.setState({ media: data, loading: false });
+        ContentStore.getContent(id);
     }
 
     render() {
@@ -40,9 +42,12 @@ class ModalUrlListener extends React.Component {
             )
         }
 
-        return (
-            <MediaModal loading={this.state.loading} show={true} {...this.state.media} onHide={this.handleClose} />
-        )
+        let { id } = this.props.match.params;
+        if (ContentStore.content[id]) {
+            return <MediaModal show={true} {...ContentStore.content[id]} onHide={this.handleClose} />
+        } else {
+            return <MediaModal loading show={true} onHide={this.handleClose} />
+        }
     }
 }
 

@@ -19,7 +19,8 @@ export class AuthService {
      * @param {Boolean} extended 
      */
     static login(username: string, password: string, extended: boolean) {
-        return AxiosI.post<any, AxiosResponse<AuthResponse>>('/auth', qs.stringify({ extended }), {
+        return AxiosI.post<any, AxiosResponse<AuthResponse>>('/auth',
+            qs.stringify({ extended }), {
             auth: {
                 username,
                 password
@@ -52,5 +53,3 @@ AxiosI.interceptors.request.use((config) => {
 
     return config;
 }, (err) => Promise.reject(err));
-
-

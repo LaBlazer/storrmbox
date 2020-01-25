@@ -1,43 +1,48 @@
-export class ContentService {
-    
+import AxiosI from "./api";
+import { AxiosResponse } from "axios";
+
+export interface ContentModel {
+    uid: string,
+    type: number,
+    title: string
+    date_released: Date,
+    date_end: Date,
+    runtime: number,
+    rating: number,
+    plot: string,
+    genres: string,
+    poster: string,
+    trailer_youtube_id: string,
+    episode: number,
+    seasos: number
 }
 
-//     static getPopularIDList(type, refresh = false) {
-//     return getContentIDList("popular", type, refresh);
-// }
+export type ContentType = "movie" | "series" | "episode";
 
-//     static getTopIDList(type, refresh = false) {
-//     return getContentIDList("top", type, refresh);
-// }
+export class ContentService {
 
-//     static search(query) {
-//     return AxiosI.get('/content/search', { params: { query } }).then((data) => {
-//         return data.data.uids;
-//     });
-// }
+    static getPopularIDList(type: ContentType) {
+        return this.getContentIDList("popular", type);
+    }
 
-//     static getContentByID(uid) {
-//     if (this.contentCache[uid] != null)
-//         return Promise.resolve(this.contentCache[uid]);
+    static getTopIDList(type: ContentType) {
+        return this.getContentIDList("top", type);
+    }
 
-//     return AxiosI.get(`/content/${uid}`).then((data) => {
-//         data = data.data;
-//         this.contentCache[data.uid] = data;
-//         return data;
-//     });
-// }
+    static getContentByID(uid: string) {
+        return AxiosI.get<any, AxiosResponse<ContentModel>>(`/content/${uid}`)
+            .then(response => response.data);
+    }
 
-// function getContentIDList(type, filter, refresh = false) {
-//     if (type !== "popular" && type !== "top") throw new Error("[API] Unknown content type");
+    static search(query: string) {
+        return AxiosI.get<any, AxiosResponse<{ uids: string[] }>>('/content/search', { params: { query } })
+            .then((response) => response.data.uids);
+    }
 
-//     var cacheKey = type + "_" + filter;
-//     if (!refresh && API.uidCache[cacheKey])
-//         return Promise.resolve(API.uidCache[cacheKey]);
+    private static getContentIDList(type: string, filter: string) {
+        if (type !== "popular" && type !== "top") throw new Error("[API] Unknown content type");
 
-//     return AxiosI.get(`/content/${type}`, { params: { type: filter } }).then((data) => {
-//         data = data.data.uids;
-//         API.uidCache[cacheKey] = data;
-
-//         return data;
-//     });
-// }
+        return AxiosI.get<any, AxiosResponse<{ uids: string[] }>>(`/content/${type}`, { params: { type: filter } })
+            .then((response) => response.data.uids);
+    }
+}
