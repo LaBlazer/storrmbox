@@ -28,7 +28,7 @@ class User(SurrogatePK, Model):
     last_update = sa.Column(sa.DateTime, nullable=True, onupdate=func.now())
     last_login = sa.Column(sa.DateTime, nullable=True)
     permission_level = sa.Column(sa.SmallInteger, nullable=False, default=0)
-    token_nonce = sa.Column(sa.String(5), unique=False, nullable=False, default=generate_token_nonce)
+    token_nonce = sa.Column(sa.String(5), unique=False, nullable=False, default=generate_token_nonce.__func__)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
     searches = relationship("Search", backref="user")

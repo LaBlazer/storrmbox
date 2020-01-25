@@ -1,4 +1,5 @@
 import json
+import operator
 from datetime import datetime
 from threading import Thread
 
@@ -31,7 +32,7 @@ yt_search = searchyt()
 content_scraper = OmdbScraper()
 imdb_scraper = ImdbScraper()
 
-
+# API Model definitions
 content_fields = api.model("Content", {
     "uid": fields.String,
     "type": fields.Integer,
@@ -48,6 +49,27 @@ content_fields = api.model("Content", {
     "season": fields.Integer
 })
 
+content_list_fields = api.model("ContentUidList", {
+    "uids": fields.List(fields.String)
+    # "type": fields.String
+})
+
+content_episode = api.model("ContentEpisode", {
+    "uid": fields.String,
+    "title": fields.String,
+    "rating": fields.Float,
+    "episode": fields.Integer
+})
+
+content_season = api.model("ContentSeason", {
+    "season": fields.Integer,
+    "episodes": fields.List(fields.Nested(content_episode))
+})
+
+content_season_list = api.model("ContentSeasonList", {
+    "seasons": fields.List(fields.Nested(content_season))
+})
+
 
 @api.route("/<string:uid>")
 class ContentResource(Resource):
@@ -57,7 +79,7 @@ class ContentResource(Resource):
     def get(self, uid):
         content = Content.get_by_uid(uid)
 
-        if content is None:
+        if not content:
             raise NotFoundException(f"Invalid uid '{uid}'")
 
         if not content.fetched:
@@ -131,10 +153,32 @@ class ContentResource(Resource):
         return content
 
 
-content_list_fields = api.model("ContentUidList", {
-    "uids": fields.List(fields.String)
-    #"type": fields.String
-})
+@api.route("/<string:uid>/episodes")
+class EpisodesContentResource(Resource):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @auth.login_required
+    @api.marshal_with(content_season_list)
+    def get(self, uid):
+        content = Content.get_by_uid(uid)
+
+        if not content:
+            raise NotFoundException(f"Invalid uid '{uid}'")
+
+        if content.type != ContentType.series:
+            raise InternalException("Invalid content type")
+
+        episodes = Content.query.options(load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season)) \
+            .filter(Content.parent_uid == content.uid).all()
+
+        season_amount = max(episodes, key=lambda e: e.season).season
+
+        result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
+
+        return {"seasons": result}
+
 
 popular_parser = api.parser()
 popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
@@ -142,7 +186,7 @@ popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in Cont
 
 
 @api.route("/popular")
-class ContentPopularResource(Resource):
+class PopularContentResource(Resource):
 
     @auth.login_required
     @api.marshal_with(content_list_fields)
@@ -194,7 +238,7 @@ top_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentT
 
 
 @api.route("/top")
-class ContentTopResource(Resource):
+class TopContentResource(Resource):
 
     @auth.login_required
     @api.marshal_with(content_list_fields)
@@ -234,7 +278,7 @@ search_parser.add_argument('amount', type=int, default=6,
 
 
 @api.route("/search")
-class ContentSearchResource(Resource):
+class SearchContentResource(Resource):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -316,7 +360,7 @@ class ContentSearchResource(Resource):
 
 
 @api.route("/download")
-class ContentDownloadResource(Resource):
+class DownloadContentResource(Resource):
 
     @auth.login_required
     @api.marshal_with(content_fields)
@@ -354,7 +398,7 @@ class ContentDownloadResource(Resource):
         objects = []
         try:
             # Disable FK triggers
-            db.engine.execute(text("SET session_replication_role = replica;").execution_options(autocommit=True))
+            # db.engine.execute(text("SET session_replication_role = replica;").execution_options(autocommit=True))
 
             for c in imdb_scraper.get_content():
                 c["uid"] = Content.generate_uid(c["imdb_id"])
@@ -373,4 +417,4 @@ class ContentDownloadResource(Resource):
         finally:
             pass
             # Enable FK triggers
-            db.engine.execute(text("SET session_replication_role = DEFAULT;").execution_options(autocommit=True))
+            # db.engine.execute(text("SET session_replication_role = DEFAULT;").execution_options(autocommit=True))
