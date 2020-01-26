@@ -7,12 +7,10 @@ class MediaCardList extends React.Component {
         return (
             <Row>
                 {
-                    this.props.uidList.map((media, i) => (i < 8) ?
-                        (
-                            <Col key={media + ":" + i} xs={12} md={6} lg={4} className="mb-3">
-                                <MediaContentLoader mediaID={media} />
-                            </Col>
-                        ) : ''
+                    this.props.uidList.map((media, i) =>
+                        <Col key={media + ":" + i} xs={12} md={6} lg={4} className="mb-3">
+                            <MediaContentLoader mediaID={media} />
+                        </Col>
                     )
                 }
             </Row >
