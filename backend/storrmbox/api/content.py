@@ -37,8 +37,8 @@ content_fields = api.model("Content", {
     "uid": fields.String,
     "type": fields.Integer,
     "title": fields.String,
-    "date_released": fields.Date,
-    "date_end": fields.Date,
+    "year_released": fields.Date,
+    "year_end": fields.Date,
     "runtime": fields.Integer,
     "rating": fields.Float,
     "plot": fields.String,
@@ -170,7 +170,7 @@ class EpisodesContentResource(Resource):
         if content.type != ContentType.series:
             raise InternalException("Invalid content type")
 
-        episodes = Content.query.options(load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season)) \
+        episodes = Content.query.options(load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season))\
             .filter(Content.parent_uid == content.uid).all()
 
         season_amount = max(episodes, key=lambda e: e.season).season
@@ -178,6 +178,37 @@ class EpisodesContentResource(Resource):
         result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
 
         return {"seasons": result}
+
+
+@api.route("/<string:uid>/download")
+class DownloadContentResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(content_fields)
+    # @api.expect(parser)
+    def post(self, uid):
+        pass
+        # ctype = 0
+        # for t in args['type']:
+        #    ctype |= ContentType[t.upper()]
+        # torrents = []
+        # if ctype & ContentType.MOVIE:
+        #     torrents = torrent_scraper.search_movie(args['query'])
+        # elif ctype & ContentType.SHOW:
+        #     torrents = torrent_scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
+        #
+        # for i, t in enumerate(torrents):
+        #     res.append({
+        #         'id': i,
+        #         'name': 'test search content ' + str(i),
+        #         'year': 2019,
+        #         'year_end': None,
+        #         'description': 'Name: {}, Seeders: {}, Leechers: {}'.format(t.name, t.seeders, t.leechers),
+        #         'rating': i % 5,
+        #         'type': ctype,
+        #         'thumbnail': 'https://picsum.photos/200/300'
+        #     })
+        # return []
 
 
 popular_parser = api.parser()
@@ -359,35 +390,11 @@ class SearchContentResource(Resource):
         return {"uids": uids}
 
 
-@api.route("/download")
-class DownloadContentResource(Resource):
+@api.route("/reload")
+class ReloadContentResource(Resource):
 
+    # TODO: make this admin-only
     @auth.login_required
-    @api.marshal_with(content_fields)
-    # @api.expect(parser)
-    def post(self):
-        # ctype = 0
-        # for t in args['type']:
-        #    ctype |= ContentType[t.upper()]
-        # torrents = []
-        # if ctype & ContentType.MOVIE:
-        #     torrents = scraper.search_movie(args['query'])
-        # elif ctype & ContentType.SHOW:
-        #     torrents = scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
-        #
-        # for i, t in enumerate(torrents):
-        #     res.append({
-        #         'id': i,
-        #         'name': 'test search content ' + str(i),
-        #         'year': 2019,
-        #         'year_end': None,
-        #         'description': 'Name: {}, Seeders: {}, Leechers: {}'.format(t.name, t.seeders, t.leechers),
-        #         'rating': i % 5,
-        #         'type': ctype,
-        #         'thumbnail': 'https://picsum.photos/200/300'
-        #     })
-        return []
-
     def get(self):
         thread = Thread(target=self.update_data)
         thread.start()
@@ -397,10 +404,9 @@ class DownloadContentResource(Resource):
         chunk = 0
         objects = []
         try:
-            # Disable FK triggers
-            # db.engine.execute(text("SET session_replication_role = replica;").execution_options(autocommit=True))
-
+            # TODO: Only update existing content
             for c in imdb_scraper.get_content():
+
                 c["uid"] = Content.generate_uid(c["imdb_id"])
                 objects.append(c)
                 chunk += 1
@@ -416,5 +422,3 @@ class DownloadContentResource(Resource):
 
         finally:
             pass
-            # Enable FK triggers
-            # db.engine.execute(text("SET session_replication_role = DEFAULT;").execution_options(autocommit=True))
