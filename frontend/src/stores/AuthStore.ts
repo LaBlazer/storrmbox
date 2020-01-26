@@ -114,8 +114,8 @@ class AuthStore {
         if (this.refreshTimeout !== null) clearTimeout(this.refreshTimeout);
 
         this.refreshTimeout = setTimeout(async () => {
-            let data = await this.refreshToken();
-            console.log("Refreshing token!", data);
+            await this.refreshToken();
+            console.log("Refreshing token!");
         }, (expiration - 200) * 1000);
     }
 

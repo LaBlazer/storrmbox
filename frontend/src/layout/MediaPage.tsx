@@ -2,10 +2,10 @@ import React from 'react';
 import MediaListSlider from '../components/MediaCarousel/MediaListSlider';
 import ContentStore from '../stores/ContentStore';
 import { observer } from 'mobx-react';
-import { ContentType } from '../endpoints/content';
+import { ContentTypeNames } from '../endpoints/content';
 
 type MPProps = {
-    category: ContentType,
+    category: ContentTypeNames,
     categoryName: string
 }
 

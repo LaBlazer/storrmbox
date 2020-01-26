@@ -1,6 +1,14 @@
 import AxiosI from "./api";
 import { AxiosResponse } from "axios";
 
+export type ContentTypeNames = "movie" | "series" | "episode";
+
+export enum ContentType {
+    MOVIE = 1,
+    SERIES = 2,
+    EPISODE = 3
+};
+
 export interface ContentModel {
     uid: string,
     type: number,
@@ -17,21 +25,36 @@ export interface ContentModel {
     seasos: number
 }
 
-export type ContentType = "movie" | "series" | "episode";
+export interface Season {
+    season: number,
+    episodes: Episode[]
+}
+
+export interface Episode {
+    episode: number,
+    rating: number,
+    title: string,
+    uid: string
+}
 
 export class ContentService {
 
-    static getPopularIDList(type: ContentType) {
+    static getPopularIDList(type: ContentTypeNames) {
         return this.getContentIDList("popular", type);
     }
 
-    static getTopIDList(type: ContentType) {
+    static getTopIDList(type: ContentTypeNames) {
         return this.getContentIDList("top", type);
     }
 
     static getContentByID(uid: string) {
         return AxiosI.get<any, AxiosResponse<ContentModel>>(`/content/${uid}`)
             .then(response => response.data);
+    }
+
+    static getSeasonsInfo(uid: string) {
+        return AxiosI.get<any, AxiosResponse<{ seasons: Season[] }>>(`/content/${uid}/episodes`)
+            .then(response => response.data.seasons);
     }
 
     static search(query: string) {
