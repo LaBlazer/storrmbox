@@ -13,8 +13,8 @@ export interface ContentModel {
     uid: string,
     type: number,
     title: string
-    year_released: Date,
-    date_end: Date,
+    year_released: number,
+    year_end: number,
     runtime: number,
     rating: number,
     plot: string,

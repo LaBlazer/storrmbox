@@ -4,6 +4,7 @@ import './MediaModal.scss';
 import StarRating from '../StarRating/StarRating';
 import { ContentModel, Season } from '../../endpoints/content';
 import { SeasonList } from '../SeasonList/SeasonList';
+import { MediaYear } from '../MediaYear';
 
 type MMProps = {
     seasons: Season[] | undefined | null,
@@ -14,7 +15,7 @@ type MMProps = {
 class MediaModal extends React.Component<MMProps> {
 
     render() {
-        let { poster, title, year_released, rating, plot } = this.props.content;
+        let { type, poster, title, year_released, year_end, rating, plot } = this.props.content;
 
         return (
             <Modal
@@ -34,7 +35,7 @@ class MediaModal extends React.Component<MMProps> {
                     <div className="info">
                         <p className="title">{title}</p>
                         <div className="rating">
-                            <span>Year: {year_released}</span>
+                            <span>Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
                             <span className="ml-2"> Rating: <StarRating stars={rating * 5} /></span>
                         </div>
                     </div>
