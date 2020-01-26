@@ -4,7 +4,7 @@
         background-color: #0D0D0D;
     }
 
-    .header {
+    .media-modal-header {
 
         .top-thumbnail {
             height: 448px;
@@ -40,13 +40,17 @@
             }
         }
 
+    }
+
+    .media-modal-body {
+        position: relative;
+        padding: 0 1rem;
+
         .description {
-            padding: 0 11px;
             text-align: justify;
             font-size: 16px;
             line-height: 24px;
         }
-
     }
 
 }
