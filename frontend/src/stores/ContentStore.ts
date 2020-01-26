@@ -14,9 +14,6 @@ class ContentStore {
     @observable
     content: Dictionary<ContentModel | undefined | null> = {}
 
-    @observable
-    search: { runnig: boolean, results: string[] } = { runnig: false, results: [] }
-
     public getPopularList = async (type: ContentType) => {
         if (this.popularList[type] === undefined) {
             try {
@@ -54,11 +51,6 @@ class ContentStore {
         }
     }
 
-    public runSearch = async (term: string) => {
-        this.search.runnig = true;
-        this.search.results = await ContentService.search(term);
-        this.search.runnig = false;
-    }
 }
 
 export default new ContentStore();
