@@ -181,13 +181,13 @@ class ImdbScraper(ContentScraper):
                 continue
 
             # Skip unwanted content
-            if content_type not in ["tvSeries", "tvMovie", "movie"]:
+            if content_type not in ["tvMiniSeries", "tvSeries", "tvMovie", "movie"]:
                 if content_type != "tvEpisode":
                     basics.remove_data(iid)
                 continue
 
             # Convert content type
-            if content_type == "tvSeries":
+            if content_type in ["tvSeries", "tvMiniSeries"]:
                 content_type = ContentType.series
             else:
                 content_type = ContentType.movie
@@ -230,12 +230,16 @@ class ImdbScraper(ContentScraper):
                 basics.remove_data(iid)
                 continue
 
-            # Join rating and basic data
+            # Join rating data
             x, average_rating, vote_count = ratings.get_data(iid)
-            x, content_type, title, original_title, adult, start_year, end_year, runtime, genres = basics.get_data(iid)
 
-            # WTFix when parent_iid is an episode instead of series... how
-            # basics.remove_data(iid)
+            # Skip episode if it's not released yet
+            if not vote_count:
+                basics.remove_data(iid)
+                continue
+
+            # Join basic data
+            x, content_type, title, original_title, adult, start_year, end_year, runtime, genres = basics.get_data(iid)
 
             yield {
                 "imdb_id": iid,
