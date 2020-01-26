@@ -6,38 +6,51 @@ import { Dictionary } from '../types/Dictionary';
 class ContentStore {
 
     @observable
-    popularList: Dictionary<string[] | null> = {}
+    popularList: Dictionary<string[] | undefined | null> = {}
 
     @observable
-    topList: Dictionary<string[] | null> = {}
+    topList: Dictionary<string[] | undefined | null> = {}
 
     @observable
-    content: Dictionary<ContentModel | null> = {}
+    content: Dictionary<ContentModel | undefined | null> = {}
 
     @observable
     search: { runnig: boolean, results: string[] } = { runnig: false, results: [] }
 
     public getPopularList = async (type: ContentType) => {
         if (this.popularList[type] === undefined) {
-            this.popularList[type] = null;
-            let response = await ContentService.getPopularIDList(type);
-            this.popularList[type] = response;
+            try {
+                this.popularList[type] = null;
+                let response = await ContentService.getPopularIDList(type);
+                this.popularList[type] = response;
+            } catch (err) {
+                this.popularList[type] = undefined;
+                this.topList[type] = undefined;
+            }
         }
     }
 
     public getTopList = async (type: ContentType) => {
         if (this.topList[type] === undefined) {
-            this.topList[type] = null;
-            let response = await ContentService.getTopIDList(type);
-            this.topList[type] = response;
+            try {
+                this.topList[type] = null;
+                let response = await ContentService.getTopIDList(type);
+                this.topList[type] = response;
+            } catch (err) {
+                this.topList[type] = undefined;
+            }
         }
     }
 
     public getContent = async (uid: string) => {
         if (this.content[uid] === undefined) {
-            this.content[uid] = null;
-            let response = await ContentService.getContentByID(uid);
-            this.content[uid] = response;
+            try {
+                this.content[uid] = null;
+                let response = await ContentService.getContentByID(uid);
+                this.content[uid] = response;
+            } catch (err) {
+                this.content[uid] = undefined;
+            }
         }
     }
 
