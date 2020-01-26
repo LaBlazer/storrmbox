@@ -29,10 +29,10 @@ export class SeasonList extends React.Component<SLProps, SLState> {
             let pickedSeason = this.props.seasons[this.state.pickedSeason - 1];
             let episodes = pickedSeason.episodes.map((item) => ({ season: pickedSeason.season, ...item }));
             
-            return <>
+            return <div className="bg">
                 <Accordion className="season-list" items={seasons} onItemClick={this.onSeasonClicked} itemComponent={SeasonItem} />
                 <Accordion className="episode-list" items={episodes} itemComponent={EpisodeItem} />
-            </>;
+            </div>
         }
 
         return <span>Loading...</span>;
