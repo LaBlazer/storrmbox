@@ -13,7 +13,7 @@ export interface ContentModel {
     uid: string,
     type: number,
     title: string
-    date_released: Date,
+    year_released: Date,
     date_end: Date,
     runtime: number,
     rating: number,
@@ -22,7 +22,7 @@ export interface ContentModel {
     poster: string,
     trailer_youtube_id: string,
     episode: number,
-    seasos: number
+    season: number
 }
 
 export interface Season {

@@ -3,6 +3,8 @@ import MediaModal from '../components/MediaModal/MediaModal';
 import { withRouter, Redirect, RouteComponentProps } from 'react-router-dom';
 import ContentStore from '../stores/ContentStore';
 import { observer } from 'mobx-react';
+import SeasonsStore from '../stores/SeasonsStore';
+import { ContentType, ContentModel } from '../endpoints/content';
 
 type MULProps = RouteComponentProps<{ id: string }, any, { background: string }>;
 
@@ -32,10 +34,14 @@ class ModalUrlListener extends React.Component<MULProps, { forceClose: boolean }
     componentDidMount() {
         let { id } = this.props.match.params;
         ContentStore.getContent(id);
+
+        let content = ContentStore.content[id];
+        if(!content || (content && content.type === ContentType.SERIES)) {
+            SeasonsStore.getSeasons(id);
+        }
     }
 
     render() {
-
         if (this.state.forceClose) {
             return (
                 <Redirect push to="/" />
@@ -44,9 +50,9 @@ class ModalUrlListener extends React.Component<MULProps, { forceClose: boolean }
 
         let { id } = this.props.match.params;
         if (ContentStore.content[id]) {
-            return <MediaModal show={true} {...ContentStore.content[id]} onHide={this.handleClose} />
+            return <MediaModal content={ContentStore.content[id] as ContentModel} seasons={SeasonsStore.series[id]} onHide={this.handleClose} />
         } else {
-            return <MediaModal loading show={true} onHide={this.handleClose} />
+            return <div>Loadiding....</div>
         }
     }
 }
