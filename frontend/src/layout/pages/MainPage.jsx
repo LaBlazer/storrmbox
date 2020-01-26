@@ -27,12 +27,12 @@ class MainPage extends React.Component {
 
                         <Route path="/movies">
                             <TopBar siteName={siteName} />
-                            <MediaPage key="movie" category="movie" title="Movies" />
+                            <MediaPage key="movie" category="movie" categoryName="Movies" />
                         </Route>
 
                         <Route path="/series">
                             <TopBar siteName={siteName} />
-                            <MediaPage key="series" category="series" title="Series" />
+                            <MediaPage key="series" category="series" categoryName="Series" />
                         </Route>
 
                         <Route path="/search/:query">
@@ -43,11 +43,6 @@ class MainPage extends React.Component {
                         <Route path={["/", "/all"]}>
                             <TopBar siteName={siteName} />
                             <h3 className="pt-5">All</h3>
-                            {/* <form onSubmit={this.search}>
-                                <input type="text" name="text" />
-                            </form> */}
-
-                            {/* <MediaCardList mediaList={this.state.result} /> */}
 
                         </Route>
                     </Switch>
