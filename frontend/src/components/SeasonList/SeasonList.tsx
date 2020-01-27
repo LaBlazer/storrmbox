@@ -25,6 +25,11 @@ export class SeasonList extends React.Component<SLProps, SLState> {
 
     render() {
         if (this.props.seasons) {
+
+            if (this.props.seasons?.length === 0) {
+                return <span>No seasons are out yet!</span>
+            }
+
             let seasons = this.props.seasons.map((item) => ({ active: (item.season === this.state.pickedSeason), season: item.season }));
             let pickedSeason = this.props.seasons[this.state.pickedSeason - 1];
             let episodes = pickedSeason.episodes.map((item) => ({ season: pickedSeason.season, ...item }));
