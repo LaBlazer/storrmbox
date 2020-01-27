@@ -330,7 +330,8 @@ class SearchContentResource(Resource):
 
         # Search the query in db first
         results = Content.query.options(load_only("uid"))\
-            .filter(Content.title.ilike(f"%{args['query']}%")).order_by(Content.votes.desc()).all()
+            .filter(Content.title.ilike(f"%{args['query']}%"), Content.votes.isnot(None))\
+            .order_by(Content.votes.desc()).all()
 
         # Filter content if type is specified
         uids = []
