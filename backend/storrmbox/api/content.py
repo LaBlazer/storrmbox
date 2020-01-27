@@ -90,9 +90,9 @@ class ContentResource(Resource):
             if not data or data['Response'] == "False":
                 raise InternalException("OMDB API didn't return any data")
 
-            # Skip invalid content
+            # Fix no poster available
             if data['Poster'] == "N/A":
-                raise InternalException("Invalid movie")
+                data['Poster'] = "https://lblzr.com/img/nopreview.png"
 
             # Get the release and end years
             year_start = None
@@ -173,9 +173,11 @@ class EpisodesContentResource(Resource):
         episodes = Content.query.options(load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season))\
             .filter(Content.parent_uid == content.uid).all()
 
-        season_amount = max(episodes, key=lambda e: e.season).season
-
-        result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
+        if episodes:
+            season_amount = max(episodes, key=lambda e: e.season).season
+            result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
+        else:
+            result = None
 
         return {"seasons": result}
 
