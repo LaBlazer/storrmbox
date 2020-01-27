@@ -13,7 +13,7 @@ class NotFoundException(Exception):
 
 @api.errorhandler(InternalException)
 def handle_internal_exception(error):
-    return {'message': 'Server has encountered an error from which it cannot safely recover: ' + str(error)}, 500
+    return {'message': 'Server has encountered an internal error: ' + str(error)}, 500
 
 
 @api.errorhandler

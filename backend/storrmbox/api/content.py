@@ -1,4 +1,5 @@
 import json
+import operator
 from datetime import datetime
 from threading import Thread
 
@@ -31,13 +32,13 @@ yt_search = searchyt()
 content_scraper = OmdbScraper()
 imdb_scraper = ImdbScraper()
 
-
+# API Model definitions
 content_fields = api.model("Content", {
     "uid": fields.String,
     "type": fields.Integer,
     "title": fields.String,
-    "date_released": fields.Date,
-    "date_end": fields.Date,
+    "year_released": fields.Integer,
+    "year_end": fields.Integer,
     "runtime": fields.Integer,
     "rating": fields.Float,
     "plot": fields.String,
@@ -46,6 +47,27 @@ content_fields = api.model("Content", {
     "trailer_youtube_id": fields.String,
     "episode": fields.Integer,
     "season": fields.Integer
+})
+
+content_list_fields = api.model("ContentUidList", {
+    "uids": fields.List(fields.String)
+    # "type": fields.String
+})
+
+content_episode = api.model("ContentEpisode", {
+    "uid": fields.String,
+    "title": fields.String,
+    "rating": fields.Float,
+    "episode": fields.Integer
+})
+
+content_season = api.model("ContentSeason", {
+    "season": fields.Integer,
+    "episodes": fields.List(fields.Nested(content_episode))
+})
+
+content_season_list = api.model("ContentSeasonList", {
+    "seasons": fields.List(fields.Nested(content_season))
 })
 
 
@@ -57,7 +79,7 @@ class ContentResource(Resource):
     def get(self, uid):
         content = Content.get_by_uid(uid)
 
-        if content is None:
+        if not content:
             raise NotFoundException(f"Invalid uid '{uid}'")
 
         if not content.fetched:
@@ -68,9 +90,9 @@ class ContentResource(Resource):
             if not data or data['Response'] == "False":
                 raise InternalException("OMDB API didn't return any data")
 
-            # Skip invalid content
+            # Fix no poster available
             if data['Poster'] == "N/A":
-                raise InternalException("Invalid movie")
+                data['Poster'] = "https://lblzr.com/img/nopreview.png"
 
             # Get the release and end years
             year_start = None
@@ -131,10 +153,65 @@ class ContentResource(Resource):
         return content
 
 
-content_list_fields = api.model("ContentUidList", {
-    "uids": fields.List(fields.String)
-    #"type": fields.String
-})
+@api.route("/<string:uid>/episodes")
+class EpisodesContentResource(Resource):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    @auth.login_required
+    @api.marshal_with(content_season_list)
+    def get(self, uid):
+        content = Content.get_by_uid(uid)
+
+        if not content:
+            raise NotFoundException(f"Invalid uid '{uid}'")
+
+        if content.type != ContentType.series:
+            raise InternalException("Invalid content type")
+
+        episodes = Content.query.options(load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season))\
+            .filter(Content.parent_uid == content.uid).all()
+
+        if episodes:
+            season_amount = max(episodes, key=lambda e: e.season).season
+            result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
+        else:
+            result = None
+
+        return {"seasons": result}
+
+
+@api.route("/<string:uid>/download")
+class DownloadContentResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(content_fields)
+    # @api.expect(parser)
+    def post(self, uid):
+        pass
+        # ctype = 0
+        # for t in args['type']:
+        #    ctype |= ContentType[t.upper()]
+        # torrents = []
+        # if ctype & ContentType.MOVIE:
+        #     torrents = torrent_scraper.search_movie(args['query'])
+        # elif ctype & ContentType.SHOW:
+        #     torrents = torrent_scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
+        #
+        # for i, t in enumerate(torrents):
+        #     res.append({
+        #         'id': i,
+        #         'name': 'test search content ' + str(i),
+        #         'year': 2019,
+        #         'year_end': None,
+        #         'description': 'Name: {}, Seeders: {}, Leechers: {}'.format(t.name, t.seeders, t.leechers),
+        #         'rating': i % 5,
+        #         'type': ctype,
+        #         'thumbnail': 'https://picsum.photos/200/300'
+        #     })
+        # return []
+
 
 popular_parser = api.parser()
 popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
@@ -142,7 +219,7 @@ popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in Cont
 
 
 @api.route("/popular")
-class ContentPopularResource(Resource):
+class PopularContentResource(Resource):
 
     @auth.login_required
     @api.marshal_with(content_list_fields)
@@ -194,7 +271,7 @@ top_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentT
 
 
 @api.route("/top")
-class ContentTopResource(Resource):
+class TopContentResource(Resource):
 
     @auth.login_required
     @api.marshal_with(content_list_fields)
@@ -234,7 +311,7 @@ search_parser.add_argument('amount', type=int, default=6,
 
 
 @api.route("/search")
-class ContentSearchResource(Resource):
+class SearchContentResource(Resource):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -315,35 +392,11 @@ class ContentSearchResource(Resource):
         return {"uids": uids}
 
 
-@api.route("/download")
-class ContentDownloadResource(Resource):
+@api.route("/reload")
+class ReloadContentResource(Resource):
 
+    # TODO: make this admin-only
     @auth.login_required
-    @api.marshal_with(content_fields)
-    # @api.expect(parser)
-    def post(self):
-        # ctype = 0
-        # for t in args['type']:
-        #    ctype |= ContentType[t.upper()]
-        # torrents = []
-        # if ctype & ContentType.MOVIE:
-        #     torrents = scraper.search_movie(args['query'])
-        # elif ctype & ContentType.SHOW:
-        #     torrents = scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
-        #
-        # for i, t in enumerate(torrents):
-        #     res.append({
-        #         'id': i,
-        #         'name': 'test search content ' + str(i),
-        #         'year': 2019,
-        #         'year_end': None,
-        #         'description': 'Name: {}, Seeders: {}, Leechers: {}'.format(t.name, t.seeders, t.leechers),
-        #         'rating': i % 5,
-        #         'type': ctype,
-        #         'thumbnail': 'https://picsum.photos/200/300'
-        #     })
-        return []
-
     def get(self):
         thread = Thread(target=self.update_data)
         thread.start()
@@ -353,10 +406,9 @@ class ContentDownloadResource(Resource):
         chunk = 0
         objects = []
         try:
-            # Disable FK triggers
-            db.engine.execute(text("SET session_replication_role = replica;").execution_options(autocommit=True))
-
+            # TODO: Only update existing content
             for c in imdb_scraper.get_content():
+
                 c["uid"] = Content.generate_uid(c["imdb_id"])
                 objects.append(c)
                 chunk += 1
@@ -372,5 +424,3 @@ class ContentDownloadResource(Resource):
 
         finally:
             pass
-            # Enable FK triggers
-            db.engine.execute(text("SET session_replication_role = DEFAULT;").execution_options(autocommit=True))
