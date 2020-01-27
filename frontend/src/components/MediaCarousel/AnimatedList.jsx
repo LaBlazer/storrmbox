@@ -28,8 +28,10 @@ export default class AnimatedList extends Component {
         if (this.props.forceScrolling !== prevProps.forceScrolling) {
             this.resizeTimeout = setTimeout(() => {
                 const { itemSize, scrollToItem } = this.props;
-                this.listRef.current.scrollTo(scrollToItem * itemSize, 0);
-                this.resizeTimeout = null;
+                if (this.listRef.current) {
+                    this.listRef.current.scrollTo(scrollToItem * itemSize, 0);
+                    this.resizeTimeout = null;
+                }
             }, 100);
         } else if (this.props.scrollToItem !== prevProps.scrollToItem) {
             this._initAnimation();
@@ -56,7 +58,9 @@ export default class AnimatedList extends Component {
             const easedTime = easing(Math.min(1, ellapsed / duration));
             const scrollOffset = this._scrollOffsetInitial + scrollDelta * easedTime;
 
-            this.listRef.current.scrollTo(scrollOffset, 0);
+            if (this.listRef.current) {
+                this.listRef.current.scrollTo(scrollOffset, 0);
+            }
 
             if (ellapsed < duration) {
                 this._animate();
