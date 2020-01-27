@@ -1,17 +1,31 @@
 import React from 'react';
 import './MediaCard.scss';
 import { Card, Row, Col, Image } from 'react-bootstrap';
-import { MediaDownloadButton, MDBStates as States } from '../MediaDownloadButton/MediaDownloadButton';
+import { MediaDownloadButton, MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
 import StarRating from '../StarRating/StarRating';
-import { Link, withRouter } from 'react-router-dom';
+import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
-class MediaCard extends React.Component {
+type MediaCardProps = RouteComponentProps<{}> & {
+    loading?: boolean,
+    uid?: string,
+    title?: string,
+    poster?: string,
+    rating?: number,
+    plot?: string
+}
 
-    constructor(props) {
+type MediaCardState = {
+    state: MDBStates,
+    downloaded: number
+}
+
+class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
+
+    constructor(props: MediaCardProps) {
         super(props);
 
         this.state = {
-            state: States.CAN_DOWNLOAD,
+            state: MDBStates.CAN_DOWNLOAD,
             downloaded: 0
         }
 
@@ -25,10 +39,10 @@ class MediaCard extends React.Component {
             if (this.state.downloaded < 100) {
 
                 this.setState((state) => ({
-                    downloaded: state.downloaded + parseInt(Math.random() * 10)
+                    downloaded: state.downloaded + Math.round(Math.random() * 10)
                 }));
             } else {
-                this.setState({ state: States.CAN_WATCH });
+                this.setState({ state: MDBStates.CAN_WATCH });
                 clearInterval(inter);
             }
 
@@ -36,17 +50,9 @@ class MediaCard extends React.Component {
     }
 
     handleDownloadClick() {
-        this.setState({ state: States.IS_DOWNLOADING });
+        this.setState({ state: MDBStates.IS_DOWNLOADING });
 
         this.simulateDownloading();
-    }
-
-    shouldComponentUpdate(nextProps) {
-        if (this.props.loading !== nextProps.loading) {
-            return true;
-        }
-
-        return false;
     }
 
     render() {
@@ -55,7 +61,7 @@ class MediaCard extends React.Component {
             <div className="p-2">
                 <Card className="media-card">
                     <Row className="no-gutters">
-                        <div className={this.state.state === States.IS_DOWNLOADING ? "image downloading" : "image"} >
+                        <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
                             <Image className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} fluid />
                             <MediaDownloadButton
                                 state={this.state.state}
@@ -66,9 +72,9 @@ class MediaCard extends React.Component {
                             {this.props.loading ?
                                 <p className='skeleton title'>&nbsp;</p>
                                 :
-                                <p className={this.props.title?.length > 25 ? "small title" : "title"}>{this.props.title}</p>
+                                <p className={(this.props.title?.length ?? 0) > 25 ? "small title" : "title"}>{this.props.title}</p>
                             }
-                            <StarRating className="rating" stars={this.props.rating * 5} />
+                            <StarRating className="rating" stars={(this.props.rating ?? 0) * 5} />
                             {!this.props.loading && <p className="plot">{this.props.plot}</p>}
                         </Col>
                     </Row>

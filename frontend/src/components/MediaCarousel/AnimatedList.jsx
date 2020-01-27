@@ -13,6 +13,7 @@ export default class AnimatedList extends Component {
     };
 
     listRef = createRef();
+    resizeTimeout = null;
 
     _scrollOffsetInitial = 0;
     _scrollOffsetFinal = 0;
@@ -24,8 +25,21 @@ export default class AnimatedList extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.scrollToItem !== prevProps.scrollToItem) {
+        if (this.props.forceScrolling !== prevProps.forceScrolling) {
+            this.resizeTimeout = setTimeout(() => {
+                const { itemSize, scrollToItem } = this.props;
+                this.listRef.current.scrollTo(scrollToItem * itemSize, 0);
+                this.resizeTimeout = null;
+            }, 100);
+        } else if (this.props.scrollToItem !== prevProps.scrollToItem) {
             this._initAnimation();
+        }
+    }
+
+    componentWillUnmount() {
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = null;
         }
     }
 
