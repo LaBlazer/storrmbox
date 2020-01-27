@@ -124,6 +124,8 @@ export class AutoSizingAnimatedList extends Component {
     }
 
     render() {
+        const itemsPerScreen = Math.round(this.state.listWidth / this.state.itemWidth);
+
         return (
             <Measure
                 bounds
@@ -137,6 +139,7 @@ export class AutoSizingAnimatedList extends Component {
                             itemSize={this.state.itemWidth}
                             scrollToItem={this.state.scrollToItem}
                             onAnimationComplete={this.animationComplete}
+                            overscanCount={itemsPerScreen}
                             forceScrolling={this.state.forceScrolling}
                         >
                             {this._row}

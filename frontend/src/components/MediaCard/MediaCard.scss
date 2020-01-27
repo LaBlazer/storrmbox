@@ -46,6 +46,7 @@
         -webkit-box-orient: vertical;  
         overflow: hidden;
         margin-bottom: 0.5rem;
+        word-break: break-word;
 
         &.small {
             font-size: 1em;

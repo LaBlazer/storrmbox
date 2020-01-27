@@ -1,0 +1,45 @@
+@import "variables";
+
+.bg {
+    background: rgb(60,60,60);
+    background: linear-gradient(164deg, rgba(60,60,60,0.44021358543417366) 0%, rgba(60,60,60,0.7511379551820728) 25%, rgba(60,60,60,1) 56%);
+}
+
+.season-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .item {
+        text-align: center;
+        color: #9e9e9e;
+        background-color: transparent;
+        flex: auto;
+        flex-basis: 0;
+        border-radius: 0;
+
+        &.active {
+            color: #ececec;
+            background-color: $primary;
+        }
+
+        &:hover .icon {
+            display: inline-block;
+        }
+
+        .icon {
+            display: none;
+        }
+    }
+}
+
+.episode-list {
+    .item  {
+        display: flex;
+        align-items: center;
+        background-color: transparent;
+
+        .episode-number {
+            color: gray;
+        }
+    }
+}

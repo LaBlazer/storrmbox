@@ -75,7 +75,6 @@ class MediaListSlider extends React.Component {
                         height={this.height}
                         onAnimationComplete={this.animationComplete}
                         itemCount={listSize}
-                        overscanCount={2}
                         scrollDirection={this.state.scrollDirection}
                     >
                         {empty ? this._emptyRow : this._row}
