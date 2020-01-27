@@ -1,18 +1,36 @@
+import logging
 import os
 from flask import Flask, request
 
-from . import config
+from storrmbox.config import DevConfig, ProdConfig
 from .api import api_blueprint
 from .extensions import db, migrate
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='[%(asctime)s]: {} %(levelname)s %(message)s'.format(os.getpid()),
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    handlers=[logging.StreamHandler()])
 
-def create_app(config_object=config.Config):
+logger = logging.getLogger()
+
+
+def create_app(config=None):
     """Construct the core application."""
+
+    # Choose the correct config
+    if not config:
+        if os.environ.get('PROD', False):
+            print("Using prod configuration...")
+            config = ProdConfig
+        else:
+            print("Using dev configuration... (DO NOT USE IN PRODUCTION)")
+            config = DevConfig
+
     app = Flask(__name__)
     app.app_context().push()
 
     # Application Configuration
-    app.config.from_object(config_object)
+    app.config.from_object(config)
 
     # Initialize extensions and blueprints
     register_extensions(app)
@@ -34,7 +52,8 @@ def create_app(config_object=config.Config):
 def before_request():
     # Hack to fix reverse proxy and Cloudflare IP issue
     # 'X-Forwarded-For' header can sometimes have multiple IPs (203.0.113.1,198.51.100.101,198.51.100.102,...)
-    request.environ["REMOTE_ADDR"] = request.headers.get('CF-Connecting-IP', request.headers.get('X-Forwarded-For', request.environ["REMOTE_ADDR"]).split(',')[0])
+    request.environ["REMOTE_ADDR"] = request.headers.get('CF-Connecting-IP', request.headers.get('X-Forwarded-For',
+                                                                             request.environ["REMOTE_ADDR"]).rsplit(',')[0])
 
 
 def after_request(response):
