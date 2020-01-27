@@ -107,7 +107,7 @@ class ContentResource(Resource):
             trailer_query = ("{} first season" if data['Type'] == "series" else "{} movie") + " official trailer"
             trailer_result = yt_search.search(trailer_query.format(data['Title']))
             if len(trailer_result) == 0:
-                raise InternalException("Unable to fetch trailer from yt")
+                raise InternalException("Unable to fetch trailer")
 
             # Calculate average rating
             # rating_avg = 0.
@@ -177,7 +177,7 @@ class EpisodesContentResource(Resource):
             season_amount = max(episodes, key=lambda e: e.season).season
             result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
         else:
-            result = None
+            result = []
 
         return {"seasons": result}
 
@@ -330,7 +330,7 @@ class SearchContentResource(Resource):
 
         # Search the query in db first
         results = Content.query.options(load_only("uid"))\
-            .filter(Content.title.ilike(f"%{args['query']}%")).all()
+            .filter(Content.title.ilike(f"%{args['query']}%")).order_by(Content.votes.desc()).all()
 
         # Filter content if type is specified
         uids = []
