@@ -16,7 +16,7 @@ export class SeasonItem extends React.Component<SIProps> {
             active={this.props.active}
             onClick={() => this.props.onClick?.(this.props.season)}
         >
-            <span>S{this.props.season}</span>
+            <span>S{this.props.season.toString().padStart(2, "0")}</span>
         </ListGroup.Item>
     }
 }
