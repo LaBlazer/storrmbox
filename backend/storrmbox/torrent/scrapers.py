@@ -59,11 +59,11 @@ class TorrentScraper(object):
         p = provider(self.req, getLogger(provider.__name__))
 
         if p.caps is not None and len(p.caps.content_types) > 0:
-            print(f"Adding {provider.__name__}.")
-            print(" ├── Content types: {}".format(
-                ", ".join([content_type.name for content_type in ContentType if p.caps.serves_content(content_type)])
-            ))
-            print(" └── Time range: {}".format(p.caps.time_range.name))
+            # print(f"Adding {provider.__name__}.")
+            # print(" ├── Content types: {}".format(
+            #     ", ".join([content_type.name for content_type in ContentType if p.caps.serves_content(content_type)])
+            # ))
+            # print(" └── Time range: {}".format(p.caps.time_range.name))
             self._providers.append(p)
             return True
         else:
