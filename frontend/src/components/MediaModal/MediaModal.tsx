@@ -1,10 +1,11 @@
 import React from 'react';
-import { Modal, Row, Col } from 'react-bootstrap';
+import { Modal, Row, Col, Badge } from 'react-bootstrap';
 import './MediaModal.scss';
 import StarRating from '../StarRating/StarRating';
-import { ContentModel, Season } from '../../endpoints/content';
+import { ContentModel, Season, ContenTypeMap } from '../../endpoints/content';
 import { SeasonList } from '../SeasonList/SeasonList';
 import { MediaYear } from '../MediaYear';
+import { generateRGBColorsFromString, colorsToCSSRule } from '../../utils/helpers';
 
 type MMProps = {
     seasons: Season[] | undefined | null,
@@ -15,7 +16,8 @@ type MMProps = {
 class MediaModal extends React.Component<MMProps> {
 
     render() {
-        let { type, poster, title, year_released, year_end, rating, plot } = this.props.content;
+        let { type, poster, title, year_released, year_end, rating, plot, genres } = this.props.content;
+        let typeName = ContenTypeMap[type];
 
         return (
             <Modal
@@ -34,9 +36,15 @@ class MediaModal extends React.Component<MMProps> {
 
                     <div className="info">
                         <p className="title">{title}</p>
-                        <div className="rating">
-                            <span>Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
-                            <span className="ml-2"> Rating: <StarRating stars={rating * 5} /></span>
+                        <div className="spec">
+                            <Badge className={`type type-${typeName} mr-2`}>{typeName}</Badge>
+                            <span className="year mr-2">Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
+                            <span className="rating mr-auto"> Rating: <StarRating stars={rating * 5} /></span>
+                            <span className="genres">
+                                {
+                                    genres.split(",").map((genre) => <Badge key={genre} className={`mr-1 ${genre}`} style={{backgroundColor: colorsToCSSRule(generateRGBColorsFromString(genre))}} variant="secondary">{genre}</Badge>)
+                                }
+                            </span>
                         </div>
                     </div>
 
