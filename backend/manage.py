@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 load_dotenv()  # Load .env file
 
 import os
@@ -10,18 +11,12 @@ from flask_script import Manager, Shell, Server
 from flask_migrate import MigrateCommand
 from storrmbox import create_app, db
 from storrmbox.models.user import User
-from storrmbox.config import DevConfig, ProdConfig
 
-if os.environ.get('PROD', False):
-    DefaultConfig = ProdConfig
-else:
-    DefaultConfig = DevConfig
-
-app = create_app(DefaultConfig)
+app = create_app()
 manager = Manager(app)
 
 
-def _random_string(size=6, chars=string.ascii_lowercase + string.digits):
+def _random_string(size=6, chars=string.printable):
     return ''.join(random.choice(chars) for _ in range(size))
 
 

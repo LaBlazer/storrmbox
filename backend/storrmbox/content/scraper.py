@@ -5,6 +5,7 @@ import gzip
 import shutil
 import time
 import datetime as dt
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 from requests import Session
@@ -122,7 +123,7 @@ class ImdbScraper(ContentScraper):
 
         return res
 
-    def _download_and_extract_datasets(self, name, force = False):
+    def _download_and_extract_datasets(self, name, force=False):
         do_diff = False
         # Check date and skip if we already have fresh datasets
         if path.isfile(f"datasets/{name}.tsv"):
@@ -131,7 +132,9 @@ class ImdbScraper(ContentScraper):
                 print(f"Dataset '{name}' already up to date...")
                 return
 
-            # Rename the old dataset
+            # Rename the old dataset and delete the older dataset
+            if path.isfile(f"datasets/{name}_old.tsv"):
+                remove(f"datasets/{name}_old.tsv")
             rename(f"datasets/{name}.tsv", f"datasets/{name}_old.tsv")
             do_diff = True
 
@@ -151,7 +154,7 @@ class ImdbScraper(ContentScraper):
         print(f"'{name}' downloaded!")
         return do_diff
 
-    def get_content(self, threads = 3):
+    def get_content(self, threads=3):
         start_time = time.time()
 
         pool = ThreadPool(threads)
@@ -159,7 +162,11 @@ class ImdbScraper(ContentScraper):
         pool.close()
         pool.join()
 
-        basics = DatasetReader(f"datasets/basics.tsv", self.dataset_parser, 0, True, str, str, str, str, int, int, int, int, str)
+        # Create datasets folder if not exists already
+        Path("datasets").mkdir(parents=True, exist_ok=True)
+
+        basics = DatasetReader(f"datasets/basics.tsv", self.dataset_parser, 0, True, str, str, str, str, int, int, int,
+                               int, str)
         episodes = DatasetReader(f"datasets/episode.tsv", self.dataset_parser, 0, True, str, str, int, int)
         ratings = DatasetReader(f"datasets/ratings.tsv", self.dataset_parser, 0, True, str, float, int)
 
@@ -174,13 +181,13 @@ class ImdbScraper(ContentScraper):
                 continue
 
             # Skip unwanted content
-            if content_type not in ["tvSeries", "tvMovie", "movie"]:
+            if content_type not in ["tvMiniSeries", "tvSeries", "tvMovie", "movie"]:
                 if content_type != "tvEpisode":
                     basics.remove_data(iid)
                 continue
 
             # Convert content type
-            if content_type == "tvSeries":
+            if content_type in ["tvSeries", "tvMiniSeries"]:
                 content_type = ContentType.series
             else:
                 content_type = ContentType.movie
@@ -189,10 +196,11 @@ class ImdbScraper(ContentScraper):
             x, average_rating, vote_count = ratings.get_data(iid)
 
             # Skip content with small number of votes (unpopular content)
-            if not vote_count or\
-                (content_type == ContentType.movie and vote_count <= 5000) or \
-                (content_type == ContentType.series and vote_count <= 5000):
+            if not vote_count or \
+                    (content_type == ContentType.movie and vote_count <= 5000) or \
+                    (content_type == ContentType.series and vote_count <= 5000):
                 basics.remove_data(iid)
+
                 continue
 
             yield {
@@ -214,21 +222,30 @@ class ImdbScraper(ContentScraper):
 
             # Skip episodes without parent content
             if not basics.has_key(parent_iid):
+                basics.remove_data(iid)
                 continue
 
             # Skip too high episode numbers
             if not episode or not season or episode >= 32767:
+                basics.remove_data(iid)
                 continue
 
-            # Join rating and basic data
+            # Join rating data
             x, average_rating, vote_count = ratings.get_data(iid)
+
+            # Skip episode if it's not released yet
+            if not vote_count:
+                basics.remove_data(iid)
+                continue
+
+            # Join basic data
             x, content_type, title, original_title, adult, start_year, end_year, runtime, genres = basics.get_data(iid)
 
             yield {
                 "imdb_id": iid,
                 "type": ContentType.episode,
-                "title": title,
-                "original_title": original_title,
+                "title": (title[:185] + '...') if len(title) > 185 else title,
+                "original_title": (original_title[:185] + '...') if len(original_title) > 185 else original_title,
                 "year_released": start_year,
                 "year_end": end_year,
                 "runtime": runtime,

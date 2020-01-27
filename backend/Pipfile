@@ -21,6 +21,7 @@ flask-migrate = "*"
 flask-script = "*"
 searchyt = "*"
 psycopg2 = "*"
+waitress = "*"
 
 [requires]
 python_version = "3.7"
@@ -28,5 +29,6 @@ python_version = "3.7"
 [scripts]
 deploy="pipenv run build && pipenv run serve"
 build="echo TODO"
-serve="python manage.py runserver"
+serve="python serve.py"
+dev="python manage.py runserver"
 upgradedb="python manage.py db migrate && python manage.py db upgrade"
