@@ -6,6 +6,7 @@ import { ContentModel, Season, ContenTypeMap } from '../../endpoints/content';
 import { SeasonList } from '../SeasonList/SeasonList';
 import { MediaYear } from '../MediaYear';
 import { generateRGBColorsFromString, colorsToCSSRule } from '../../utils/helpers';
+import { getCookie } from '../../utils/CookieHelper';
 
 type MMProps = {
     seasons: Season[] | undefined | null,
@@ -16,7 +17,7 @@ type MMProps = {
 class MediaModal extends React.Component<MMProps> {
 
     render() {
-        let { type, poster, title, year_released, year_end, rating, plot, genres } = this.props.content;
+        let { type, poster, title, year_released, year_end, rating, plot, genres, trailer_youtube_id } = this.props.content;
         let typeName = ContenTypeMap[type];
 
         return (
@@ -30,8 +31,11 @@ class MediaModal extends React.Component<MMProps> {
             >
                 <div className="media-modal-header">
                     <div className="top-thumbnail">
-                        {/* <iframe width="100%" height="100%" src={`https://www.youtube-nocookie.com/embed/${this.props.trailer_youtube_id}?&showinfo=0&controls=0&autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media"></iframe> */}
-                        <img src={poster} alt={title} />
+                        {
+                            (getCookie('trailers') != null) ?
+                            <iframe width="100%" height="100%" src={`https://www.youtube-nocookie.com/embed/${trailer_youtube_id}?&showinfo=0&controls=0&autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media"></iframe> :
+                            <img src={poster} alt={title} />
+                        }
                     </div>
 
                     <div className="info">
