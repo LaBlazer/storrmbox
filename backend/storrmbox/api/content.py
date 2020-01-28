@@ -341,7 +341,7 @@ class ReloadContentResource(Resource):
         try:
             # TODO: Only update existing content
             # Temporarily drop the whole DB each time
-            Content.__table__.drop(db.engine)
+            # Content.__table__.drop(db.engine)
 
             for c in imdb_scraper.get_content():
 
