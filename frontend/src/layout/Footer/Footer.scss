@@ -1,0 +1,22 @@
+#footer {
+    text-align: center;
+    margin: 1rem 0;
+    color: rgb(102, 102, 102);
+
+    .version, .name {
+        opacity: 0.6;
+    }
+
+    .name {
+        color: rgb(102, 102, 102);
+        text-decoration: none;
+        transition: opacity 0.1s ease-in;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    
+
+}
