@@ -1,0 +1,16 @@
+#footer {
+    text-align: center;
+    margin: 1rem 0;
+
+    .name {
+        color: rgb(102, 102, 102);
+        opacity: 0.6;
+        text-decoration: none;
+        transition: opacity 0.1s ease-in;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+}

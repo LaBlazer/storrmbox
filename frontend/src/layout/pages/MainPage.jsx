@@ -6,6 +6,7 @@ import { Switch, Route, withRouter } from 'react-router-dom';
 import ModalUrlListener from '../ModalUrlListener';
 import MediaPage from '../MediaPage';
 import SearchResultPage from './SearchResultPage';
+import { Footer } from '../Footer/Footer';
 
 class MainPage extends React.Component {
 
@@ -28,22 +29,25 @@ class MainPage extends React.Component {
                         <Route path="/movies">
                             <TopBar siteName={siteName} />
                             <MediaPage key="movie" category="movie" categoryName="Movies" />
+                            <Footer />
                         </Route>
 
                         <Route path="/series">
                             <TopBar siteName={siteName} />
                             <MediaPage key="series" category="series" categoryName="Series" />
+                            <Footer />
                         </Route>
 
                         <Route path="/search/:query">
                             <TopBar siteName={siteName} />
                             <SearchResultPage />
+                            <Footer />
                         </Route>
 
                         <Route path={["/", "/all"]}>
                             <TopBar siteName={siteName} />
                             <h3 className="pt-5">All</h3>
-
+                            <Footer />
                         </Route>
                     </Switch>
                 </FadeIn>
