@@ -1,12 +1,14 @@
 import cProfile
 import threading
 
+def raise_(ex):
+    raise ex
 
 class Parser:
     types = [
         (int, int),
         (float, float),
-        (bool, lambda b: b.lower() == "true")
+        (bool, lambda b: b.lower() == "true" if b.lower() in ["false", "true"] else raise_(ValueError))
         # (datetime, lambda value: datetime.strptime(value, "%Y/%m/%d"))
     ]
 

@@ -88,7 +88,7 @@ class ContentResource(Resource):
 
         # Fetch poster and plot from omdb
         if not content.fetched:
-            print("Fetching content")
+            print(f"Fetching content {uid} ({content.imdb_id})")
             data = content_scraper.get_by_imdb_id(content.imdb_id)
             fetched = True  # Fix for omdb being too slow
 
@@ -288,7 +288,6 @@ class SearchContentResource(Resource):
         current_page = 1
         while continue_search and current_page <= 5:
             content = content_scraper.search(args['query'], current_page)
-
             # Break if no content was found
             if not content:
                 break

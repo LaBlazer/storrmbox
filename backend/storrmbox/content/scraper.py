@@ -82,7 +82,6 @@ class OmdbScraper(ContentScraper):
         resp = self.get({"i": id, "plot": "full"}, True)
 
         data = Parser.normalize_dict(resp.json())
-        print(type(data["Response"]))
 
         if data["Response"]:
             return data
@@ -276,7 +275,6 @@ class ImdbScraper(ContentScraper):
         return resp
 
     def get_top(self, ctype: ContentType):
-        print(ctype)
         url = self.url
         if ctype == ContentType.series:
             url += "chart/toptv"
