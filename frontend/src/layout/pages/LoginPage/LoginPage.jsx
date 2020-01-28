@@ -31,7 +31,7 @@ class LoginPage extends React.Component {
                             <Card>
                                 <Card.Body>
                                     <div className={`${style.pageLogo} text-center`}>
-                                        <Logo width="90%" height="auto" />
+                                        <Logo width="90%" height="100%" />
                                     </div>
                                     <Card.Title>Sign In</Card.Title>
 
