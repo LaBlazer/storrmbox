@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Spinner } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import "./LoadingModal.scss";
 import { GrowLoader } from "../GrowLoader";
 
