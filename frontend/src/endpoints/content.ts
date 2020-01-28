@@ -3,6 +3,8 @@ import { AxiosResponse } from "axios";
 
 export type ContentTypeNames = "movie" | "series" | "episode";
 
+export const ContenTypeMap = { 1: 'Movie', 2: 'Series', 3: 'Episode' }
+
 export enum ContentType {
     MOVIE = 1,
     SERIES = 2,
@@ -11,7 +13,7 @@ export enum ContentType {
 
 export interface ContentModel {
     uid: string,
-    type: number,
+    type: 1 | 2 | 3,
     title: string
     year_released: number,
     year_end: number,

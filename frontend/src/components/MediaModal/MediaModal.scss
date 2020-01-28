@@ -1,3 +1,5 @@
+@import "variables.scss";
+
 .media-modal {
 
     .modal-content {
@@ -35,8 +37,24 @@
                 margin-bottom: 0;
             }
 
-            .rating {
-                font-size: 12px;
+            .spec {
+                display: flex;
+                align-items: center;
+
+                .type {
+                    font-size: 1rem;
+                }
+
+                $types: ("Movie": "movie", "Series":"series", "Episode": "episode");
+                @each $name, $type in $types {
+                    .type-#{$name} {
+                        background: map-get($map: $content-type-colors, $key: $type);
+                    }
+                }
+
+                .year, .rating {
+                    font-size: 13px;
+                }
             }
         }
 
@@ -44,7 +62,7 @@
 
     .media-modal-body {
         position: relative;
-        padding: 0 1rem;
+        padding: 0 1rem 1rem;
 
         .description {
             text-align: justify;
