@@ -5,6 +5,7 @@ import ContentStore from '../stores/ContentStore';
 import { observer } from 'mobx-react';
 import SeasonsStore from '../stores/SeasonsStore';
 import { ContentType, ContentModel } from '../endpoints/content';
+import { LoadingModal } from '../components/LoadingModal/LoadingModal';
 
 type MULProps = RouteComponentProps<{ id: string }, any, { background: string }>;
 
@@ -52,7 +53,7 @@ class ModalUrlListener extends React.Component<MULProps, { forceClose: boolean }
         if (ContentStore.content[id]) {
             return <MediaModal content={ContentStore.content[id] as ContentModel} seasons={SeasonsStore.series[id]} onHide={this.handleClose} />
         } else {
-            return <div>Loadiding....</div>
+            return <LoadingModal />
         }
     }
 }
