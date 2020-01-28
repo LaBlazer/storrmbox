@@ -64,6 +64,10 @@ export class ContentService {
             .then((response) => response.data.uids);
     }
 
+    static __reloadContent_UNSAFE() {
+        return AxiosI.get('/content/reload');
+    }
+
     private static getContentIDList(type: string, filter: string) {
         if (type !== "popular" && type !== "top") throw new Error("[API] Unknown content type");
 
