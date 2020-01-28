@@ -1,17 +1,11 @@
-import json
-import operator
-from datetime import datetime
 from threading import Thread
 
 from flask import g
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
-from sqlalchemy import and_, text
 from sqlalchemy.orm import load_only
 
-from storrmbox.content.helpers import ProfiledThread
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
-from storrmbox.database import time_past
 from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db
 from storrmbox.models.content import Content, ContentType
@@ -346,6 +340,9 @@ class ReloadContentResource(Resource):
         objects = []
         try:
             # TODO: Only update existing content
+            # Temporarily drop the whole DB each time
+            Content.__table__.drop(db.engine)
+
             for c in imdb_scraper.get_content():
 
                 c["uid"] = Content.generate_uid(c["imdb_id"])
