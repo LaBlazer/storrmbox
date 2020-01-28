@@ -7,6 +7,7 @@ import ModalUrlListener from '../ModalUrlListener';
 import MediaPage from '../MediaPage';
 import SearchResultPage from './SearchResultPage';
 import { Footer } from '../Footer/Footer';
+import ContentReloader from '../../components/ContentReloader'
 
 class MainPage extends React.Component {
 
@@ -25,6 +26,11 @@ class MainPage extends React.Component {
                 <FadeIn>
                     {/* <hr /> */}
                     <Switch location={background || location}>
+
+                        {/* DELETE IN PRODUCTION */}
+                        <Route path="/content/reload">
+                            <ContentReloader />
+                        </Route>
 
                         <Route path="/movies">
                             <TopBar siteName={siteName} />
