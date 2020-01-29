@@ -46,7 +46,7 @@ class MediaModal extends React.Component<MMProps> {
                             <span className="rating mr-auto"> Rating: <StarRating stars={rating * 5} /></span>
                             <span className="genres">
                                 {
-                                    genres.split(",").map((genre) => <Badge key={genre} className={`mr-1 ${genre}`} style={{backgroundColor: colorsToCSSRule(generateRGBColorsFromString(genre))}} variant="secondary">{genre}</Badge>)
+                                    genres?.split(",").map((genre) => <Badge key={genre} className={`mr-1 ${genre}`} style={{backgroundColor: colorsToCSSRule(generateRGBColorsFromString(genre))}} variant="secondary">{genre}</Badge>)
                                 }
                             </span>
                         </div>
