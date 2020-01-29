@@ -33,8 +33,8 @@ class MediaModal extends React.Component<MMProps> {
                     <div className="top-thumbnail">
                         {
                             (getCookie('trailers') != null) ?
-                            <iframe title="youtube_tailer" width="100%" height="100%" src={`https://www.youtube-nocookie.com/embed/${trailer_youtube_id}?&showinfo=0&controls=0&autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media"></iframe> :
-                            <img src={poster} alt={title} />
+                                <iframe title="youtube_tailer" width="100%" height="100%" src={`https://www.youtube-nocookie.com/embed/${trailer_youtube_id}?&showinfo=0&controls=0&autoplay=1&rel=0`} frameBorder="0" allow="autoplay; encrypted-media"></iframe> :
+                                <img src={poster} alt={title} />
                         }
                     </div>
 
@@ -43,10 +43,15 @@ class MediaModal extends React.Component<MMProps> {
                         <div className="spec">
                             <Badge className={`type type-${typeName} mr-2`}>{typeName}</Badge>
                             <span className="year mr-2">Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
-                            <span className="rating mr-auto"> Rating: <StarRating stars={rating * 5} /></span>
+                            <span className="rating mr-auto"> Rating: <StarRating stars={(rating ?? 0) * 0.5} /></span>
                             <span className="genres">
                                 {
-                                    genres?.split(",").map((genre) => <Badge key={genre} className={`mr-1 ${genre}`} style={{backgroundColor: colorsToCSSRule(generateRGBColorsFromString(genre))}} variant="secondary">{genre}</Badge>)
+                                    genres?.split(",").map((genre) =>
+                                        <Badge key={genre}
+                                            className={`mr-1 ${genre}`}
+                                            style={{ backgroundColor: colorsToCSSRule(generateRGBColorsFromString(genre)) }}
+                                            variant="secondary">{genre}</Badge>
+                                    )
                                 }
                             </span>
                         </div>
