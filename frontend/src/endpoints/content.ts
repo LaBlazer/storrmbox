@@ -18,9 +18,9 @@ export interface ContentModel {
     year_released: number,
     year_end: number,
     runtime: number,
-    rating: number,
+    rating?: number,
     plot: string,
-    genres: string,
+    genres?: string,
     poster: string,
     trailer_youtube_id: string,
     episode: number,
@@ -34,7 +34,7 @@ export interface Season {
 
 export interface Episode {
     episode: number,
-    rating: number,
+    rating?: number,
     title: string,
     uid: string
 }
