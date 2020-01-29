@@ -57,6 +57,8 @@ def before_request():
 
 
 def after_request(response):
+    # CORS fix
+    # TODO: Automatically change this depending on prod/dev configuration
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')

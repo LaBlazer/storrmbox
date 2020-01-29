@@ -3,6 +3,8 @@ import { AxiosResponse } from "axios";
 
 export type ContentTypeNames = "movie" | "series" | "episode";
 
+export const ContenTypeMap = { 1: 'Movie', 2: 'Series', 3: 'Episode' }
+
 export enum ContentType {
     MOVIE = 1,
     SERIES = 2,
@@ -11,7 +13,7 @@ export enum ContentType {
 
 export interface ContentModel {
     uid: string,
-    type: number,
+    type: 1 | 2 | 3,
     title: string
     year_released: number,
     year_end: number,
@@ -60,6 +62,10 @@ export class ContentService {
     static search(query: string) {
         return AxiosI.get<any, AxiosResponse<{ uids: string[] }>>('/content/search', { params: { query } })
             .then((response) => response.data.uids);
+    }
+
+    static __reloadContent_UNSAFE() {
+        return AxiosI.get('/content/reload');
     }
 
     private static getContentIDList(type: string, filter: string) {

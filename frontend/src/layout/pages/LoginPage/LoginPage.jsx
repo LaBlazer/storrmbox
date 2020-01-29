@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button, Container, Card, Form, Row, Col } from 'react-bootstrap';
-import AuthStore from '../../stores/AuthStore';
+import AuthStore from '../../../stores/AuthStore';
+import { ReactComponent as Logo } from '../../../assets/logo.svg';
+import style from "./LoginPage.module.scss";
 
 
 class LoginPage extends React.Component {
@@ -28,6 +30,9 @@ class LoginPage extends React.Component {
                         <Col md={6}>
                             <Card>
                                 <Card.Body>
+                                    <div className={`${style.pageLogo} text-center`}>
+                                        <Logo width="90%" height="100%" />
+                                    </div>
                                     <Card.Title>Sign In</Card.Title>
 
                                     <Form onSubmit={this.handleLogin}>

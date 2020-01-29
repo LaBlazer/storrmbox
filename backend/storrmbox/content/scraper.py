@@ -8,9 +8,11 @@ import datetime as dt
 from pathlib import Path
 
 from bs4 import BeautifulSoup
+from interface import Interface
 from requests import Session
 
 from storrmbox.content.helpers import Parser, DatasetReader
+from storrmbox.exceptions import InternalException
 from storrmbox.models.content import Content
 from storrmbox.torrent.scrapers import ContentType
 
@@ -68,10 +70,10 @@ class OmdbScraper(ContentScraper):
     def search(self, query: str, page=1):
         resp = self.get({"s": query, "page": page}, True)
 
-        data = resp.json()
+        data = Parser.normalize_dict(resp.json())
 
-        if data["Response"] == "True":
-            return data["Search"], int(data['totalResults'])
+        if data["Response"]:
+            return data["Search"], data['totalResults']
 
         self.log.error(f"Error while searching content '{data.get('Error', resp.text)}'")
         return []
@@ -79,13 +81,13 @@ class OmdbScraper(ContentScraper):
     def get_by_imdb_id(self, id: str):
         resp = self.get({"i": id, "plot": "full"}, True)
 
-        data = resp.json()
+        data = Parser.normalize_dict(resp.json())
 
-        if data["Response"] == "True":
+        if data["Response"]:
             return data
 
         self.log.error(f"Error while searching content '{data.get('Error', resp.text)}'")
-        return None
+        return {}
 
 
 class ImdbScraper(ContentScraper):
@@ -265,6 +267,8 @@ class ImdbScraper(ContentScraper):
             url += "chart/tvmeter"
         elif ctype == ContentType.movie:
             url += "chart/moviemeter"
+        else:
+            raise InternalException("Invalid content type")
 
         resp = self._get_page_ids(url)
 
@@ -276,6 +280,8 @@ class ImdbScraper(ContentScraper):
             url += "chart/toptv"
         elif ctype == ContentType.movie:
             url += "chart/top"
+        else:
+            raise InternalException("Invalid content type")
 
         resp = self._get_page_ids(url, {"sort": "us,des"})
 

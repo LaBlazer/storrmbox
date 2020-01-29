@@ -2,6 +2,8 @@ import random
 import string
 from enum import Enum
 
+from sqlalchemy.orm import backref
+
 from storrmbox.database import (
     db,
     sa,
@@ -52,8 +54,9 @@ class Content(Model):
     # Auto
     last_updated = sa.Column(sa.DateTime, nullable=False, default=time_now, onupdate=time_now)
 
-    children = relationship("Content")
-    popular = relationship("Popular", backref="content")
+    episodes = relationship("Content", cascade="all,delete")
+    popular = relationship("Popular", backref=backref("content", cascade="all,delete"))
+    top = relationship("Top", backref=backref("content", cascade="all,delete"))
 
     def __init__(self, *args, **kwargs):
         kwargs['uid'] = self.generate_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed

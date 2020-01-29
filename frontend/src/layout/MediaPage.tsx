@@ -19,12 +19,12 @@ class MediaPage extends React.Component<MPProps> {
 
     render() {
         return (
-            <React.Fragment>
+            <div className="mb-4">
                 <h3 className="pt-5">Top Rated {this.props.categoryName}</h3>
                 <MediaListSlider uidList={ContentStore.topList[this.props.category]} />
                 <h3 className="pt-4">Popular {this.props.categoryName}</h3>
                 <MediaListSlider uidList={ContentStore.popularList[this.props.category]} />
-            </React.Fragment>
+            </div>
         )
     }
 }
