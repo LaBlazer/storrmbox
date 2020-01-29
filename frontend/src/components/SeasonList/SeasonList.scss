@@ -8,11 +8,13 @@
 .season-list {
     flex-direction: row;
     flex-wrap: wrap;
+    border: 1px solid rgba(0, 0, 0, 0.3);
 
     .item {
         text-align: center;
         color: #9e9e9e;
-        background-color: transparent;
+        background-color: #00000030;
+        border: 1px solid rgba(0, 0, 0, 0.3);
         flex: auto;
         flex-basis: 0;
         border-radius: 0;

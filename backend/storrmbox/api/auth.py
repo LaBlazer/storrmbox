@@ -29,7 +29,7 @@ def verify_token(token):
     g.user = None
     try:
         # Salted with IP
-        print("Origin: " + request.remote_addr)
+        # print("Origin: " + request.remote_addr)
         data = token_serializer.loads(token, salt=request.remote_addr)
     except:  # noqa: E722
         return False

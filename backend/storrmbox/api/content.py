@@ -1,22 +1,17 @@
-import json
-import operator
-from datetime import datetime
 from threading import Thread
 
 from flask import g
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
-from sqlalchemy import and_, text
 from sqlalchemy.orm import load_only
 
-from storrmbox.content.helpers import ProfiledThread
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
-from storrmbox.database import time_past
 from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db
 from storrmbox.models.content import Content, ContentType
 from storrmbox.models.popular import Popular
 from storrmbox.models.search import Search
+from storrmbox.models.top import Top
 from storrmbox.torrent.providers.eztv_provider import EztvProvider
 from storrmbox.torrent.providers.leetx_provider import LeetxProvider
 from storrmbox.torrent.scrapers import MovieTorrentScraper
@@ -77,78 +72,44 @@ class ContentResource(Resource):
     @auth.login_required
     @api.marshal_with(content_fields)
     def get(self, uid):
+        if len(uid) > Content.uid.type.length:
+            raise NotFoundException(f"Invalid UID '{uid}'")
+
         content = Content.get_by_uid(uid)
 
         if not content:
-            raise NotFoundException(f"Invalid uid '{uid}'")
+            raise NotFoundException(f"UID '{uid}' was not found")
 
+        # Fetch poster and plot from omdb
         if not content.fetched:
-            print("Fetching content")
+            print(f"Fetching content {uid} ({content.imdb_id})")
             data = content_scraper.get_by_imdb_id(content.imdb_id)
             fetched = True  # Fix for omdb being too slow
 
-            if not data or data['Response'] == "False":
-                raise InternalException("OMDB API didn't return any data")
-
-            # Fix no poster available
-            if data['Poster'] == "N/A":
+            # Fix no data/poster/plot
+            if not data.get('Poster'):
+                fetched = False
                 data['Poster'] = "https://lblzr.com/img/nopreview.png"
 
-            # Get the release and end years
-            year_start = None
-            year_end = None
-            if data['Released'] != "N/A" and data['Year']:
-                year_start = datetime.strptime(data['Released'], "%d %b %Y")
-                y, sep, year_end = data['Year'].partition("–")
-            else:
+            if not data.get('Plot'):
                 fetched = False
+                data['Plot'] = ""
 
             # Fetch the yt trailer
-            trailer_query = ("{} first season" if data['Type'] == "series" else "{} movie") + " official trailer"
-            trailer_result = yt_search.search(trailer_query.format(data['Title']))
-            if len(trailer_result) == 0:
-                raise InternalException("Unable to fetch trailer from yt")
+            trailer_result = None
+            if content.type != ContentType.episode:
+                trailer_query = ("{} first season" if data['Type'] == "series" else "{} movie") + " official trailer"
+                trailer_result = yt_search.search(trailer_query.format(data['Title']))[0]["id"]
+                # if len(trailer_result) == 0:
+                #    raise InternalException("Unable to fetch trailer from yt")
 
-            # Calculate average rating
-            # rating_avg = 0.
-            # for r in data['Ratings']:
-            #     r_val, sep, r_max = r['Value'].partition("/")
-            #     rating_avg += float(r_val) / float(r_max or 10)
-            # rating_avg /= len(data['Ratings'])
-            rating_avg = None
-            if data['imdbRating'] != "N/A":
-                rating_avg = (float(data['imdbRating']) / 10.)
-            else:
-                fetched = False
-
-            runtime = None
-            if data['Runtime'] != "N/A":
-                runtime = int(data['Runtime'][:-4])
-            else:
-                fetched = False
-
-            total_seasons = None
-            if data['Type'] == ContentType.series.name and "totalSeasons" in data:
-                if data['totalSeasons'] != "N/A":
-                    total_seasons = int(data['totalSeasons'])
-                else:
-                    fetched = False
-
-            # Update the content with new data and set the fetched field to true
+            # Update the content with new data and set the fetched field to true if fetched correctly
             content.update(True,
-                title=data['Title'],
-                date_released=year_start,
-                date_end=datetime(int(year_end), 1, 1) if year_end else None,
-                runtime=runtime,
-                rating=rating_avg,
-                plot=data['Plot'],
-                genres=data['Genre'].replace(" ", ""),
-                poster=data['Poster'],
-                trailer_youtube_id=trailer_result[0]["id"],
-                episode=None,
-                season=total_seasons,
-                fetched=fetched
-            )
+                           plot=data['Plot'],
+                           poster=data['Poster'],
+                           trailer_youtube_id=trailer_result,
+                           fetched=fetched
+                           )
 
         return content
 
@@ -170,14 +131,16 @@ class EpisodesContentResource(Resource):
         if content.type != ContentType.series:
             raise InternalException("Invalid content type")
 
-        episodes = Content.query.options(load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season))\
+        episodes = Content.query.options(
+            load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season)) \
             .filter(Content.parent_uid == content.uid).all()
 
         if episodes:
             season_amount = max(episodes, key=lambda e: e.season).season
-            result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in range(1, season_amount + 1)]
+            result = [{"season": s, "episodes": [e for e in episodes if e.season == s]} for s in
+                      range(1, season_amount + 1)]
         else:
-            result = None
+            result = []
 
         return {"seasons": result}
 
@@ -213,105 +176,76 @@ class DownloadContentResource(Resource):
         # return []
 
 
-popular_parser = api.parser()
-popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
-                    help='Type of the content', required=True)
-
-
 @api.route("/popular")
 class PopularContentResource(Resource):
+    popular_parser = api.parser()
+    popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
+                                help='Type of the content', required=True)
+
+    def _get_popular(self, ctype):
+        # Fetch popular content
+        cache = []
+        for iid in imdb_scraper.get_popular(ctype):
+            content = Content.get_by_imdb_id(iid)
+
+            # If the content is not already in db skip it
+            if content:
+                cache.append(Popular(
+                    content_id=content.uid,
+                    type=ctype.value
+                ))
+
+        return cache
 
     @auth.login_required
     @api.marshal_with(content_list_fields)
     @api.expect(popular_parser)
     def get(self):
-        args = popular_parser.parse_args()
+        args = PopularContentResource.popular_parser.parse_args()
         ctype = ContentType[args['type']]
 
-        results = []
-        # Fetch popular from db first (from last 24h)
-        popular = Popular.query.order_by(Popular.id.asc())\
-            .filter(and_(Popular.type == ctype,
-                         Popular.time > time_past(24))).all()
-
-        if popular:
-            uids = [p.content.uid for p in popular]
-            return {"uids": uids}
-
-        # Fetch popular from omdb
-        iids = imdb_scraper.get_popular(ctype)
-        for i, iid in enumerate(iids):
-            cm = Content.get_by_imdb_id(iid)
-
-            # If the content is not already in db create it
-            if not cm:
-                cm = Content(
-                    imdb_id=iid,
-                    type=ctype.value
-                )
-                db.session.add(cm)
-
-            # Cache the popular movies
-            db.session.add(Popular(
-                content=cm,
-                type=ctype.value
-            ))
-
-            results.append(cm.uid)
-
-        # Commit all new data
-        db.session.commit()
-
-        return {"uids": results}
-
-
-top_parser = api.parser()
-top_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
-                    help='Type of the content', required=True)
+        return {"uids": [c.content_id for c in Popular.fetch(Popular.type, ctype, self._get_popular, ctype)]}
 
 
 @api.route("/top")
 class TopContentResource(Resource):
+    top_parser = api.parser()
+    top_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
+                            help='Type of the content', required=True)
+
+    def _get_top(self, ctype):
+        # Fetch top content
+        cache = []
+        for iid in imdb_scraper.get_top(ctype):
+            content = Content.get_by_imdb_id(iid)
+
+            # If the content is not already in db skip it
+            if content:
+                cache.append(Top(
+                    content_id=content.uid,
+                    type=ctype.value
+                ))
+
+        return cache
 
     @auth.login_required
     @api.marshal_with(content_list_fields)
     @api.expect(top_parser)
     def get(self):
-        args = top_parser.parse_args()
+        args = TopContentResource.top_parser.parse_args()
         ctype = ContentType[args['type']]
 
-        results = []
-        # Fetch top content
-        iids = imdb_scraper.get_top(ctype)
-        for iid in iids:
-            cm = Content.get_by_imdb_id(iid)
-
-            # If the content is not already in db create it
-            if not cm:
-                cm = Content(
-                    imdb_id=iid,
-                    type=ctype.value
-                )
-                db.session.add(cm)
-
-            results.append(cm.uid)
-
-        # Commit all new data
-        db.session.commit()
-
-        return {"uids": results}
-
-
-search_parser = api.parser()
-search_parser.add_argument('query', type=str, help='Search query', required=True)
-search_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
-                    help='Type of the content', required=False)
-search_parser.add_argument('amount', type=int, default=6,
-                    help='Minimum amount of the content returned', required=False)
+        return {"uids": [c.content_id for c in Top.fetch(Top.type, ctype, self._get_top, ctype)]}
 
 
 @api.route("/search")
 class SearchContentResource(Resource):
+    search_parser = api.parser()
+    search_parser.add_argument('query', type=str, help='Search query', required=True)
+    search_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
+                               help='Type of the content', required=False)
+    search_parser.add_argument('amount', type=int, default=6,
+                               help='Minimum amount of the content returned', required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -320,7 +254,7 @@ class SearchContentResource(Resource):
     @api.marshal_with(content_list_fields, as_list=True)
     @api.expect(search_parser)
     def get(self):
-        args = search_parser.parse_args()
+        args = SearchContentResource.search_parser.parse_args()
 
         # Store the search in db
         db.session.add(Search(
@@ -330,7 +264,8 @@ class SearchContentResource(Resource):
 
         # Search the query in db first
         results = Content.query.options(load_only("uid"))\
-            .filter(Content.title.ilike(f"%{args['query']}%")).all()
+            .filter(Content.title.ilike(f"%{args['query']}%"), Content.votes.isnot(None))\
+            .order_by(Content.votes.desc()).all()
 
         # Filter content if type is specified
         uids = []
@@ -347,7 +282,6 @@ class SearchContentResource(Resource):
         current_page = 1
         while continue_search and current_page <= 5:
             content = content_scraper.search(args['query'], current_page)
-
             # Break if no content was found
             if not content:
                 break
@@ -371,7 +305,6 @@ class SearchContentResource(Resource):
 
                 # Only add content with poster
                 if c['Poster'] != "N/A":
-
                     # Add the content
                     cm = Content(
                         imdb_id=c['imdbID'],
@@ -407,6 +340,9 @@ class ReloadContentResource(Resource):
         objects = []
         try:
             # TODO: Only update existing content
+            # Temporarily drop the whole DB each time
+            # Content.__table__.drop(db.engine)
+
             for c in imdb_scraper.get_content():
 
                 c["uid"] = Content.generate_uid(c["imdb_id"])

@@ -1,11 +1,12 @@
 from enum import Enum
 
-from sqlalchemy import SmallInteger, type_coerce, func
+from sqlalchemy import SmallInteger, type_coerce, func, and_
 from sqlalchemy.orm import relationship
 from datetime import timedelta, datetime
 import sqlalchemy as sa
 from sqlalchemy.sql import operators
 
+from storrmbox.exceptions import InternalException
 from .extensions import db
 
 
@@ -75,9 +76,8 @@ class SurrogatePK(object):
     """A mixin that adds a surrogate integer 'primary key' column named
     ``id`` to any declarative-mapped class.
     """
-    __table_args__ = {'extend_existing': True}
 
-    id = sa.Column(sa.Integer, primary_key=True)
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
 
     @classmethod
     def get_by_id(cls, id):
@@ -96,6 +96,41 @@ def ReferenceCol(tablename, nullable=False, pk_name='id', **kwargs):
     """
     return sa.Column(sa.ForeignKey("{0}.{1}".format(tablename, pk_name)),
         nullable=nullable, index=True, **kwargs)  # pragma: no cover
+
+
+class Cache(SurrogatePK):
+
+    refresh_interval = 24
+
+    created_at = sa.Column(sa.DateTime, nullable=False, default=time_now, primary_key=True)
+
+    @classmethod
+    def set_refresh_interval(cls, interval):
+        cls.refresh_interval = interval
+
+    @classmethod
+    def fetch(cls, key, value, refresh_function=None, *refresh_function_args):
+        filtered = cls.query.filter(and_(and_(key == value, cls.created_at > time_past(24)))).order_by(cls.id.asc()).all()
+
+        if not filtered:
+            if callable(refresh_function):
+                # Refreshing data
+                filtered = refresh_function(*refresh_function_args)
+
+                # Check if function returned correct data
+                if len(filtered) == 0 or not isinstance(filtered[0], cls):
+                    raise InternalException("Cache fetch function returned invalid data")
+
+                db.session.bulk_save_objects(filtered, update_changed_only=False)
+                # Commit all new data
+                db.session.commit()
+            else:
+                raise InternalException(f"{type(refresh_function)} is not callable")
+
+        return filtered
+
+    def purge(self):
+        pass
 
 
 class EnumComparator(SmallInteger.Comparator):
