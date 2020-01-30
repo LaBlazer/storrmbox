@@ -41,7 +41,8 @@ content_fields = api.model("Content", {
     "poster": fields.String,
     "trailer_youtube_id": fields.String,
     "episode": fields.Integer,
-    "season": fields.Integer
+    "season": fields.Integer,
+    "parent": fields.String(attribute='parent_uid')
 })
 
 content_list_fields = api.model("ContentUidList", {
