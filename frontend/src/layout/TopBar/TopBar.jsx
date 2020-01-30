@@ -46,7 +46,7 @@ class TopBar extends React.Component {
                     </Link>                 
                     
                     <div className="navbar-collapse collapse">
-                        <ul className="navbar-nav mx-auto">
+                        <ul className="navbar-nav mx-auto noselect">
                             <li className="nav-item">
                                 <NavLink to="/series" exact className="nav-link" activeClassName="active">
                                     Series
