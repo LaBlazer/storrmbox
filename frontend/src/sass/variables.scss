@@ -5,11 +5,17 @@ $body-color: #ececec;
 $card-bg: #343434;
 $card-border-radius: 0;
 
-$primary: #0bc79e;
+
+$primary:   #0bc79e;
 $secondary: #159c7f;
+$success:   #28a745;
+$info:      #17a2b8;
+$warning:   #ffc107;
+$danger:    #f44336;
 
 $list-group-bg: #3c3c3c;
 $list-group-color: #e4e4e4;
+$list-group-action-hover-color: $list-group-color;
 
 $input-placeholder-color: #aaaaaa;
 

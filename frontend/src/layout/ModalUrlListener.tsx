@@ -4,29 +4,32 @@ import { withRouter, Redirect, RouteComponentProps } from 'react-router-dom';
 import ContentStore from '../stores/ContentStore';
 import { observer } from 'mobx-react';
 import SeasonsStore from '../stores/SeasonsStore';
-import { ContentType, ContentModel } from '../endpoints/content';
+import { ContentType } from '../endpoints/content';
 import { LoadingModal } from '../components/LoadingModal/LoadingModal';
+import * as H from 'history';
 
-type MULProps = RouteComponentProps<{ id: string }, any, { background: string }>;
 
+type MULProps = RouteComponentProps<{ id: string }, any, { background?: H.Location<any> }>;
 
 @observer
-class ModalUrlListener extends React.Component<MULProps, { forceClose: boolean }> {
+class ModalUrlListener extends React.Component<MULProps, { redirectTo: string | null }> {
 
     constructor(props: MULProps) {
         super(props);
 
         this.state = {
-            forceClose: false
+            redirectTo: null
         }
 
         this.handleClose = this.handleClose.bind(this);
     }
 
     handleClose() {
-        let { history } = this.props;
-        if (history.length <= 2 || history.location.state?.background === undefined) {
-            this.setState({ forceClose: true });
+        let { history, location } = this.props;
+        if (location.state?.background) {
+            this.setState({ redirectTo: location.state.background.pathname });
+        } else if (history.length <= 2 || history.location.state?.background === undefined) {
+            this.setState({ redirectTo: "/" });
         } else {
             history.goBack();
         }
@@ -37,21 +40,20 @@ class ModalUrlListener extends React.Component<MULProps, { forceClose: boolean }
         ContentStore.getContent(id);
 
         let content = ContentStore.content[id];
-        if(!content || (content && content.type === ContentType.SERIES)) {
+        if (!content || (content && content.type === ContentType.SERIES)) {
             SeasonsStore.getSeasons(id);
         }
     }
 
     render() {
-        if (this.state.forceClose) {
-            return (
-                <Redirect push to="/" />
-            )
+        if (this.state.redirectTo) {
+            return <Redirect push to={this.state.redirectTo} />
         }
 
         let { id } = this.props.match.params;
-        if (ContentStore.content[id]) {
-            return <MediaModal content={ContentStore.content[id] as ContentModel} seasons={SeasonsStore.series[id]} onHide={this.handleClose} />
+        let content = ContentStore.content[id];
+        if (content) {
+            return <MediaModal content={content} seasons={SeasonsStore.series[id]} onHide={this.handleClose} />
         } else {
             return <LoadingModal />
         }
