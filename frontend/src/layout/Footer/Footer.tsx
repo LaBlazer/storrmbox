@@ -25,7 +25,7 @@ export class Footer extends React.Component<any, FState> {
     }
 
     render() {
-        return <div id="footer">
+        return <div id="footer" className="noselect">
             <a href="https://github.com/LaBlazer/storrmbox" target="__blank" className="name">
                 <FontAwesomeIcon icon={faGithub} /> Storrmbox
             </a>

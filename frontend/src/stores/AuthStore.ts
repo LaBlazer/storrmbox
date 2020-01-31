@@ -90,21 +90,29 @@ class AuthStore {
 
         if (!exists) return;
         this.fetching = true;
-        let response = await AuthService.refreshToken(extended);
 
-        if (response.status === 200) {
-            let { data } = response;
-            setCookie(TOKEN_COOKIE_NAME, data.token, new Date(data.expires_in * 1000));
+        try {
+            let response = await AuthService.refreshToken(extended);
 
-            if (extended === true) {
-                setCookie(REMEMBER_ME_COOKIE_NAME, 1, new Date(data.expires_in * 1000));
-            } else {
-                this.setupTokenAutorefresh(data.expires_in);
+            if (response.status === 200) {
+                let { data } = response;
+                setCookie(TOKEN_COOKIE_NAME, data.token, new Date(data.expires_in * 1000));
+
+                if (extended === true) {
+                    setCookie(REMEMBER_ME_COOKIE_NAME, 1, new Date(data.expires_in * 1000));
+                } else {
+                    this.setupTokenAutorefresh(data.expires_in);
+                }
+
+                this.auth = true;
             }
+        } catch (err) {
+            console.error(err);
 
-            this.auth = true;
+            this.auth = false;
+        } finally {
+            this.fetching = false;
         }
-        this.fetching = false;
     }
 
     //Refresh token if it's going to expire

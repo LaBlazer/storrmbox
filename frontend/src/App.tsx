@@ -6,6 +6,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import MainPage from './layout/pages/MainPage';
 import { UIErrorBoundary } from './layout/UIErrorBoundary';
+import { GlobalNotificationHandler } from './layout/GlobalNotificationHandler/GlobalNotificationHandler';
 
 
 class App extends React.Component {
@@ -17,6 +18,7 @@ class App extends React.Component {
                     <AuthWall>
                         <MainPage />
                     </AuthWall>
+                    <GlobalNotificationHandler />
                 </UIErrorBoundary>
             </Router>
         );
