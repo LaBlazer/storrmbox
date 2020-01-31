@@ -14,6 +14,10 @@ export class UIErrorBoundary extends Component {
     componentDidCatch(error, info) {
         this.setState({ error });
 
+        window.onpopstate = function (event) {
+            window.location.href = document.location;
+        };
+
         console.error(error);
         console.error(info);
     }
@@ -24,7 +28,7 @@ export class UIErrorBoundary extends Component {
                 <Container>
                     <h2>Ooops!</h2>
                     <h4>An error has occured!</h4>
-                    <Button onClick={() => window.location.reload()}>Refresh page</Button>
+                    <Button onClick={() => window.history.back()}>Return back</Button>
                 </Container>
             </div>
         }

@@ -57,12 +57,14 @@ class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
 
     render() {
 
+        let { poster, title, rating, plot } = this.props;
+
         var card = (
             <div className="p-2">
                 <Card className="media-card">
                     <Row className="no-gutters">
                         <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
-                            <Image className={this.props.loading ? 'skeleton' : ''} src={this.props.poster} alt={this.props.title} fluid />
+                            <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
                             <MediaDownloadButton
                                 state={this.state.state}
                                 onDownloadClick={this.handleDownloadClick}
@@ -72,10 +74,10 @@ class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
                             {this.props.loading ?
                                 <p className='skeleton title'>&nbsp;</p>
                                 :
-                                <p className={(this.props.title?.length ?? 0) > 25 ? "small title" : "title"}>{this.props.title}</p>
+                                <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
                             }
-                            <StarRating className="rating" stars={(this.props.rating ?? 0) * 5} />
-                            {!this.props.loading && <p className="plot">{this.props.plot}</p>}
+                            <StarRating className="rating" stars={(rating ?? 0) * 0.5} />
+                            {!this.props.loading && <p className="plot">{plot}</p>}
                         </Col>
                     </Row>
                 </Card>
