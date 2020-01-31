@@ -21,9 +21,8 @@ export class AuthService {
     static login(username: string, password: string, extended: boolean) {
         return AxiosI.post<any, AxiosResponse<AuthResponse>>('/auth',
             qs.stringify({ extended }), {
-            auth: {
-                username,
-                password
+            headers: {
+                Authorization: `Auth ${btoa(`${username}:${password}`)}`
             }
         });
     }
