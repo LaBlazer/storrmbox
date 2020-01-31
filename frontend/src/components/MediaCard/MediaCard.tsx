@@ -3,9 +3,9 @@ import './MediaCard.scss';
 import { Card, Row, Col, Image } from 'react-bootstrap';
 import { MediaDownloadButton, MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
 import StarRating from '../StarRating/StarRating';
-import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
+import ModalLink from '../ModalLink';
 
-type MediaCardProps = RouteComponentProps<{}> & {
+type MediaCardProps = {
     loading?: boolean,
     uid?: string,
     title?: string,
@@ -19,7 +19,7 @@ type MediaCardState = {
     downloaded: number
 }
 
-class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
+export default class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
 
     constructor(props: MediaCardProps) {
         super(props);
@@ -86,14 +86,12 @@ class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
 
         if (this.props.uid) {
             return (
-                <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }} style={{ color: "inherit" }}>
+                <ModalLink to={`/m/${this.props.uid}`} style={{ color: "inherit" }}>
                     {card}
-                </Link>
+                </ModalLink>
             )
         } else {
             return card;
         }
     }
 }
-
-export default withRouter(MediaCard);

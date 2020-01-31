@@ -1,0 +1,27 @@
+@import "variables";
+
+.toast {
+    color: #171212;
+
+    .toast-header {
+        background-color: rgba(255, 255, 255, 0.55);
+        color: #494949;
+    }
+
+    &.bug, &.error {
+        background-color: $danger;
+    }
+
+    &.warning {
+        background-color: $warning;
+    }
+
+    &.success {
+        background-color: $success;
+    }
+
+    &.info {
+        background-color: $info;
+    }
+
+}
