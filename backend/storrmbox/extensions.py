@@ -11,7 +11,7 @@ class NoNameMeta(BindMetaMixin, DeclarativeMeta):
 
 
 db = SQLAlchemy(model_class=declarative_base(cls=Model, metaclass=NoNameMeta, name='Model'))
-basic_auth = HTTPBasicAuth(scheme='Auth')
+basic_auth = HTTPTokenAuth(scheme='Auth')
 auth = HTTPTokenAuth()
 multi_auth = MultiAuth(basic_auth, auth)
 migrate = Migrate()

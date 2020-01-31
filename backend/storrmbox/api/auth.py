@@ -1,3 +1,4 @@
+import base64
 import functools
 from os import getenv
 from time import time
@@ -16,11 +17,13 @@ api = Namespace('auth', description='Web app authentication')
 token_serializer = Serializer(getenv('SECRET_KEY'), expires_in=TOKEN_EXPIRE_TIME + 60)
 
 
-@basic_auth.verify_password
-def verify_password(username, password):
-    """Validate user passwords and store user in the 'g' object"""
-    g.user = User.query.filter_by(username=username).first()
-    return g.user is not None and g.user.check_password(password)
+@basic_auth.verify_token
+def verify_password(encoded_credentials):
+    if encoded_credentials:
+        credentials = base64.b64decode(encoded_credentials, validate=True)
+        username, password = credentials.decode("utf8").split(":", maxsplit=1)
+        g.user = User.query.filter_by(username=username).first()
+        return g.user is not None and g.user.check_password(password)
 
 
 @api.response(401, 'Authentication required')

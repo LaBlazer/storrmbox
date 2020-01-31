@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%Y-%m-%d %H:%M:%S',
                     handlers=[logging.StreamHandler()])
 
-logger = logging.getLogger()
+logger = logging.getLogger("storrmbox")
 
 
 def create_app(config=None):
