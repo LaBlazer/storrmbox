@@ -11,7 +11,7 @@ class NoNameMeta(BindMetaMixin, DeclarativeMeta):
 
 # Disable Table Name Generation
 db = SQLAlchemy(model_class=declarative_base(cls=Model, metaclass=NoNameMeta, name='Model'))
-basic_auth = HTTPBasicAuth()
-auth = HTTPTokenAuth('Bearer')
+basic_auth = HTTPBasicAuth(scheme='Token')
+auth = HTTPTokenAuth(scheme='Token')
 multi_auth = MultiAuth(basic_auth, auth)
 migrate = Migrate()
