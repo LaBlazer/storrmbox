@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
+import * as H from 'history';
 
-type MLProps = RouteComponentProps<any, any, { background: string }> & {
+type MLProps = RouteComponentProps<any, any, { background?: H.Location<any> }> & {
     to: string,
     [index: string]: any
 };
