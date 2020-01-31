@@ -46,7 +46,7 @@ AxiosI.interceptors.request.use((config) => {
     var cookie = getCookie(TOKEN_COOKIE_NAME);
 
     if (cookie !== null) {
-        config.headers['Authorization'] = `Bearer ${cookie}`;
+        config.headers['Authorization'] = `Token ${cookie}`;
         config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
 
