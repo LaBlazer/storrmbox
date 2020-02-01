@@ -1,13 +1,13 @@
 import React from 'react';
-import MediaModal from '../components/MediaModal/MediaModal';
 import { withRouter, Redirect, RouteComponentProps } from 'react-router-dom';
 import ContentStore from '../stores/ContentStore';
 import { observer } from 'mobx-react';
-import SeasonsStore from '../stores/SeasonsStore';
 import { ContentType } from '../endpoints/content';
 import { LoadingModal } from '../components/LoadingModal/LoadingModal';
 import * as H from 'history';
-
+import SeriesModal from '../components/MediaModals/SeriesModal';
+import EpisodeModal from '../components/MediaModals/EpisodeModal';
+import MovieModal from '../components/MediaModals/MovieModal';
 
 type MULProps = RouteComponentProps<{ id: string }, any, { background?: H.Location<any> }>;
 
@@ -35,14 +35,19 @@ class ModalUrlListener extends React.Component<MULProps, { redirectTo: string | 
         }
     }
 
-    componentDidMount() {
+    fetchContent() {
         let { id } = this.props.match.params;
         ContentStore.getContent(id);
+    }
 
-        let content = ContentStore.content[id];
-        if (!content || (content && content.type === ContentType.SERIES)) {
-            SeasonsStore.getSeasons(id);
+    componentDidUpdate(prevProps: MULProps) {
+        if (prevProps.match.params.id !== this.props.match.params.id) {
+            this.fetchContent();
         }
+    }
+
+    componentDidMount() {
+        this.fetchContent();
     }
 
     render() {
@@ -53,7 +58,14 @@ class ModalUrlListener extends React.Component<MULProps, { redirectTo: string | 
         let { id } = this.props.match.params;
         let content = ContentStore.content[id];
         if (content) {
-            return <MediaModal content={content} seasons={SeasonsStore.series[id]} onHide={this.handleClose} />
+            switch (content.type) {
+                case ContentType.MOVIE:
+                    return <MovieModal uid={id} content={content} onHide={this.handleClose} />
+                case ContentType.SERIES:
+                    return <SeriesModal uid={id} content={content} onHide={this.handleClose} />
+                case ContentType.EPISODE:
+                    return <EpisodeModal uid={id} parentUid={content.parent as string} content={content} onHide={this.handleClose} />
+            }
         } else {
             return <LoadingModal />
         }

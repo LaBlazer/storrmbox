@@ -42,7 +42,7 @@
         padding: 0.45rem 1.25rem 0.45rem 1rem;
         border-left: 0.25rem solid transparent;
 
-        &:hover, &:focus {
+        &:hover, &:focus, &.active {
             border-left: 0.25rem solid $primary;
             color: inherit;
             // background: linear-gradient(90deg, #272727 0%,#3c3c3c 56%);
