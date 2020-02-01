@@ -35,7 +35,7 @@ class NotificationStore {
                 if (status === 500) {
                     this.addNotification({ type: 'bug', title: '500: Server error', text: 'Server has encountered an internal error' }, 5*60000)
                 } else if (status === 401) {
-                    this.addNotification({ type: 'error', title: error.response.data, text: 'You are tring to sign-in with bad credentials' })
+                    this.addNotification({ type: 'error', title: error.response.data, text: 'You are tring to sign-in with bad credentials or your session has expired' })
                 } else {
                     this.addNotification({ type: 'error', title: "Error", text: `Server responded with: ${error.response.data}` })
                 }

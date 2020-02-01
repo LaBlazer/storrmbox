@@ -6,7 +6,10 @@ import { EpisodeItem } from './EpisodeItem';
 import "./SeasonList.scss"
 
 type SLProps = {
-    seasons?: Season[] | null
+    seasons?: Season[] | null,
+    activeSeason?: number,
+    activeEpisode?: number,
+    onEpisodeClick?: (episode: string) => void
 }
 
 type SLState = {
@@ -16,7 +19,7 @@ type SLState = {
 export class SeasonList extends React.Component<SLProps, SLState> {
 
     state = {
-        pickedSeason: 1
+        pickedSeason: this.props.activeSeason ?? 1
     }
 
     onSeasonClicked = (season: number) => {
@@ -30,10 +33,16 @@ export class SeasonList extends React.Component<SLProps, SLState> {
                 return <span>No seasons are out yet!</span>
             }
 
-            let seasons = this.props.seasons.map((item) => ({ active: (item.season === this.state.pickedSeason), season: item.season }));
+            let seasons = this.props.seasons.map((item) => ({ season: item.season, active: (item.season === this.state.pickedSeason) }));
             let pickedSeason = this.props.seasons[this.state.pickedSeason - 1];
-            let episodes = pickedSeason.episodes.map((item) => ({ season: pickedSeason.season, ...item }));
-            
+            let episodes = pickedSeason.episodes.map((item) => (
+                {
+                    season: pickedSeason.season,
+                    ...item,
+                    active: (this.props.activeSeason === this.state.pickedSeason && this.props.activeEpisode === item.episode)
+                }
+            ));
+
             return <div className="bg">
                 <Accordion className="season-list" items={seasons} onItemClick={this.onSeasonClicked} itemComponent={SeasonItem} />
                 <Accordion className="episode-list" items={episodes} itemComponent={EpisodeItem} />

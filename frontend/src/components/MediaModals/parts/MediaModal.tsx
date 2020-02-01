@@ -1,23 +1,21 @@
 import React from 'react';
-import { Modal, Row, Col, Badge } from 'react-bootstrap';
+import { Modal, Badge } from 'react-bootstrap';
 import './MediaModal.scss';
-import StarRating from '../StarRating/StarRating';
-import { ContentModel, Season, ContenTypeMap } from '../../endpoints/content';
-import { SeasonList } from '../SeasonList/SeasonList';
-import { MediaYear } from '../MediaYear';
-import { generateRGBColorsFromString, colorsToCSSRule } from '../../utils/helpers';
-import { getCookie } from '../../utils/CookieHelper';
+import StarRating from '../../StarRating/StarRating';
+import { ContentModel, ContenTypeMap } from '../../../endpoints/content';
+import { MediaYear } from '../../MediaYear';
+import { generateRGBColorsFromString, colorsToCSSRule } from '../../../utils/helpers';
+import { getCookie } from '../../../utils/CookieHelper';
 
 type MMProps = {
-    seasons: Season[] | undefined | null,
     content: ContentModel,
     onHide?: () => void
 }
 
-class MediaModal extends React.Component<MMProps> {
+export class MediaModal extends React.Component<MMProps> {
 
     render() {
-        let { type, poster, title, year_released, year_end, rating, plot, genres, trailer_youtube_id } = this.props.content;
+        let { type, poster, title, year_released, year_end, rating, genres, trailer_youtube_id } = this.props.content;
         let typeName = ContenTypeMap[type];
 
         return (
@@ -25,7 +23,6 @@ class MediaModal extends React.Component<MMProps> {
                 show={true}
                 onHide={this.props.onHide}
                 dialogClassName="media-modal"
-                aria-labelledby="example-custom-modal-styling-title"
                 size="xl"
                 centered
             >
@@ -63,19 +60,10 @@ class MediaModal extends React.Component<MMProps> {
                     </button> */}
                 </div>
                 <div className="media-modal-body">
-                    <Row style={{ minHeight: "400px" }}>
-                        <Col lg={5}>
-                            <p className="description">{plot}</p>
-                        </Col>
-                        <Col lg={7}>
-                            <SeasonList seasons={this.props.seasons} />
-                        </Col>
-                    </Row>
+                    {this.props.children}
                 </div>
             </Modal>
         )
 
     }
 }
-
-export default MediaModal;
