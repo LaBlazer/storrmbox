@@ -37,7 +37,7 @@ class TopBar extends React.Component {
 
     render() {
         return (
-            <Navbar bg="coal" variant="dark" className="top-bar" fixed="top">
+            <Navbar bg="coal" variant="dark" className="top-bar" fixed="top" expand="md">
                 <Container>
                     
                     <Link to="/" className="navbar-brand">
@@ -45,7 +45,8 @@ class TopBar extends React.Component {
                         <SmallLogo className="d-md-none smallsize" height="100%" width="100%"/>
                     </Link>                 
                     
-                    <div className="navbar-collapse collapse">
+                    <Navbar.Toggle aria-controls="navbar-nav" />
+                    <Navbar.Collapse id="navbar-nav">
                         <ul className="navbar-nav mx-auto noselect">
                             <li className="nav-item">
                                 <NavLink to="/series" exact className="nav-link" activeClassName="active">
@@ -63,7 +64,7 @@ class TopBar extends React.Component {
                                 </NavLink>
                             </li>
                         </ul>
-                        <Form inline onSubmit={this.onSearch}>
+                        <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
                             <InputGroup>
                                 <FormControl
                                     type="text"
@@ -78,8 +79,8 @@ class TopBar extends React.Component {
                                 </InputGroup.Append>
                             </InputGroup>
                         </Form>
-                        <Button variant="outline-primary ml-3" onClick={AuthStore.logout}>Logout</Button>
-                    </div>
+                        <Button variant="outline-primary ml-md-3" onClick={AuthStore.logout}>Logout</Button>
+                    </Navbar.Collapse>
                 </Container>
             </Navbar>
         )
