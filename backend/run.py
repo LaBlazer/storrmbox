@@ -33,11 +33,13 @@ if __name__ == "__main__":
     # Run workers
     workers = subprocess.Popen(f'huey_consumer.py storrmbox.extensions.task_queue -w {args.workers}',
                                stdout=subprocess.PIPE, shell=True)
-    Thread(target=output_reader,
-           args=(workers,), daemon=True).start()
 
     # Run the server
     if args.type == "dev":
+        # Redirect the consumer output
+        Thread(target=output_reader,
+               args=(workers,), daemon=True).start()
+
         backend = subprocess.Popen('manage.py runserver',
                                    stdout=subprocess.PIPE, shell=True)
         output_reader(backend)
