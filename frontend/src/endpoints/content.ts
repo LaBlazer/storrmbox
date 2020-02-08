@@ -24,7 +24,8 @@ export interface ContentModel {
     poster: string,
     trailer_youtube_id: string,
     episode: number,
-    season: number
+    season: number,
+    parent?: string
 }
 
 export interface Season {
