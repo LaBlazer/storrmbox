@@ -163,8 +163,7 @@ class DownloadContentResource(Resource):
     @api.marshal_with(task_id)
     # @api.expect(parser)
     def get(self, uid):
-        task = download(url_for('static', filename='test.mp4'))
-        #task()
+        task = download()
         return {"id": task.id}
 
 # TEMP
