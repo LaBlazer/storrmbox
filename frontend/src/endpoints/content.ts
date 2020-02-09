@@ -65,6 +65,22 @@ export class ContentService {
             .then((response) => response.data.uids);
     }
 
+    static task(taskID: string) {
+        return AxiosI.get<any, AxiosResponse<{ type: string, data: string }>>(`/content/task/${taskID}`)
+            .then((response) => {
+                if (response.data.data) {
+                    return { type: response.data.type, data: `${window.location.origin}/${response.data.data}` };
+                } else {
+                    return response.data;
+                }
+            });
+    }
+
+    static download(uid: string) {
+        return AxiosI.get<any, AxiosResponse<{ id: string }>>(`/content/${uid}/download`)
+            .then((response) => response.data.id);
+    }
+
     static __reloadContent_UNSAFE() {
         return AxiosI.get('/content/reload');
     }
