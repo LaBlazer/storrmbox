@@ -45,6 +45,7 @@
 
         &:hover, &:focus, &.active {
             border-left: 0.25rem solid $primary;
+            outline: none;
             color: inherit;
             // background: linear-gradient(90deg, #272727 0%,#3c3c3c 56%);
             background: linear-gradient(90deg, rgba(39,39,39,1) 0%, rgba(39,39,39,0.5466561624649859) 16%, rgba(0,0,0,0) 91%);
