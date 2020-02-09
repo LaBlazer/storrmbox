@@ -1,4 +1,7 @@
 @import "variables.scss";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
 
 .media-modal {
 
@@ -12,6 +15,29 @@
             height: 448px;
             width: 100%;
             overflow: hidden;
+            transition: height 0.3s ease-out;
+
+            &.video {
+                @include media-breakpoint-up(sm) { 
+                    height: 355px;
+                }
+
+                @include media-breakpoint-up(md) { 
+                    height: 355px;
+                }
+
+                @include media-breakpoint-up(lg) { 
+                    height: 525px;
+                }
+
+                @include media-breakpoint-up(xl) { 
+                    height: 715px;
+                }
+
+                .plyr {
+                    z-index: 100;
+                }
+            }
 
             img {
                 width: 100%;
@@ -35,6 +61,21 @@
                 line-height: 54px;
                 text-transform: capitalize;
                 margin-bottom: 0;
+            }
+
+            .play-button {
+                font-size: 3em;
+                line-height: 1em;
+                cursor: pointer;
+
+                &:focus,  &:hover {
+                    color: $primary;
+                }
+            }
+
+            .loading-video {
+                font-size: 1em;
+                background-color: rgba($secondary, 0.4);
             }
 
             .spec {

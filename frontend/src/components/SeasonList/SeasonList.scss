@@ -41,6 +41,7 @@
         background-color: transparent;
         padding: 0.45rem 1.25rem 0.45rem 1rem;
         border-left: 0.25rem solid transparent;
+        border-radius: 0;
 
         &:hover, &:focus, &.active {
             border-left: 0.25rem solid $primary;
@@ -50,9 +51,7 @@
         }
 
         &.active {
-            -webkit-box-shadow: inset 0px 0px 54px -12px $primary;
-            -moz-box-shadow: inset 0px 0px 54px -12px $primary;
-            box-shadow: inset 0px 0px 54px -12px $primary;
+            background: linear-gradient(90deg, rgba($primary, 0.20) 0%, rgba(0,0,0,0) 91%);
         }
 
         .episode-number {
