@@ -40,14 +40,30 @@ class ModalUrlListener extends React.Component<MULProps, { redirectTo: string | 
         ContentStore.getContent(id);
     }
 
+    invalidatePlayState() {
+        let { id } = this.props.match.params;
+        let content = ContentStore.content[id];
+        if (content) {
+            //Invalidate play state
+            if (this.props.location?.state?.play) {
+                let { play, ...other } = this.props.location.state;
+                this.props.history.replace(this.props.location.pathname, other);
+                console.debug("Invalidating play");
+            }
+        }
+    }
+
     componentDidUpdate(prevProps: MULProps) {
         if (prevProps.match.params.id !== this.props.match.params.id) {
             this.fetchContent();
         }
+
+        this.invalidatePlayState();
     }
 
     componentDidMount() {
         this.fetchContent();
+        this.invalidatePlayState();
     }
 
     render() {
