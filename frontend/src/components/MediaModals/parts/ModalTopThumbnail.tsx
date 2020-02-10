@@ -1,9 +1,8 @@
 import React, { Component } from "react"
 import { getCookie } from "../../../utils/CookieHelper";
-import Plyr from 'react-plyr';
-import "plyr/src/sass/plyr.scss";
 import DownloadStore from "../../../stores/DownloadStore";
 import { observer } from "mobx-react";
+import VideoPlayer from "components/VideoPlayer";
 
 type TTProps = {
     uid: string,
@@ -20,7 +19,7 @@ export class ModalTopThumbnail extends Component<TTProps> {
         let vURL = DownloadStore.downloads[uid];
         if (vURL) {
             return <div className="top-thumbnail video">
-                <Plyr type="video" title={title} url={vURL.data} />
+                <VideoPlayer title={title} url={vURL.data} />
             </div>
         }
 
