@@ -11,6 +11,7 @@ import DownloadStore from '../../../stores/DownloadStore';
 
 type MMProps = {
     content: ContentModel,
+    playContent?: boolean,
     onHide?: () => void
 }
 
@@ -20,8 +21,24 @@ type MMState = {
 
 export class MediaModal extends Component<MMProps, MMState> {
 
+    static defaultProps = {
+        playContent: false
+    }
+
     state = {
         play: false
+    }
+
+    componentDidUpdate() {
+        if(this.props.playContent) {
+            this.onPlayClicked();
+        }
+    }
+
+    componentDidMount() {
+        if(this.props.playContent) {
+            this.onPlayClicked();
+        }
     }
 
     onPlayClicked = () => {
