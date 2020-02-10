@@ -56,7 +56,7 @@ export class MediaModal extends Component<MMProps, MMState> {
                         </div>
                         <div className="spec">
                             <Badge className={`type type-${typeName} mr-2`}>{typeName}</Badge>
-                            <span className="year mr-2">Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
+                            <span className="year mr-3">Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
                             <span className="rating mr-auto"> Rating: <StarRating stars={(rating ?? 0) * 0.5} /></span>
                             <span className="genres">
                                 {
