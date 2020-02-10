@@ -12,12 +12,14 @@
     .media-modal-header {
 
         .top-thumbnail {
+            height: 448px;
             width: 100%;
             overflow: hidden;
             position: relative;
             transition: height 0.3s ease-out;
 
             &.video {
+                height: auto;
                 margin-bottom: 73px;
 
                 .plyr {
