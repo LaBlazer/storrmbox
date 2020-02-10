@@ -11,6 +11,7 @@ class DownloadStore {
 
     public download = async (uid: string) => {
         if (this.downloads[uid] === undefined) {
+            this.downloads[uid] = null;
             let tid = await ContentService.download(uid);
             this.fetch(uid, tid);
         }
