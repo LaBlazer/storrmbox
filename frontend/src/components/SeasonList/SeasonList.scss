@@ -44,7 +44,8 @@
         border-radius: 0;
 
         &:hover, &:focus, &.active {
-            border-left: 0.25rem solid $primary;
+            border-left: 0.25rem solid;
+            border-color: transparent #343434 transparent $primary;
             outline: none;
             color: inherit;
             // background: linear-gradient(90deg, #272727 0%,#3c3c3c 56%);

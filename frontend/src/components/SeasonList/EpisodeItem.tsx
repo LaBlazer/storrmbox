@@ -1,7 +1,6 @@
 import React from 'react';
-import { ListGroup } from 'react-bootstrap';
 import "./SeasonList.scss"
-import { getEpisodeStringRepresentation } from '../../utils/string-formater';
+import { getEpisodeStringRepresentation } from 'utils/string-formater';
 import ModalLink from '../ModalLink';
 
 type EIProps = {
