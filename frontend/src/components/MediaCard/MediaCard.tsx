@@ -4,14 +4,11 @@ import { Card, Row, Col, Image } from 'react-bootstrap';
 import { MediaDownloadButton, MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
 import StarRating from '../StarRating/StarRating';
 import ModalLink from '../ModalLink';
+import { ContenTypeMap, ContentModel } from 'endpoints/content';
 
 type MediaCardProps = {
     loading?: boolean,
-    uid?: string,
-    title?: string,
-    poster?: string,
-    rating?: number,
-    plot?: string
+    content?: ContentModel
 }
 
 type MediaCardState = {
@@ -57,7 +54,8 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
 
     render() {
 
-        let { poster, title, rating, plot } = this.props;
+        let { uid, poster, title, rating, plot, type } = this.props.content ?? {};
+        let typeName = (type) ? ContenTypeMap[type] : "";
 
         var card = (
             <div className="p-2">
@@ -65,6 +63,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                     <Row className="no-gutters">
                         <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
                             <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
+                            <div className={`type-bar type-bar-${typeName}`}>&nbsp;</div>
                             <MediaDownloadButton
                                 state={this.state.state}
                                 onDownloadClick={this.handleDownloadClick}
@@ -84,9 +83,9 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
             </div>
         );
 
-        if (this.props.uid) {
+        if (uid) {
             return (
-                <ModalLink to={`/m/${this.props.uid}`} style={{ color: "inherit" }}>
+                <ModalLink to={`/m/${uid}`} style={{ color: "inherit" }}>
                     {card}
                 </ModalLink>
             )
