@@ -35,13 +35,16 @@
 }
 
 .episode-list {
+    .list-group-item {
+        padding: 0;
+        background-color: transparent;
+    }
+    
     .item  {
         display: flex;
         align-items: center;
-        background-color: transparent;
         padding: 0.45rem 1.25rem 0.45rem 1rem;
         border-left: 0.25rem solid transparent;
-        border-radius: 0;
 
         &:hover, &:focus, &.active {
             border-left: 0.25rem solid $primary;

@@ -20,7 +20,7 @@ class MediaContentLoader extends React.Component<MCLProps> {
         let content = ContentStore.content[this.props.mediaID];
 
         if (content) {
-            return <MediaCard {...content} />;
+            return <MediaCard content={content} />;
         } else {
             return <MediaCard loading={true} />;
         }

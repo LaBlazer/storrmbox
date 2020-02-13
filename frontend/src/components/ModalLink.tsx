@@ -4,6 +4,7 @@ import * as H from 'history';
 
 type MLProps = RouteComponentProps<any, any, { background?: H.Location<any> }> & {
     to: string,
+    state?: any,
     [index: string]: any
 };
 
@@ -16,10 +17,10 @@ type MLProps = RouteComponentProps<any, any, { background?: H.Location<any> }> &
 class ModalLink extends React.Component<MLProps> {
 
     render() {
-        let { to, location, history, match, staticContext, ...props } = this.props;
+        let { to, location, history, match, staticContext, state, ...props } = this.props;
         let background = location.state?.background ?? location;
 
-        return <Link to={{ pathname: to, state: { background } }} {...props}>
+        return <Link to={{ pathname: to, state: { background, ...state } }} {...props}>
             {this.props.children}
         </Link>
     }
