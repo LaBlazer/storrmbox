@@ -32,18 +32,19 @@ class NotificationStore {
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
                 let { status } = error.response;
-                if (status === 500) {
-                    this.addNotification({ type: 'bug', title: '500: Server error', text: 'Server has encountered an internal error' }, 5*60000)
+                if (status >= 500 && status <= 504) {
+                    this.addNotification({ type: 'bug', title: 'Server error', text: 'Server has encountered an internal error' }, 5*60000);
+                    console.log('Server error', error.response.data);
                 } else if (status === 401) {
                     this.addNotification({ type: 'error', title: error.response.data, text: 'You are tring to sign-in with bad credentials or your session has expired' })
                 } else {
-                    this.addNotification({ type: 'error', title: "Error", text: `Server responded with: ${error.response.data}` })
+                    this.addNotification({ type: 'error', title: "Error", text: `Server responded with: ${error.response.data}` });
                 }
             } else if (error.request) {
                 // The request was made but no response was received
-                this.addNotification({ type: 'error', title: "Interniet ?!", text: 'Can\'t reach the server' })
+                this.addNotification({ type: 'error', title: "No connection", text: 'Can\'t reach the backend server' });
             } else {
-                this.addNotification({ type: 'error', title: "Error", text: 'Something very bad happend' })
+                this.addNotification({ type: 'error', title: "Error", text: 'Something very bad happend' });
                 console.error('Error', error.message);
             }
 

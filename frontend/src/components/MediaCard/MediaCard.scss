@@ -30,12 +30,13 @@
         height: 200px;
         position: relative;
         background-color: black;
+        display: flex;
 
         img {
             width: 134px;
-            position: relative;
+            /* position: relative;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translateY(-50%); */
         }
     }
 
