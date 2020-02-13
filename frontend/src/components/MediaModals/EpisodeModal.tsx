@@ -3,15 +3,11 @@ import SeasonsStore from '../../stores/SeasonsStore';
 import { Row, Col } from 'react-bootstrap';
 import { MediaModal } from './parts/MediaModal';
 import ContentStore from '../../stores/ContentStore';
-import { ContentModel } from '../../endpoints/content';
 import { SeasonList } from '../SeasonList/SeasonList';
 import { observer } from 'mobx-react';
 
-type MMProps = {
-    uid: string,
-    parentUid: string,
-    content: ContentModel,
-    onHide?: () => void
+type MMProps = React.ComponentProps<typeof MediaModal> & {
+    parentUid: string
 }
 
 @observer
@@ -23,11 +19,12 @@ class EpisodeModal extends React.Component<MMProps> {
     }
 
     render() {
+        let { parentUid, ...other } = this.props;
         let seasons = SeasonsStore.series[this.props.parentUid];
 
         let { season, episode, plot } = this.props.content;
 
-        return <MediaModal content={this.props.content} onHide={this.props.onHide}>
+        return <MediaModal {...other}>
             <Row style={{ minHeight: "400px" }}>
                 <Col lg={5}>
                     <p className="description">{plot}</p>

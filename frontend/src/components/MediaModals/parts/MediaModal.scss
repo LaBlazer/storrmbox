@@ -15,24 +15,12 @@
             height: 448px;
             width: 100%;
             overflow: hidden;
-            transition: height 0.3s ease-out;
+            position: relative;
+            transition: margin-bottom 0.3s ease-out;
 
             &.video {
-                @include media-breakpoint-up(sm) { 
-                    height: 355px;
-                }
-
-                @include media-breakpoint-up(md) { 
-                    height: 355px;
-                }
-
-                @include media-breakpoint-up(lg) { 
-                    height: 525px;
-                }
-
-                @include media-breakpoint-up(xl) { 
-                    height: 715px;
-                }
+                height: auto;
+                margin-bottom: 73px;
 
                 .plyr {
                     z-index: 100;
@@ -43,10 +31,12 @@
                 width: 100%;
                 min-height: 100%;
                 min-width: 100%;
-                position: relative;
+                position: absolute;
                 left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
+                top: 0;
+                transform: translate(-50%, 0);
+                filter: blur(8px);
+                -webkit-filter: blur(8px);
             }
         }
 
