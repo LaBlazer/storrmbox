@@ -8,7 +8,6 @@ import datetime as dt
 from pathlib import Path
 
 from bs4 import BeautifulSoup
-from interface import Interface
 from requests import Session
 
 from storrmbox.content.helpers import Parser, DatasetReader
