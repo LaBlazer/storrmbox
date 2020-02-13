@@ -28,11 +28,26 @@
 
     .image {
         height: 200px;
+        width: 134px;
         position: relative;
         background-color: black;
 
+        .type-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 5px;
+            width: 100%;
+        }
+
+        $types: ("Movie": "movie", "Series":"series", "Episode": "episode");
+        @each $name, $type in $types {
+            .type-bar-#{$name} {
+                background: map-get($map: $content-type-colors, $key: $type);
+            }
+        }
+
         img {
-            width: 134px;
             position: relative;
             top: 50%;
             transform: translateY(-50%);
