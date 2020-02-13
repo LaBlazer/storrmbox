@@ -6,12 +6,6 @@ from storrmbox.config import DevConfig, ProdConfig
 from .api import api_blueprint
 from .extensions import db, migrate
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='[%(asctime)s]: {} %(levelname)s %(message)s'.format(os.getpid()),
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    handlers=[logging.StreamHandler()])
-
-logger = logging.getLogger()
 
 
 def create_app(config=None):

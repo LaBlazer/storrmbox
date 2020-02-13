@@ -7,12 +7,11 @@ from sqlalchemy.orm import backref
 from storrmbox.database import (
     db,
     sa,
-    IntEnum,
-    SurrogatePK,
     Model,
     relationship,
     ReferenceCol,
     time_now)
+
 
 class ContentType(int, Enum):
     movie = 1

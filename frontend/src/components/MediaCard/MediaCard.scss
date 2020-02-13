@@ -31,6 +31,7 @@
         width: 134px;
         position: relative;
         background-color: black;
+        display: flex;
 
         .type-bar {
             position: absolute;
@@ -47,11 +48,6 @@
             }
         }
 
-        img {
-            position: relative;
-            top: 50%;
-            transform: translateY(-50%);
-        }
     }
 
     .title {

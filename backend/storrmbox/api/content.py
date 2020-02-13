@@ -1,19 +1,20 @@
 from threading import Thread
 
-from flask import g
+from flask import g, url_for
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
 from sqlalchemy.orm import load_only
 
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 from storrmbox.exceptions import NotFoundException, InternalException
-from storrmbox.extensions import auth, db
+from storrmbox.extensions import auth, db, task_queue, logger
 from storrmbox.models.content import Content, ContentType
 from storrmbox.models.popular import Popular
 from storrmbox.models.search import Search
 from storrmbox.models.top import Top
-from storrmbox.torrent.providers.eztv_provider import EztvProvider
-from storrmbox.torrent.providers.leetx_provider import LeetxProvider
+from storrmbox.tasks.content import download
+from storrmbox.torrent.scrapers.providers.eztv_provider import EztvProvider
+from storrmbox.torrent.scrapers.providers.leetx_provider import LeetxProvider
 from storrmbox.torrent.scrapers import MovieTorrentScraper
 
 api = Namespace('content', description='Content serving')
@@ -41,7 +42,8 @@ content_fields = api.model("Content", {
     "poster": fields.String,
     "trailer_youtube_id": fields.String,
     "episode": fields.Integer,
-    "season": fields.Integer
+    "season": fields.Integer,
+    "parent": fields.String(attribute='parent_uid')
 })
 
 content_list_fields = api.model("ContentUidList", {
@@ -63,6 +65,15 @@ content_season = api.model("ContentSeason", {
 
 content_season_list = api.model("ContentSeasonList", {
     "seasons": fields.List(fields.Nested(content_season))
+})
+
+task_id = api.model("TaskId", {
+    "id": fields.String
+})
+
+task_result = api.model("TaskResult", {
+    "type": fields.String,
+    "data": fields.String
 })
 
 
@@ -149,31 +160,23 @@ class EpisodesContentResource(Resource):
 class DownloadContentResource(Resource):
 
     @auth.login_required
-    @api.marshal_with(content_fields)
+    @api.marshal_with(task_id)
     # @api.expect(parser)
-    def post(self, uid):
-        pass
-        # ctype = 0
-        # for t in args['type']:
-        #    ctype |= ContentType[t.upper()]
-        # torrents = []
-        # if ctype & ContentType.MOVIE:
-        #     torrents = torrent_scraper.search_movie(args['query'])
-        # elif ctype & ContentType.SHOW:
-        #     torrents = torrent_scraper.search_series(args['query'], 1, 1, VideoQuality.HD)
-        #
-        # for i, t in enumerate(torrents):
-        #     res.append({
-        #         'id': i,
-        #         'name': 'test search content ' + str(i),
-        #         'year': 2019,
-        #         'year_end': None,
-        #         'description': 'Name: {}, Seeders: {}, Leechers: {}'.format(t.name, t.seeders, t.leechers),
-        #         'rating': i % 5,
-        #         'type': ctype,
-        #         'thumbnail': 'https://picsum.photos/200/300'
-        #     })
-        # return []
+    def get(self, uid):
+        task = download()
+        return {"id": task.id}
+
+# TEMP
+@api.route("/task/<string:uid>")
+class TaskResultResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(task_result)
+    def get(self, uid):
+        logger.debug("Pending: " + str(task_queue.pending()))
+        logger.debug("Results: " + str(task_queue.all_results()))
+
+        return {"type": None, "data": task_queue.result(uid)}
 
 
 @api.route("/popular")
