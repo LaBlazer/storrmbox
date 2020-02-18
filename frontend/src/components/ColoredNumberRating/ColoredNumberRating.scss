@@ -1,0 +1,30 @@
+.number-rating {
+    padding: 0.2em 0.6em;
+    border-radius: 2px;
+    overflow: hidden;
+    display: inline-block;
+    font-weight: bold;
+    text-align: center;
+    width: 2.5em;
+
+    &.rating-category-0 {
+        background-color: #ed5146;
+        color: #ffbda3;
+    }
+
+    &.rating-category-25 {
+        background-color: #e3a635;
+        color: #fff5e1;
+    }
+
+    &.rating-category-50 {
+        background-color: #c2b22d;
+        color: #ffff00;
+    }
+
+    &.rating-category-75 {
+        background-color: #849d2b;
+        color: #cee04a;
+    }
+}
+
