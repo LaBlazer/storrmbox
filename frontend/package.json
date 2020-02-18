@@ -22,6 +22,7 @@
     "react-bootstrap": "^1.0.0-beta.14",
     "react-dom": "^16.12.0",
     "react-fade-in": "^0.1.6",
+    "react-infinite-scroller": "^1.2.4",
     "react-measure": "^2.3.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
@@ -56,6 +57,7 @@
     "@types/qs": "^6.9.0",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
+    "@types/react-infinite-scroller": "^1.2.1",
     "@types/react-router-dom": "^5.1.3"
   }
 }
