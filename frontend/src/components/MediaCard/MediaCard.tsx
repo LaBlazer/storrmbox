@@ -1,10 +1,10 @@
+import { ColoredNumberRating } from 'components/ColoredNumberRating/ColoredNumberRating';
+import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
-import './MediaCard.scss';
-import { Card, Row, Col, Image } from 'react-bootstrap';
-import { MediaDownloadButton, MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
-import StarRating from '../StarRating/StarRating';
+import { Card, Col, Image, Row } from 'react-bootstrap';
+import { MDBStates, MediaDownloadButton } from '../MediaDownloadButton/MediaDownloadButton';
 import ModalLink from '../ModalLink';
-import { ContenTypeMap, ContentModel } from 'endpoints/content';
+import './MediaCard.scss';
 
 type MediaCardProps = {
     loading?: boolean,
@@ -71,11 +71,16 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                         </div>
                         <Col className="info p-2 pt-3">
                             {this.props.loading ?
-                                <p className='skeleton title'>&nbsp;</p>
+                                <>
+                                    <p className='skeleton title'>&nbsp;</p>
+                                    <ColoredNumberRating className="rating skeleton" rating={-1} />
+                                </>
                                 :
-                                <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
+                                <>
+                                    <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
+                                    <ColoredNumberRating className="rating" rating={(rating ?? 0) * 10} />
+                                </>
                             }
-                            <StarRating className="rating" stars={(rating ?? 0) * 0.5} />
                             {!this.props.loading && <p className="plot">{plot}</p>}
                         </Col>
                     </Row>
