@@ -78,7 +78,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                                 </>
                                 :
                                 <>
-                                    <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
+                                    <p className={(title?.length ?? 0) > 25 ? "small title" : "title"}>{title}</p>
                                     <div className="d-flex align-items-center mb-2">
                                         <ColoredNumberRating className="rating mr-2" rating={(rating ?? 0) * 10} />
                                         <span className="years"><MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} /></span>
