@@ -1,4 +1,5 @@
 import { ColoredNumberRating } from 'components/ColoredNumberRating/ColoredNumberRating';
+import { MediaYear } from 'components/MediaYear';
 import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
 import { Card, Col, Image, Row } from 'react-bootstrap';
@@ -54,7 +55,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
 
     render() {
 
-        let { uid, poster, title, rating, plot, type } = this.props.content ?? {};
+        let { uid, poster, title, rating, plot, type, year_released, year_end } = this.props.content ?? {};
         let typeName = (type) ? ContenTypeMap[type] : "";
 
         var card = (
@@ -73,12 +74,15 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                             {this.props.loading ?
                                 <>
                                     <p className='skeleton title'>&nbsp;</p>
-                                    <ColoredNumberRating className="rating skeleton" rating={-1} />
+                                    <span className="loading-info skeleton" style={{ overflow: "hidden", display: "inline-block" }}>&nbsp;</span>
                                 </>
                                 :
                                 <>
                                     <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
-                                    <ColoredNumberRating className="rating" rating={(rating ?? 0) * 10} />
+                                    <div className="d-flex align-items-center mb-2">
+                                        <ColoredNumberRating className="rating mr-2" rating={(rating ?? 0) * 10} />
+                                        <span className="years"><MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} /></span>
+                                    </div>
                                 </>
                             }
                             {!this.props.loading && <p className="plot">{plot}</p>}
