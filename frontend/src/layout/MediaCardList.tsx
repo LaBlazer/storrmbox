@@ -20,7 +20,7 @@ class MediaCardList extends React.Component<MCLProps, MCLState> {
     }
 
     static defaultProps = {
-        firstLoad: 5,
+        firstLoad: 12,
         loadPerPage: 6
     }
 
@@ -34,22 +34,12 @@ class MediaCardList extends React.Component<MCLProps, MCLState> {
         this.setState({ showing: slice });
     }
 
-    componentDidUpdate(prevProps: MCLProps) {
-        let { uidList, firstLoad } = this.props;
-        if (prevProps.uidList === uidList) return false;
-
-        let loadTo = Math.min(firstLoad!, uidList.length);
-        let slice = uidList.slice(0, loadTo);
-        this.setState({ showing: slice });
-    }
-
     render() {
         return (
             <InfiniteScroll
                 pageStart={0}
                 loadMore={this.loadMore}
                 hasMore={this.state.showing.length < this.props.uidList.length}
-                loader={<div className="loader" key={0}>Loading ...</div>}
             >
                 <Row>
                     {
