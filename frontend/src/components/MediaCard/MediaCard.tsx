@@ -1,10 +1,11 @@
+import { ColoredNumberRating } from 'components/ColoredNumberRating/ColoredNumberRating';
+import { MediaYear } from 'components/MediaYear';
+import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
-import './MediaCard.scss';
-import { Card, Row, Col, Image } from 'react-bootstrap';
-import { MediaDownloadButton, MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
-import StarRating from '../StarRating/StarRating';
+import { Card, Col, Image, Row } from 'react-bootstrap';
+import { MDBStates, MediaDownloadButton } from '../MediaDownloadButton/MediaDownloadButton';
 import ModalLink from '../ModalLink';
-import { ContenTypeMap, ContentModel } from 'endpoints/content';
+import './MediaCard.scss';
 
 type MediaCardProps = {
     loading?: boolean,
@@ -54,7 +55,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
 
     render() {
 
-        let { uid, poster, title, rating, plot, type } = this.props.content ?? {};
+        let { uid, poster, title, rating, plot, type, year_released, year_end } = this.props.content ?? {};
         let typeName = (type) ? ContenTypeMap[type] : "";
 
         var card = (
@@ -71,11 +72,19 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                         </div>
                         <Col className="info p-2 pt-3">
                             {this.props.loading ?
-                                <p className='skeleton title'>&nbsp;</p>
+                                <>
+                                    <p className='skeleton title'>&nbsp;</p>
+                                    <span className="loading-info skeleton" style={{ overflow: "hidden", display: "inline-block" }}>&nbsp;</span>
+                                </>
                                 :
-                                <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
+                                <>
+                                    <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
+                                    <div className="d-flex align-items-center mb-2">
+                                        <ColoredNumberRating className="rating mr-2" rating={(rating ?? 0) * 10} />
+                                        <span className="years"><MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} /></span>
+                                    </div>
+                                </>
                             }
-                            <StarRating className="rating" stars={(rating ?? 0) * 0.5} />
                             {!this.props.loading && <p className="plot">{plot}</p>}
                         </Col>
                     </Row>
