@@ -3,7 +3,7 @@ import { AxiosResponse } from "axios";
 
 export type ContentTypeNames = "movie" | "series" | "episode";
 
-export const ContenTypeMap = { 1: 'Movie', 2: 'Series', 3: 'Episode' }
+export const ContenTypeMap = { 1: 'Movie', 2: 'TV Series', 3: 'Episode' }
 
 export enum ContentType {
     MOVIE = 1,
