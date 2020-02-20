@@ -3,6 +3,7 @@ import { MediaYear } from 'components/MediaYear';
 import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
 import { Card, Col, Image, Row } from 'react-bootstrap';
+import { contetTypeToClass } from 'utils/string-formater';
 import { MDBStates, MediaDownloadButton } from '../MediaDownloadButton/MediaDownloadButton';
 import ModalLink from '../ModalLink';
 import './MediaCard.scss';
@@ -64,7 +65,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                     <Row className="no-gutters">
                         <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
                             <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
-                            <div className={`type-bar type-bar-${typeName.toLowerCase()}`}>&nbsp;</div>
+                            <div className={`type-bar type-bar-${contetTypeToClass(typeName)}`}>&nbsp;</div>
                             <MediaDownloadButton
                                 state={this.state.state}
                                 onDownloadClick={this.handleDownloadClick}
@@ -81,6 +82,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                                     <p className={(title?.length ?? 0) > 25 ? "small title" : "title"}>{title}</p>
                                     <div className="d-flex align-items-center mb-2">
                                         <ColoredNumberRating className="rating mr-2" rating={(rating ?? 0) * 10} />
+                                        <span className="years mr-2">{typeName}</span>
                                         <span className="years"><MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} /></span>
                                     </div>
                                 </>
