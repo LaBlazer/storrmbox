@@ -41,10 +41,9 @@
             width: 100%;
         }
 
-        $types: ("Movie": "movie", "Series":"series", "Episode": "episode");
-        @each $name, $type in $types {
-            .type-bar-#{$name} {
-                background: map-get($map: $content-type-colors, $key: $type);
+        @each $type, $color in $content-type-colors {
+            .type-bar-#{$type} {
+                background: $color;
             }
         }
 
