@@ -1,8 +1,10 @@
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import MediaContentLoader from '../../components/MediaContentLoader';
 import MediaCard from '../../components/MediaCard/MediaCard';
-import { Button } from 'react-bootstrap';
+import MediaContentLoader from '../../components/MediaContentLoader';
 import { AutoSizingAnimatedList } from './AutoSizingAnimatedList';
+import "./MediaListSlider.scss";
 
 function easeInOutQuint(t) {
     return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
@@ -20,6 +22,8 @@ class MediaListSlider extends React.Component {
         this.state = {
             isAnimating: false,
             scrollDirection: 0,
+            canMoveLeft: false,
+            canMoveRight: true
         }
 
         this.height = 250;
@@ -51,23 +55,25 @@ class MediaListSlider extends React.Component {
         <MediaContentLoader mediaID={this.props.uidList[index]} />
     )
 
-    animationComplete = () => {
+    animationComplete = (currentItem, canMoveLeft, canMoveRight) => {
         this.setState({
             isAnimating: false,
-            scrollDirection: 0
+            scrollDirection: 0,
+            canMoveLeft,
+            canMoveRight
         });
     }
 
     render() {
-        let listSize = 3, empty = true;
+        let listSize = 4, empty = true;
         if (this.props.uidList && this.props.uidList.length !== 0) {
             listSize = this.props.uidList.length;
             empty = false;
         }
 
         return (
-            <>
-                <div style={{ overflow: "hidden", height: this.height - 20 }}>
+            <div className="media-card-slider">
+                <div className="slider" style={{ height: this.height - 30 }}>
                     <AutoSizingAnimatedList
                         layout="horizontal"
                         duration={700}
@@ -80,15 +86,22 @@ class MediaListSlider extends React.Component {
                         {empty ? this._emptyRow : this._row}
                     </AutoSizingAnimatedList>
                 </div>
-                <div className="d-flex justify-content-between">
-                    <Button onClick={this._scrollLeft} disabled={this.state.isAnimating} style={{
-                        padding: "0 1em", fontSize: "1.4rem"
-                    }}>&lt;</Button>
-                    <Button onClick={this._scrollRight} disabled={this.state.isAnimating} style={{
-                        padding: "0 1em", fontSize: "1.4rem"
-                    }}>&gt;</Button>
-                </div>
-            </>
+
+                <button className={`slider-button left ${this.state.canMoveLeft ? '' : 'hide'}`}
+                    onClick={this._scrollLeft}
+                    disabled={this.state.isAnimating}
+                >
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
+
+                <button className={`slider-button right ${this.state.canMoveRight ? '' : 'hide'}`}
+                    onClick={this._scrollRight}
+                    disabled={this.state.isAnimating}
+                >
+                    <FontAwesomeIcon icon={faChevronRight} />
+                </button>
+
+            </div>
         )
     }
 }

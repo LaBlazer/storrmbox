@@ -42,6 +42,7 @@ class TopBar extends React.Component {
                     
                     <Link to="/" className="navbar-brand">
                         <Logo className="d-none d-md-inline fullsize" height="100%" width="100%"/>
+                        <p className="motd d-none d-md-block noselect">alpha</p>
                         <SmallLogo className="d-md-none smallsize" height="100%" width="100%"/>
                     </Link>                 
                     
