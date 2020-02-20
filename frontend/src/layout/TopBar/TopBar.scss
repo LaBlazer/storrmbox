@@ -21,6 +21,7 @@
             padding-top: 0.7rem;
             padding-bottom: 0.7rem;
             border-bottom: 3px solid transparent;
+            transition: border 0.5s;
 
             &.active {
                 border-bottom: 3px solid $primary;
