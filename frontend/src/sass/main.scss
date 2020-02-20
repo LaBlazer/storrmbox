@@ -9,6 +9,10 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
+#root {
+    overflow-x: hidden;
+}
+
 .card {
     box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.5);
 }
