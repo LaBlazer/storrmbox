@@ -79,7 +79,7 @@
                 $types: ("Movie": "movie", "Series":"series", "Episode": "episode");
                 @each $name, $type in $types {
                     .type-#{$name} {
-                        background: map-get($map: $content-type-colors, $key: $type);
+                        background: map-get($map: $content-type-gradients, $key: $type);
                     }
                 }
 
