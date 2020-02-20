@@ -40,4 +40,21 @@ $content-type-colors: (
     movie: linear-gradient(180deg, #5d9cda 0%, #2c6cab 90%),// linear-gradient(180deg, rgba(59,158,255,1) 0%, rgba(27,142,255,1) 90%),
     series: linear-gradient(180deg, #ea8f72 0%, #c66344 90%),
     episode: linear-gradient(180deg, rgba(232,97,54,1) 0%, rgba(210,61,13,1) 90%)
-)
+);
+
+$grid-breakpoints: (
+    xs: 0,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1520px
+);
+
+$container-max-widths: (
+    sm: 540px,
+    md: 720px,
+    lg: 960px,
+    xl: 1140px,
+    xxl: 1510px
+);

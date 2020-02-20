@@ -65,7 +65,7 @@ class MediaListSlider extends React.Component {
     }
 
     render() {
-        let listSize = 3, empty = true;
+        let listSize = 4, empty = true;
         if (this.props.uidList && this.props.uidList.length !== 0) {
             listSize = this.props.uidList.length;
             empty = false;
