@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { Modal, Badge } from 'react-bootstrap';
-import './MediaModal.scss';
-import StarRating from '../../StarRating/StarRating';
+import { Badge, Modal } from 'react-bootstrap';
+import { contetTypeToClass } from 'utils/string-formater';
 import { ContentModel, ContenTypeMap } from '../../../endpoints/content';
-import { MediaYear } from '../../MediaYear';
-import { generateRGBColorsFromString, colorsToCSSRule } from '../../../utils/helpers';
-import { ModalTopThumbnail } from './ModalTopThumbnail';
-import ModalPlayButton from './ModalPlayButton';
 import DownloadStore from '../../../stores/DownloadStore';
+import { colorsToCSSRule, generateRGBColorsFromString } from '../../../utils/helpers';
+import { MediaYear } from '../../MediaYear';
+import StarRating from '../../StarRating/StarRating';
+import './MediaModal.scss';
+import ModalPlayButton from './ModalPlayButton';
+import { ModalTopThumbnail } from './ModalTopThumbnail';
 
 type MMProps = {
     content: ContentModel,
@@ -72,7 +73,7 @@ export class MediaModal extends Component<MMProps, MMState> {
                             <ModalPlayButton uid={uid} onButtonClick={this.onPlayClicked} />
                         </div>
                         <div className="spec">
-                            <Badge className={`type type-${typeName.toLowerCase()} mr-2`}>{typeName}</Badge>
+                            <Badge className={`type type-${contetTypeToClass(typeName)} mr-2`}>{typeName}</Badge>
                             <span className="year mr-3">Year: <MediaYear type={type} year_released={year_released} year_end={year_end} /> </span>
                             <span className="rating mr-auto"> Rating: <StarRating stars={(rating ?? 0) * 0.5} /></span>
                             <span className="genres">
