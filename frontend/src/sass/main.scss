@@ -9,6 +9,11 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
+#root {
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
 .card {
     box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.5);
 }
@@ -27,4 +32,8 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.transition {
+    transition: all 0.3s;
 }

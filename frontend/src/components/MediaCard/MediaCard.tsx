@@ -64,7 +64,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
                     <Row className="no-gutters">
                         <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
                             <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
-                            <div className={`type-bar type-bar-${typeName}`}>&nbsp;</div>
+                            <div className={`type-bar type-bar-${typeName.toLowerCase()}`}>&nbsp;</div>
                             <MediaDownloadButton
                                 state={this.state.state}
                                 onDownloadClick={this.handleDownloadClick}

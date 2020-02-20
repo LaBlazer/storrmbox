@@ -44,7 +44,7 @@ class MediaCardList extends React.Component<MCLProps, MCLState> {
                 <Row>
                     {
                         this.state.showing.map((mediaID, i) =>
-                            <Col key={mediaID + ":" + i} xs={12} md={6} lg={4} className="mb-3">
+                            <Col key={mediaID + ":" + i} xs={12} md={6} lg={4} className="col-xxl-3 transition mb-3">
                                 <MediaContentLoader mediaID={mediaID} />
                             </Col>
                         )

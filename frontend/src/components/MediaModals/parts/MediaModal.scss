@@ -76,10 +76,9 @@
                     font-size: 1rem;
                 }
 
-                $types: ("Movie": "movie", "Series":"series", "Episode": "episode");
-                @each $name, $type in $types {
-                    .type-#{$name} {
-                        background: map-get($map: $content-type-colors, $key: $type);
+                @each $type, $color in $content-type-gradients {
+                    .type-#{$type} {
+                        background: $color;
                     }
                 }
 
