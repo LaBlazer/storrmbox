@@ -94,9 +94,15 @@ export class AutoSizingAnimatedList extends Component {
     }
 
     animationComplete = () => {
+        const itemsPerScreen = Math.round(this.state.listWidth / this.state.itemWidth);
+        const { scrollToItem } = this.state;
+
+        const canMoveLeft = scrollToItem > 0;
+        const canMoveRight = (scrollToItem + itemsPerScreen) < this.props.itemCount;
+
         this.setState({
             animating: false
-        }, this.props.onAnimationComplete);
+        }, () => this.props.onAnimationComplete?.(this.state.scrollToItem, canMoveLeft, canMoveRight));
     }
 
 

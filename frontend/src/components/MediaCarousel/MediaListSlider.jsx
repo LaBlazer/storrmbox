@@ -22,6 +22,8 @@ class MediaListSlider extends React.Component {
         this.state = {
             isAnimating: false,
             scrollDirection: 0,
+            canMoveLeft: false,
+            canMoveRight: true
         }
 
         this.height = 250;
@@ -53,10 +55,12 @@ class MediaListSlider extends React.Component {
         <MediaContentLoader mediaID={this.props.uidList[index]} />
     )
 
-    animationComplete = () => {
+    animationComplete = (currentItem, canMoveLeft, canMoveRight) => {
         this.setState({
             isAnimating: false,
-            scrollDirection: 0
+            scrollDirection: 0,
+            canMoveLeft,
+            canMoveRight
         });
     }
 
@@ -83,14 +87,14 @@ class MediaListSlider extends React.Component {
                     </AutoSizingAnimatedList>
                 </div>
 
-                <button className="slider-button left"
+                <button className={`slider-button left ${this.state.canMoveLeft ? '' : 'hide'}`}
                     onClick={this._scrollLeft}
                     disabled={this.state.isAnimating}
                 >
                     <FontAwesomeIcon icon={faChevronLeft} />
                 </button>
 
-                <button className="slider-button right"
+                <button className={`slider-button right ${this.state.canMoveRight ? '' : 'hide'}`}
                     onClick={this._scrollRight}
                     disabled={this.state.isAnimating}
                 >

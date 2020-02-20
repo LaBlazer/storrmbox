@@ -26,6 +26,10 @@
             opacity: .9;
         }
 
+        &.hide {
+            display: none;
+        }
+
         &.left {
             left: -3rem;
         }
