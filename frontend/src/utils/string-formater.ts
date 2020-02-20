@@ -9,3 +9,7 @@ export function getYearsInterval(releaseYear: number, endYear: number | undefine
 
     return (endYear) ? `${year}${endYear}` : year;
 }
+
+export function contetTypeToClass(typeName: string) {
+    return typeName.toLowerCase().replace(" ", "-");
+}
