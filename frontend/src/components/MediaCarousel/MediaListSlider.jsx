@@ -1,8 +1,10 @@
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import MediaContentLoader from '../../components/MediaContentLoader';
 import MediaCard from '../../components/MediaCard/MediaCard';
-import { Button } from 'react-bootstrap';
+import MediaContentLoader from '../../components/MediaContentLoader';
 import { AutoSizingAnimatedList } from './AutoSizingAnimatedList';
+import "./MediaListSlider.scss";
 
 function easeInOutQuint(t) {
     return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
@@ -66,8 +68,8 @@ class MediaListSlider extends React.Component {
         }
 
         return (
-            <>
-                <div style={{ overflow: "hidden", height: this.height - 20 }}>
+            <div className="media-card-slider">
+                <div className="slider" style={{ height: this.height - 30 }}>
                     <AutoSizingAnimatedList
                         layout="horizontal"
                         duration={700}
@@ -80,15 +82,22 @@ class MediaListSlider extends React.Component {
                         {empty ? this._emptyRow : this._row}
                     </AutoSizingAnimatedList>
                 </div>
-                <div className="d-flex justify-content-between">
-                    <Button onClick={this._scrollLeft} disabled={this.state.isAnimating} style={{
-                        padding: "0 1em", fontSize: "1.4rem"
-                    }}>&lt;</Button>
-                    <Button onClick={this._scrollRight} disabled={this.state.isAnimating} style={{
-                        padding: "0 1em", fontSize: "1.4rem"
-                    }}>&gt;</Button>
-                </div>
-            </>
+
+                <button className="slider-button left"
+                    onClick={this._scrollLeft}
+                    disabled={this.state.isAnimating}
+                >
+                    <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
+
+                <button className="slider-button right"
+                    onClick={this._scrollRight}
+                    disabled={this.state.isAnimating}
+                >
+                    <FontAwesomeIcon icon={faChevronRight} />
+                </button>
+
+            </div>
         )
     }
 }
