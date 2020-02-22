@@ -14,7 +14,8 @@ class TopBar extends React.Component {
         super(props);
 
         this.state = {
-            searchValue: this.props.match.params.query || ""
+            searchValue: this.props.match.params.query || "",
+            isSearchInvalid: false
         }
 
         this.onSearch = this.onSearch.bind(this);
@@ -31,8 +32,14 @@ class TopBar extends React.Component {
 
     onSearch(e) {
         e.preventDefault();
-        var searched = encodeURIComponent(this.state.searchValue.replace(/\s/g, ' ').trim());
-        this.props.history.push(`/search/${searched}`);
+        var searched = this.state.searchValue.replace(/\s/g, ' ').trim();
+        if (searched) {
+            this.props.history.push(`/search/${encodeURIComponent(searched)}`);
+        }
+        else {
+            this.setState({isSearchInvalid:true})
+            setTimeout(() => this.setState({isSearchInvalid:false}), 2000);
+        }
     }
 
     render() {
@@ -71,10 +78,11 @@ class TopBar extends React.Component {
                                     type="text"
                                     placeholder="Search text..."
                                     value={this.state.searchValue}
-                                    onChange={(e) => this.setState({ searchValue: e.target.value })}
+                                    onChange={e => this.setState({ searchValue: e.target.value, isSearchInvalid:false })}
+                                    className={this.state.isSearchInvalid && 'invalid-form'}
                                 />
                                 <InputGroup.Append>
-                                    <Button type="submit" variant="outline-primary">
+                                    <Button type="submit" variant={this.state.isSearchInvalid ? 'outline-danger' : 'outline-primary'}>
                                         <FontAwesomeIcon icon={faSearch} />
                                     </Button>
                                 </InputGroup.Append>
