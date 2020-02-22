@@ -72,7 +72,7 @@ class TopBar extends React.Component {
                                 </NavLink>
                             </li>
                         </ul>
-                        <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0"> 
+                        <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
                             <InputGroup>
                                 <FormControl
                                     type="text"
