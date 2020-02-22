@@ -24,6 +24,10 @@ class SearchResultPage extends React.Component<SRPProps> {
             return <p className="pt-5 text-center">Searching...</p>;
         }
 
+        if (!SearchStore.results.length) {
+            return <p className="pt-5 text-center">No results</p>; 
+        }
+        
         return <>
             <h3 className="pt-5">Search results:</h3>
             <MediaCardList uidList={SearchStore.results} />
