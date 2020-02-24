@@ -37,25 +37,27 @@ class TopBar extends React.Component {
             this.props.history.push(`/search/${encodeURIComponent(searched)}`);
         }
         else {
-            this.setState({isSearchInvalid:true})
-            setTimeout(() => this.setState({isSearchInvalid:false}), 2000);
+            this.setState({ isSearchInvalid: true })
+            setTimeout(() => this.setState({ isSearchInvalid: false }), 2000);
         }
     }
 
     render() {
         return (
-            <Navbar bg="coal" variant="dark" className="top-bar" fixed="top" expand="md">
-                <Container>
-                    
-                    <Link to="/" className="navbar-brand">
-                        <Logo className="d-none d-md-inline fullsize" height="100%" width="100%"/>
-                        <p className="motd d-none d-md-block noselect">alpha</p>
-                        <SmallLogo className="d-md-none smallsize" height="100%" width="100%"/>
-                    </Link>                 
-                    
+            <Navbar bg="coal" variant="dark" className="top-bar" fixed="top" expand="lg">
+                <Container className="justify-content-center">
+
+                    <div className="navbar-brand w-50 mr-auto">
+                        <Link to="/" className="d-inline-block" >
+                            <Logo className="d-none d-md-inline fullsize" height="100%" width="100%" />
+                            <p className="motd d-none d-md-block noselect">alpha</p>
+                            <SmallLogo className="d-md-none smallsize" height="100%" width="100%" />
+                        </Link>
+                    </div>
+
                     <Navbar.Toggle aria-controls="navbar-nav" />
-                    <Navbar.Collapse id="navbar-nav">
-                        <ul className="navbar-nav mx-auto noselect">
+                    <Navbar.Collapse id="navbar-nav" className="w-100">
+                        <ul className="navbar-nav w-100 justify-content-center noselect">
                             <li className="nav-item">
                                 <NavLink to="/series" exact className="nav-link" activeClassName="active">
                                     Series
@@ -72,23 +74,25 @@ class TopBar extends React.Component {
                                 </NavLink>
                             </li>
                         </ul>
-                        <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
-                            <InputGroup>
-                                <FormControl
-                                    type="text"
-                                    placeholder="Search text..."
-                                    value={this.state.searchValue}
-                                    onChange={e => this.setState({ searchValue: e.target.value, isSearchInvalid:false })}
-                                    className={this.state.isSearchInvalid && 'invalid-form'}
-                                />
-                                <InputGroup.Append>
-                                    <Button type="submit" variant={this.state.isSearchInvalid ? 'outline-danger' : 'outline-primary'}>
-                                        <FontAwesomeIcon icon={faSearch} />
-                                    </Button>
-                                </InputGroup.Append>
-                            </InputGroup>
-                        </Form>
-                        <Button variant="outline-primary ml-md-3" onClick={AuthStore.logout}>Logout</Button>
+                        <div className="nav navbar-nav ml-auto w-100 justify-content-end">
+                            <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
+                                <InputGroup>
+                                    <FormControl
+                                        type="text"
+                                        placeholder="Search text..."
+                                        value={this.state.searchValue}
+                                        onChange={e => this.setState({ searchValue: e.target.value, isSearchInvalid: false })}
+                                        className={this.state.isSearchInvalid && 'invalid-form'}
+                                    />
+                                    <InputGroup.Append>
+                                        <Button type="submit" variant={this.state.isSearchInvalid ? 'outline-danger' : 'outline-primary'}>
+                                            <FontAwesomeIcon icon={faSearch} />
+                                        </Button>
+                                    </InputGroup.Append>
+                                </InputGroup>
+                            </Form>
+                            <Button variant="outline-primary ml-md-3" onClick={AuthStore.logout}>Logout</Button>
+                        </div>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
