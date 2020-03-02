@@ -2,9 +2,9 @@ import { ColoredNumberRating } from 'components/ColoredNumberRating/ColoredNumbe
 import { MediaYear } from 'components/MediaYear';
 import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
-import { Card, Col, Image, Row } from 'react-bootstrap';
+import { Card, Image } from 'react-bootstrap';
 import { contetTypeToClass } from 'utils/string-formater';
-import { MDBStates, MediaDownloadButton } from '../MediaDownloadButton/MediaDownloadButton';
+import { MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
 import ModalLink from '../ModalLink';
 import './MediaCard.scss';
 

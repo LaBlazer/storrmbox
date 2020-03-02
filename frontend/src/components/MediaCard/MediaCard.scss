@@ -9,7 +9,7 @@
     transition: all 0.3s;
 
     width: 174px;
-    height: 260px;
+    height: 272px;
     display: inline-block;
     overflow: hidden;
     background-color: black;
@@ -112,19 +112,27 @@
         }
     }
 
-    // @include media-breakpoint-up(sm) { 
-    //     width: 494px;
-    // }
+    @include media-breakpoint-up(sm) { 
+        width: 154px;
+        height: 230px;
+    }
 
-    // @include media-breakpoint-up(md) { 
-    //     width: 328px;
-    // }
+    @include media-breakpoint-up(md) { 
+        width: 154px;
+        height: 230px;
+    }
 
-    // @include media-breakpoint-up(lg) { 
-    //     width: 294px;
-    // }
+    @include media-breakpoint-up(lg) { 
+        width: 169px;
+    }
 
-    // @include media-breakpoint-up(xl) { 
-    //     width: 354px;
-    // }
+    @include media-breakpoint-up(xl) { 
+        width: 169px;
+        height: 257px;
+    }
+
+    @include media-breakpoint-up(xxl) { 
+        width: 195px;
+        height: 275px;
+    }
 }
