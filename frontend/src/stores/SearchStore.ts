@@ -10,9 +10,15 @@ class SearchStore {
     results: string[] = []
 
     public runSearch = async (term: string) => {
-        this.fetching = true;
-        this.results = await ContentService.search(term);
-        this.fetching = false;
+        try {
+            this.fetching = true;
+            this.results = await ContentService.search(term);
+        } catch (err) {
+            console.error(err);
+            this.results = [];
+        } finally {
+            this.fetching = false;
+        }
     }
 
 }

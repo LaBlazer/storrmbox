@@ -2,9 +2,9 @@ import { ColoredNumberRating } from 'components/ColoredNumberRating/ColoredNumbe
 import { MediaYear } from 'components/MediaYear';
 import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
-import { Card, Col, Image, Row } from 'react-bootstrap';
+import { Card, Image } from 'react-bootstrap';
 import { contetTypeToClass } from 'utils/string-formater';
-import { MDBStates, MediaDownloadButton } from '../MediaDownloadButton/MediaDownloadButton';
+import { MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
 import ModalLink from '../ModalLink';
 import './MediaCard.scss';
 
@@ -60,48 +60,37 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
         let typeName = (type) ? ContenTypeMap[type] : "";
 
         var card = (
-            <div className="p-2">
-                <Card className="media-card">
-                    <Row className="no-gutters">
-                        <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
-                            <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
-                            <div className={`type-bar type-bar-${contetTypeToClass(typeName)}`}>&nbsp;</div>
-                            <MediaDownloadButton
-                                state={this.state.state}
-                                onDownloadClick={this.handleDownloadClick}
-                                percentsDownloaded={this.state.downloaded} />
-                        </div>
-                        <Col className="info p-2 pt-3">
-                            {this.props.loading ?
-                                <>
-                                    <p className='skeleton title'>&nbsp;</p>
-                                    <span className="loading-info skeleton" style={{ overflow: "hidden", display: "inline-block" }}>&nbsp;</span>
-                                </>
-                                :
-                                <>
-                                    <p className={(title?.length ?? 0) > 25 ? "small title" : "title"}>{title}</p>
-                                    <div className="d-flex align-items-center mb-2">
-                                        <ColoredNumberRating className="rating mr-2" rating={(rating ?? 0) * 10} />
-                                        <span className="years mr-2">{typeName}</span>
-                                        <span className="years"><MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} /></span>
-                                    </div>
-                                </>
-                            }
-                            {!this.props.loading && <p className="plot">{plot}</p>}
-                        </Col>
-                    </Row>
-                </Card>
-            </div>
+            <Card className={"media-card " + (this.props.loading ? "loading" : "")}>
+
+                <div className={`type-bar type-bar-${contetTypeToClass(typeName)}`}>&nbsp;</div>
+                <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
+
+
+                <div className="overlay">
+                    <div className="plot hidden">{plot}
+                    </div>
+                </div>
+
+
+                <div className="bottom-info">
+                    <div className="info mb-2">
+                        <ColoredNumberRating className="rating mr-2" rating={(rating ?? -1) * 10} />
+                        <span className="year hidden">{!this.props.loading && <MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} />}</span>
+                    </div>
+                    <p title={title} className={(title?.length ?? 0) > 25 ? "small title" : "title"}>{title ?? "..."}</p>
+                </div>
+
+            </Card>
         );
 
         if (uid) {
             return (
-                <ModalLink to={`/m/${uid}`} style={{ color: "inherit" }}>
+                <ModalLink to={`/m/${uid}`} className="m-2" style={{ color: "inherit" }}>
                     {card}
                 </ModalLink>
             )
         } else {
-            return card;
+            return <div className="m-2">{card}</div>;
         }
     }
 }
