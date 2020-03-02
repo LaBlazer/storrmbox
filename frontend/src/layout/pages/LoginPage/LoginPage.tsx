@@ -7,18 +7,12 @@ import style from "./LoginPage.module.scss";
 
 class LoginPage extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-        this.handleLogin = this.handleLogin.bind(this);
-    }
-
-    handleLogin(e) {
+    handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        var formData = new FormData(e.target);
+        var formData = new FormData(e.currentTarget);
         var rememberMe = formData.get('rememberme') !== null;
-        AuthStore.login(formData.get('username'), formData.get('password'), rememberMe);
+        AuthStore.login(formData.get('username') as string, formData.get('password') as string, rememberMe);
     }
 
     render() {
@@ -27,7 +21,7 @@ class LoginPage extends React.Component {
             <div className="center-container">
                 <Container>
                     <Row className="justify-content-center">
-                        <Col md={6}>
+                        <Col md={8} lg={6} className="col-xxl-4">
                             <Card>
                                 <Card.Body>
                                     <div className={`${style.pageLogo} text-center`}>

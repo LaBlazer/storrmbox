@@ -54,11 +54,12 @@ export class AutoSizingAnimatedList extends Component {
         if (this.state.itemWidth !== width) {
             //If list is samller than itemFillMaxWidth, then resize Items to list width
             //This happens on content loading
-            if (width <= this.state.listWidth && this.state.listWidth <= this.props.itemFillMaxWidth) {
-                this.setState({ itemWidth: this.state.listWidth });
-            } else {
+            // if (width <= this.state.listWidth && this.state.listWidth <= this.props.itemFillMaxWidth) {
+            //     this.setState({ itemWidth: this.state.listWidth });
+            // }
+            // } else {
                 this.setState({ itemWidth: width });
-            }
+            // }
         }
     }
 

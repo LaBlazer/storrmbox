@@ -25,12 +25,10 @@ class MediaCardList extends React.Component<MCLProps, MCLState> {
     }
 
     loadMore = (page: number) => {
-
         let { loadPerPage, uidList, firstLoad } = this.props;
 
         let loadTo = Math.min(firstLoad! + page * loadPerPage!, uidList.length);
         let slice = uidList.slice(0, loadTo);
-        console.log("Loading more... ", page, slice.length);
         this.setState({ showing: slice });
     }
 
@@ -41,10 +39,10 @@ class MediaCardList extends React.Component<MCLProps, MCLState> {
                 loadMore={this.loadMore}
                 hasMore={this.state.showing.length < this.props.uidList.length}
             >
-                <Row>
+                <Row noGutters>
                     {
                         this.state.showing.map((mediaID, i) =>
-                            <Col key={mediaID + ":" + i} xs={12} md={6} lg={4} className="col-xxl-3 transition mb-3">
+                            <Col key={mediaID + ":" + i} className="transition text-center mb-3">
                                 <MediaContentLoader mediaID={mediaID} />
                             </Col>
                         )

@@ -27,7 +27,7 @@ export class ColoredNumberRating extends Component<NRProps> {
             let category = this.categorizeNumber(number);
             return <span className={`number-rating rating-category-${category} ${this.props.className}`}>{number}</span>;
         } else {
-            return <span className={`number-rating ${this.props.className}`}>&nbsp;&nbsp;&nbsp;</span>;
+            return <span className={`number-rating ${this.props.className}`}>&nbsp;-&nbsp;</span>;
         }
     }
 }
