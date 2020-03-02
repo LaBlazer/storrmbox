@@ -50,7 +50,7 @@ export default class AnimatedList extends Component {
     }
 
     render() {
-        return <List {...this.props} onScroll={this.onScroll} ref={this.listRef} />;
+        return <List {...this.props} className="slider-list" onScroll={this.onScroll} ref={this.listRef} />;
     }
 
     _animate() {
