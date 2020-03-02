@@ -26,7 +26,7 @@ class MediaListSlider extends React.Component {
             canMoveRight: true
         }
 
-        this.height = 250;
+        this.height = 310;
     }
 
     _scrollLeft = () => {

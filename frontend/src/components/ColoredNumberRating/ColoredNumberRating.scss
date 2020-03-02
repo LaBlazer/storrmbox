@@ -5,7 +5,10 @@
     display: inline-block;
     font-weight: bold;
     text-align: center;
-    width: 2.5em;
+    width: 2.2em;
+    white-space: nowrap;
+    background-color: #424242;
+    color: #b4b4b4;
 
     &.rating-category-0 {
         background-color: #ed5146;
