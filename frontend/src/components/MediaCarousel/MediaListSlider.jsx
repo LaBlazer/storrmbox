@@ -26,7 +26,7 @@ class MediaListSlider extends React.Component {
             canMoveRight: true
         }
 
-        this.height = 310;
+        this.height = 315;
     }
 
     _scrollLeft = () => {
@@ -73,12 +73,11 @@ class MediaListSlider extends React.Component {
 
         return (
             <div className="media-card-slider">
-                <div className="slider" style={{ height: this.height - 30 }}>
+                <div className="slider">
                     <AutoSizingAnimatedList
                         layout="horizontal"
                         duration={700}
                         easing={easeInOutQuint}
-                        height={this.height}
                         onAnimationComplete={this.animationComplete}
                         itemCount={listSize}
                         scrollDirection={this.state.scrollDirection}
