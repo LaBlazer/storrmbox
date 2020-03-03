@@ -40,52 +40,99 @@ https://myanimelist.net # Database
 frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 
-"Title": "Game of Thrones",
-    "Year": "2011–",
-    "Rated": "TV-MA",
-    "Released": "17 Apr 2011",
-    "Runtime": "57 min",
-    "Genre": "Action, Adventure, Drama, Fantasy, Romance",
-    "Director": "N/A",
-    "Writer": "David Benioff, D.B. Weiss",
-    "Actors": "Peter Dinklage, Lena Headey, Emilia Clarke, Kit Harington",
-    "Plot": "Nine noble families fight for control over the mythical lands of Westeros, while an ancient enemy returns after being dormant for thousands of years.",
-    "Language": "English",
-    "Country": "USA, UK",
-    "Awards": "Won 1 Golden Globe. Another 273 wins & 454 nominations.",
-    "Poster": "https://m.media-amazon.com/images/M/MV5BMjA5NzA5NjMwNl5BMl5BanBnXkFtZTgwNjg2OTk2NzM@._V1_SX300.jpg",
-    "Ratings": [
-    {
-    "Source": "Internet Movie Database",
-    "Value": "9.5/10"
-    }
-    ],
-    "Metascore": "N/A",
-    "imdbRating": "9.5",
-    "imdbVotes": "1,429,496",
-    "imdbID": "tt0944947",
-    "Type": "series",
-    "totalSeasons": "8",
-    "Response": "True"
+# http
+http --auth-type=jwt --auth="token" http://127.0.0.1:5000/api/v1/content/popular
+http --auth-type=jwt --auth="eyJhbGciOiJIUzUxMiIsImlhdCI6MTU4MTk4MDg2MCwiZXhwIjoxNTgxOTg0NDYwfQ.eyJ1c2VybmFtZSI6ImFkbWluIiwibiI6Il8xTGx4In0.B3oYIPKMMo7724sB54_nAStr3UH7Fv37FGqaCcFg5ogYmBkLUuBx0pkRN4MGfa-mPHsA6RL-hqT1JL-h14tpWg" http://127.0.0.1:5000/api/v1/content/DOdAvID/download
+
+
+eyJhbGciOiJIUzUxMiIsImlhdCI6MTU4MTExODgyNSwiZXhwIjoxNTgxMTIyNDI1fQ.eyJ1c2VybmFtZSI6ImFkbWluIiwibiI6Il8xTGx4In0.hRg4Dt_Qc813X0nqzOyE31XmMNEQlMESBcGUjfwFdujErhL-9UCv0BVsyuO4o4PlEhtoxg2lKR7i-etUGq8xVQ
+sudo apt-get install libpq-dev
+sudo apt-get install sqlite3
+
+huey_consumer.py storrmbox.extensions.task_queue -w 4
+
+https://github.com/ratanakvlun/deluge-ltconfig/releases
+https://github.com/JohnDoee/deluge-streaming/releases
+
+
+magnet:?xt=urn:btih:4F022F44F75A3219E70FDB8CF2E05D5B46A4D61B&dn=The+Good+Doctor+S03E15+HDTV+x264-SVA+%5Beztv%5D&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftorrent.gresille.org%3A80%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2710%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337&tr=udp%3A%2F%2Ftracker.zer0day.to%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fcoppersurfer.tk%3A6969%2Fannounce
+
+
+core.add_torrent_file
+core.add_torrent_file_async
+core.add_torrent_files
+core.add_torrent_magnet
+core.add_torrent_url
+core.connect_peer
+core.create_account
+core.create_torrent
+core.disable_plugin
+core.enable_plugin
+core.force_reannounce
+core.force_recheck
+core.get_auth_levels_mappings
+core.get_available_plugins
+core.get_completion_paths
+core.get_config
+core.get_config_value
+core.get_config_values
+core.get_enabled_plugins
+core.get_external_ip
+core.get_filter_tree
+core.get_free_space
+core.get_known_accounts
+core.get_libtorrent_version
+core.get_listen_port
+core.get_path_size
+core.get_proxy
+core.get_session_state
+core.get_session_status
+core.get_torrent_status
+core.get_torrents_status
+core.glob
+core.is_session_paused
+core.move_storage
+core.pause_session
+core.pause_torrent
+core.pause_torrents
+core.prefetch_magnet_metadata
+core.queue_bottom
+core.queue_down
+core.queue_top
+core.queue_up
+core.remove_account
+core.remove_torrent
+core.remove_torrents
+core.rename_files
+core.rename_folder
+core.rescan_plugins
+core.resume_session
+core.resume_torrent
+core.resume_torrents
+core.set_config
+core.set_torrent_auto_managed
+core.set_torrent_file_priorities
+core.set_torrent_max_connections
+core.set_torrent_max_download_speed
+core.set_torrent_max_upload_slots
+core.set_torrent_max_upload_speed
+core.set_torrent_move_completed
+core.set_torrent_move_completed_path
+core.set_torrent_options
+core.set_torrent_prioritize_first_last
+core.set_torrent_remove_at_ratio
+core.set_torrent_stop_at_ratio
+core.set_torrent_stop_ratio
+core.set_torrent_trackers
+core.test_listen_port
+core.update_account
+core.upload_plugin
+daemon.authorized_call
+daemon.get_method_list
+daemon.get_version
+daemon.shutdown
 
 
 
-    imdb_id = Column(db.String(11), nullable=False, unique=True)
-    type = Column(db.String(10), nullable=False)
 
-    # Optional
-    uid = Column(db.String(16), nullable=False, unique=True, default=_gen_uid, server_default="")
-    title = Column(db.String(190), nullable=True)
-    date_released = Column(db.Date, nullable=True)
-    date_end = Column(db.Date, nullable=True)
-    runtime = Column(db.SmallInt, nullable=True)
-    rating = Column(db.Float, nullable=True)
-    plot = Column(db.Text, nullable=True)
-    genres = Column(db.String(100), nullable=True)
-    poster = Column(db.String(160), nullable=True)  # url_for('static', filename='img/no-poster.jpg')
-    trailer_youtube_id = Column(db.String(11), nullable=True)
-    episode = Column(db.SmallInteger, nullable=True)
-    season = Column(db.SmallInteger, nullable=True)
-    last_updated = Column(db.DateTime, nullable=False, default=_time_now, onupdate=_time_now)
-    fetched = Column(db.Boolean, nullable=False, default=False)
-    parent_id = ReferenceCol("content", nullable=True)
+

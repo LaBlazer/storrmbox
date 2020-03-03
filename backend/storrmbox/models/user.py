@@ -3,13 +3,14 @@ import string
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from storrmbox.database import (
+from storrmbox.extensions.database import (
     sa,
     db,
     SurrogatePK,
     Model,
     relationship
 )
+from .search import Search
 
 
 class User(SurrogatePK, Model):
@@ -31,7 +32,7 @@ class User(SurrogatePK, Model):
     token_nonce = sa.Column(sa.String(5), unique=False, nullable=False, default=generate_token_nonce.__func__)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
-    searches = relationship("Search", backref="user")
+    searches = relationship(Search, backref="user")
 
     def __init__(self, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)

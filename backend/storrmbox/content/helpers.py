@@ -1,8 +1,10 @@
 import cProfile
 import threading
 
+
 def raise_(ex):
     raise ex
+
 
 class Parser:
     types = [
