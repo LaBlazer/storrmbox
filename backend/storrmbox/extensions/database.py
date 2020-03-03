@@ -1,13 +1,22 @@
-from enum import Enum
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy.model import BindMetaMixin
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
-from sqlalchemy import SmallInteger, type_coerce, func, and_
+from sqlalchemy import and_
 from sqlalchemy.orm import relationship
 from datetime import timedelta, datetime
 import sqlalchemy as sa
-from sqlalchemy.sql import operators
 
 from storrmbox.exceptions import InternalException
-from .extensions import db
+
+
+# Disable Table Name Generation
+class NoNameMeta(BindMetaMixin, DeclarativeMeta):
+    pass
+
+
+db = SQLAlchemy(model_class=declarative_base(metaclass=NoNameMeta, name="Model"))
 
 
 def time_now():
@@ -133,37 +142,4 @@ class Cache(SurrogatePK):
         pass
 
 
-class EnumComparator(SmallInteger.Comparator):
-    def operate(self, op, *other, **kwargs):
-        print(kwargs)
-        print(other[0].value)
-        print(dir(self))
-        return op(func.__repr__(self), func.__repr__(other))
-
-
-# https://stackoverflow.com/questions/12212636/sql-alchemy-overriding
-class IntEnum(sa.types.TypeDecorator):
-    impl = sa.SmallInteger
-    coerce_to_is_types = Enum
-    comparator_factory = EnumComparator
-
-    def __init__(self, enumtype, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._enumtype = enumtype
-
-    def process_bind_param(self, value, dialect):
-        if isinstance(value, Enum):
-            value = value.value
-        return value
-
-    def process_result_value(self, value, dialect):
-        if value is not None:
-            value = self._enumtype(value)
-        return value
-
-    def coerce_compared_value(self, op, value):
-        print(type(value.value))
-        print(op)
-
-        return SmallInteger()
-
+migrate = Migrate()
