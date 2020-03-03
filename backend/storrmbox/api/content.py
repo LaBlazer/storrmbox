@@ -1,10 +1,12 @@
+import os
 from threading import Thread
 
-from flask import g, url_for
+from flask import g, send_file, Response
 from flask_restplus import Resource, Namespace, fields
 from searchyt import searchyt
 from sqlalchemy.orm import load_only
 
+from storrmbox.api.task import task_id
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db, task_queue, logger
@@ -13,15 +15,9 @@ from storrmbox.models.popular import Popular
 from storrmbox.models.search import Search
 from storrmbox.models.top import Top
 from storrmbox.tasks.content import download
-from storrmbox.torrent.scrapers.providers.eztv_provider import EztvProvider
-from storrmbox.torrent.scrapers.providers.leetx_provider import LeetxProvider
-from storrmbox.torrent.scrapers import MovieTorrentScraper
+from storrmbox.torrent.client.deluge import Deluge
 
 api = Namespace('content', description='Content serving')
-
-torrent_scraper = MovieTorrentScraper()
-torrent_scraper.add_provider(LeetxProvider)
-torrent_scraper.add_provider(EztvProvider)
 
 yt_search = searchyt()
 
@@ -67,15 +63,6 @@ content_season_list = api.model("ContentSeasonList", {
     "seasons": fields.List(fields.Nested(content_season))
 })
 
-task_id = api.model("TaskId", {
-    "id": fields.String
-})
-
-task_result = api.model("TaskResult", {
-    "type": fields.String,
-    "data": fields.String
-})
-
 
 @api.route("/<string:uid>")
 class ContentResource(Resource):
@@ -93,7 +80,7 @@ class ContentResource(Resource):
 
         # Fetch poster and plot from omdb
         if not content.fetched:
-            print(f"Fetching content {uid} ({content.imdb_id})")
+            logger.info(f"Fetching content {uid} ({content.imdb_id}) from omdb")
             data = content_scraper.get_by_imdb_id(content.imdb_id)
             fetched = True  # Fix for omdb being too slow
 
@@ -161,22 +148,37 @@ class DownloadContentResource(Resource):
 
     @auth.login_required
     @api.marshal_with(task_id)
-    # @api.expect(parser)
     def get(self, uid):
-        task = download()
-        return {"id": task.id}
+        content = Content.get_by_uid(uid)
 
-# TEMP
-@api.route("/task/<string:uid>")
-class TaskResultResource(Resource):
+        if content:
+            if content.type == ContentType.series:
+                raise InternalException("Invalid content type")
 
-    @auth.login_required
-    @api.marshal_with(task_result)
+            task = download(content)
+            return {"id": task.id}
+
+        raise NotFoundException(f"Invalid uid '{uid}'")
+
+# Temporary
+@api.route("/<string:uid>/serve")
+class ServeContentResource(Resource):
+    torrent_client = Deluge()
+    torrent_client.run()
+
+    @api.doc(description='Serves the content')
+    @api.response(200, description="returns content stream")
+    @api.produces(["video/mp4"])
     def get(self, uid):
-        logger.debug("Pending: " + str(task_queue.pending()))
-        logger.debug("Results: " + str(task_queue.all_results()))
+        info = ServeContentResource.torrent_client.get_torrent_info(uid)
 
-        return {"type": None, "data": task_queue.result(uid)}
+        if info:
+            mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
+            if os.path.isfile(mp4_file):
+                logger.debug(f"Serving file '{mp4_file}'")
+                return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
+        else:
+            return api.abort(404)
 
 
 @api.route("/popular")

@@ -7,6 +7,7 @@ verify_ssl = true
 httpie = "*"
 httpie-jwt-auth = "*"
 snakeviz = "*"
+watchdog = "*"
 
 [packages]
 requests = "*"
@@ -25,6 +26,8 @@ waitress = "*"
 deluge-client = "*"
 huey = "*"
 werkzeug = "==0.16.1"
+pyyaml = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.7"

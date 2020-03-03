@@ -1,6 +1,6 @@
 from sqlalchemy import Column
 
-from storrmbox.database import (
+from storrmbox.extensions.database import (
     sa,
     db,
     Model,
