@@ -4,14 +4,15 @@ from enum import Enum
 
 from sqlalchemy.orm import backref
 
-from storrmbox.database import (
+from storrmbox.extensions.database import (
     db,
     sa,
     Model,
     relationship,
     ReferenceCol,
     time_now)
-
+from .popular import Popular
+from .top import Top
 
 class ContentType(int, Enum):
     movie = 1
@@ -53,9 +54,9 @@ class Content(Model):
     # Auto
     last_updated = sa.Column(sa.DateTime, nullable=False, default=time_now, onupdate=time_now)
 
-    episodes = relationship("Content", cascade="all,delete")
-    popular = relationship("Popular", backref=backref("content", cascade="all,delete"))
-    top = relationship("Top", backref=backref("content", cascade="all,delete"))
+    episodes = relationship("Content", cascade="all,delete-orphan")
+    popular = relationship(Popular, backref=backref("content", cascade="all,delete"))
+    top = relationship(Top, backref=backref("content", cascade="all,delete"))
 
     def __init__(self, *args, **kwargs):
         kwargs['uid'] = self.generate_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed
@@ -68,6 +69,9 @@ class Content(Model):
     def generate_uid(seed: str):
         Content._rand.seed(seed)
         return ''.join(Content._rand.choices(string.ascii_letters + string.digits, k=Content.uid.type.length))
+
+    def get_parent(self):
+        return Content.get_by_uid(self.parent_uid)
 
     @classmethod
     def get_by_uid(cls, uid: str):
