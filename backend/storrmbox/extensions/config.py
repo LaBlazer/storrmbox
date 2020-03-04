@@ -28,7 +28,7 @@ class AppConfig:
             "task_database_path": "huey.db",
             "task_immediate": False,
 
-            "flask_hostname": "localhost",
+            "flask_hostname": "127.0.0.1",
             "flask_port": 5000,
             "flask_debug": False,
             "flask_secret_key": codecs.encode(os.urandom(32), "hex").decode(),
