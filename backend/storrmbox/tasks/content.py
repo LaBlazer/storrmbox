@@ -17,7 +17,7 @@ torrent_client = Deluge()
 torrent_client.run()
 
 
-@task_queue.task()
+@task_queue.context_task(Tasks.app.app_context())
 def download(content: Content):
     torrent_info = torrent_client.get_torrent_info(content.uid)
     if torrent_info:
@@ -31,9 +31,10 @@ def download(content: Content):
     # Send magnet to the torrent client
     torrent_info = torrent_client.add_torrent(torrent.magnet, content.uid)
 
-    # Wait until the content is at least 8% downloaded
-    while torrent_info.progress <= 0.08:
-        time.sleep(3)
+    # Wait until the content is at least 10% downloaded
+    while torrent_info.progress <= 0.1:
+        time.sleep(4)
+        torrent_info = torrent_client.add_torrent(torrent.magnet, content.uid)
 
     # Return the content serve url
     logger.debug("Done")
