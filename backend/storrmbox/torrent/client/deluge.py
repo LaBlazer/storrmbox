@@ -142,9 +142,8 @@ class Deluge(implements(TorrentClient)):
 
         logger.debug(result)
 
-        hash = list(result.keys())[0]
-
         if result:
+            hash = list(result.keys())[0]
             return TorrentInfo(
                 hash=hash,
                 speed=result[hash]['download_payload_rate'],
