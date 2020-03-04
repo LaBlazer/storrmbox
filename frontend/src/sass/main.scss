@@ -37,3 +37,16 @@ body {
 .transition {
     transition: all 0.3s;
 }
+
+.plyr__video-wrapper::before {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    display: inline-block;
+    height: 50px;
+    transform: scale(.8);
+    width: 50px;
+    opacity: .2;
+    content: url('/logo.svg');
+}
