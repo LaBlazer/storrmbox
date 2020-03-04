@@ -173,11 +173,11 @@ class ServeContentResource(Resource):
         info = ServeContentResource.torrent_client.get_torrent_info(uid)
 
         if info:
+            logger.info(f"Info: {info}")
             mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
             if os.path.isfile(mp4_file):
-                logger.debug(f"Serving file '{mp4_file}'")
+                logger.info(f"Serving file '{mp4_file}'")
                 return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
-        else:
             return api.abort(404)
 
 
