@@ -14,31 +14,21 @@ class TopBar extends React.Component {
         super(props);
 
         this.state = {
-            searchValue: this.props.match.params.query || "",
-            isSearchInvalid: false
+            searchQuery: this.props.match.params.query || "",
+            isQueryInvalid: false
         }
 
         this.onSearch = this.onSearch.bind(this);
     }
 
-    componentDidUpdate(prevProps) {
-        var prevQuery = prevProps.match.params.query,
-            currQuery = this.props.match.params.query;
-
-        if (this.state.searchValue !== "" && prevQuery !== undefined && prevQuery !== "" && currQuery === undefined) {
-            this.setState({ searchValue: "" });
-        }
-    }
-
     onSearch(e) {
         e.preventDefault();
-        var searched = this.state.searchValue.replace(/\s/g, ' ').trim();
-        if (searched) {
-            this.props.history.push(`/search/${encodeURIComponent(searched)}`);
+        if (this.state.searchQuery) {
+            this.props.history.push(`/search/${encodeURIComponent(this.state.searchQuery.trim())}`);
         }
         else {
-            this.setState({ isSearchInvalid: true })
-            setTimeout(() => this.setState({ isSearchInvalid: false }), 2000);
+            this.setState({ isQueryInvalid: true })
+            setTimeout(() => this.setState({ isQueryInvalid: false }), 1000);
         }
     }
 
@@ -80,12 +70,12 @@ class TopBar extends React.Component {
                                     <FormControl
                                         type="text"
                                         placeholder="Search text..."
-                                        value={this.state.searchValue}
-                                        onChange={e => this.setState({ searchValue: e.target.value, isSearchInvalid: false })}
-                                        className={this.state.isSearchInvalid && 'invalid-form'}
+                                        value={this.state.searchQuery}
+                                        onChange={e => this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })}
+                                        className={this.state.isQueryInvalid && 'invalid-form'}
                                     />
                                     <InputGroup.Append>
-                                        <Button type="submit" variant={this.state.isSearchInvalid ? 'outline-danger' : 'outline-primary'}>
+                                        <Button type="submit" variant={this.state.isQueryInvalid ? 'outline-danger' : 'outline-primary'}>
                                             <FontAwesomeIcon icon={faSearch} />
                                         </Button>
                                     </InputGroup.Append>
