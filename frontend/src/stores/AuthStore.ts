@@ -1,8 +1,8 @@
-import { observable, runInAction } from 'mobx'
-import { setCookie, getCookie, deleteCookie } from '../utils/CookieHelper';
-import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../configs/constants';
+import { observable } from 'mobx';
+import { REMEMBER_ME_COOKIE_NAME, TOKEN_COOKIE_NAME } from '../configs/constants';
 import AxiosI from '../endpoints/api';
 import { AuthService } from '../endpoints/auth';
+import { deleteCookie, getCookie, setCookie } from '../utils/CookieHelper';
 
 
 class AuthStore {
@@ -24,9 +24,7 @@ class AuthStore {
         }, (error) => {
             if (error.response) {
                 if (error.response.status === 401) {
-                    runInAction(() => {
-                        this.auth = false;
-                    })
+                    this.logout();
                 }
             }
 
@@ -67,7 +65,7 @@ class AuthStore {
         } catch (err) {
             console.error(err);
 
-            this.auth = false;
+            this.logout();
         } finally {
             this.fetching = false;
         }
@@ -108,8 +106,8 @@ class AuthStore {
             }
         } catch (err) {
             console.error(err);
-
-            this.auth = false;
+            
+            this.logout();
         } finally {
             this.fetching = false;
         }
