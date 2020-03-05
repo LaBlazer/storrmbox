@@ -38,6 +38,10 @@
 
 .navbar-brand {
 
+    a {
+        text-decoration: none;
+    }
+
     @include media-breakpoint-up(md) { 
         padding-top: 0.6rem;
         padding-bottom: 0.2rem;
