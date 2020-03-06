@@ -1,8 +1,10 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Dict
 
+import requests
 from interface import Interface, default, implements
 
+from storrmbox.extensions.logging import logger
 from storrmbox.torrent.scraper import *
 
 
@@ -21,6 +23,35 @@ class TorrentInfo:
 @dataclass
 class TorrentSettings:
     stop_seed_ratio: float
+
+
+class TrackerList:
+
+    class Type(Enum):
+        Best = "best"
+        Extended = "all"
+
+    _list_cache: Dict[Type, List[str]] = {
+        Type.Best: [],
+        Type.Extended: []
+    }
+
+    @classmethod
+    def update(cls):
+        for list_type in cls._list_cache.keys():
+            resp = requests.get(f"https://trackerslist.com/{list_type.value}.txt")
+
+            if resp.status_code == 200:
+                cls._list_cache[list_type] = [t for t in (l.strip() for l in resp.text.splitlines()) if t]
+            else:
+                logger.warning(f"Could not update tracker list ({list_type}), returned: {resp.text}")
+
+    @classmethod
+    def get_list(cls, list_type: Type = Type.Best) -> List[str]:
+        if len(cls._list_cache[list_type]) == 0:
+            cls.update()
+
+        return cls._list_cache[list_type]
 
 
 class TorrentClient(Interface):
