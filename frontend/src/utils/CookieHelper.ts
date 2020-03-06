@@ -1,4 +1,4 @@
-export function getCookie(cname) {
+export function getCookie(cname: string) {
     var name = cname + "=";
     var decodedCookie = decodeURIComponent(document.cookie);
     var ca = decodedCookie.split(';');
@@ -14,11 +14,11 @@ export function getCookie(cname) {
     return null;
 }
 
-export function setCookie(cname, cvalue, expireDate) {
+export function setCookie(cname: string, cvalue: any, expireDate: Date) {
     var expires = "expires=" + expireDate.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-export function deleteCookie(name) {
+export function deleteCookie(name: string) {
     setCookie(name, "", new Date(0));
 }

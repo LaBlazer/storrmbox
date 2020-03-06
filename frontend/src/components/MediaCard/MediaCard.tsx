@@ -85,7 +85,7 @@ export default class MediaCard extends React.Component<MediaCardProps, MediaCard
 
         if (uid) {
             return (
-                <ModalLink to={`/m/${uid}`} className="mx-2 mt-1 mb-1 d-block" style={{ color: "inherit" }}>
+                <ModalLink to={`/m/${uid}`} className="mx-2 mt-1 mb-1 d-inline-block" style={{ textDecoration: 'none', color: "inherit" }}>
                     {card}
                 </ModalLink>
             )
