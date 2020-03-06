@@ -1,5 +1,6 @@
 import os
 from threading import Thread
+from typing import Dict
 
 from flask import g, send_file, Response
 from flask_restplus import Resource, Namespace, fields
@@ -165,20 +166,34 @@ class DownloadContentResource(Resource):
 class ServeContentResource(Resource):
     torrent_client = Deluge()
     torrent_client.run()
+    file_cache: Dict[str, str] = {}
 
+    # TODO: Add auth
     @api.doc(description='Serves the content')
     @api.response(200, description="returns content stream")
     @api.produces(["video/mp4"])
     def get(self, uid):
-        info = ServeContentResource.torrent_client.get_torrent_info(uid)
+        # First try to get the file from cache
+        mp4_file = self.file_cache.get(uid)
 
-        if info:
-            logger.info(f"Info: {info}")
-            mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
-            if os.path.isfile(mp4_file):
-                logger.info(f"Serving file '{mp4_file}'")
-                return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
-            return api.abort(404)
+        # Otherwise get it from torrent client
+        if not mp4_file:
+            info = self.torrent_client.get_torrent_info(uid)
+            if info:
+                logger.debug(f"Info: {info}")
+                mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
+                self.file_cache[uid] = mp4_file
+
+        if os.path.isfile(mp4_file):
+            logger.info(f"Serving file '{mp4_file}'")
+            return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
+        elif mp4_file:
+            try:
+                del self.file_cache[uid]
+            except KeyError:
+                pass
+
+        return api.abort(404)
 
 
 @api.route("/popular")
