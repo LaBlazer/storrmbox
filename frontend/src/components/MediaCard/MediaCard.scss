@@ -10,11 +10,11 @@
 
     width: 174px;
     height: 272px;
-    display: inline-block;
+    display: block;
+    text-align: initial;
     overflow: hidden;
     background-color: black;
     position: relative;
-    text-align: initial;
 
     .overlay {
         position: absolute;
