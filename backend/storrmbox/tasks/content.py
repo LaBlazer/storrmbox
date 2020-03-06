@@ -28,8 +28,15 @@ def download(content: Content):
     torrent = torrent_scraper.search_content(content)
     logger.info(f"Found torrent: {torrent}")
 
+    if not torrent:
+        logger.error(f"No magnet found for content '{content.uid}'")
+        return None
+
     # Send magnet to the torrent client
     torrent_info = torrent_client.add_torrent(torrent.magnet, content.uid)
+
+    if not torrent_info:
+        logger.warning(f"Could not add torrent magnet '{torrent.magnet.split('&')[0]}'")
 
     # Wait until the content is at least 10% downloaded
     while torrent_info.progress <= 0.1:

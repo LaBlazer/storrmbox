@@ -60,7 +60,7 @@ class Deluge(implements(TorrentClient)):
         logger.debug(f"Running deluge daemon with config path '{config_path}'")
         logger.debug(f'"{daemon_path}" -c "{config_path}"')
         subprocess.Popen(f'"{daemon_path}" -c "{config_path}"', stdout=subprocess.PIPE, shell=True)
-        time.sleep(1)
+        time.sleep(6)
 
         # TODO: Check if deluge has correct settings, if not change them and restart it
         # TODO: enable labels plugin
