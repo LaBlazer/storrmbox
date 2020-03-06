@@ -3,7 +3,7 @@ import subprocess
 import time
 from typing import Optional, List
 
-from . import TorrentInfo, TorrentClient, implements
+from . import TorrentInfo, TorrentClient, implements, TrackerList
 from deluge_client import DelugeRPCClient
 
 from storrmbox.extensions.config import config
@@ -111,9 +111,11 @@ class Deluge(implements(TorrentClient)):
         if not infohash:
             raise Exception("Unable to add torrent")
 
-        # if uid:
-        #     self.client.call('label.add', uid)
-        #     self.client.call('label.set_torrent', result, uid)
+        # Set more trackers (this can speed up download)
+        self.client.core.set_torrent_trackers(
+            infohash,
+            [{"url": t, "tier": i} for i, t in enumerate(TrackerList.get_list(TrackerList.Type.Best))]
+        )
 
         return self.get_torrent_info(uid)
 
@@ -122,7 +124,7 @@ class Deluge(implements(TorrentClient)):
         self._login()
         result = self.rpcclient.call('core.get_torrents_status', {}, ['name'])
         logger.debug(set(x.lower() for x in result.keys()))
-        return []
+        return result
 
     def get_torrent_info(self, uid: str) -> Optional[TorrentInfo]:
         # https://github.com/deluge-torrent/deluge/blob/develop/deluge/core/torrent.py#L1037

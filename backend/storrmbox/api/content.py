@@ -15,7 +15,7 @@ from storrmbox.models.content import Content, ContentType
 from storrmbox.models.popular import Popular
 from storrmbox.models.search import Search
 from storrmbox.models.top import Top
-from storrmbox.tasks.content import download
+from storrmbox.tasks.content import download, serve
 from storrmbox.torrent.client.deluge import Deluge
 
 api = Namespace('content', description='Content serving')
@@ -143,24 +143,6 @@ class EpisodesContentResource(Resource):
 
         return {"seasons": result}
 
-
-@api.route("/<string:uid>/download")
-class DownloadContentResource(Resource):
-
-    @auth.login_required
-    @api.marshal_with(task_id)
-    def get(self, uid):
-        content = Content.get_by_uid(uid)
-
-        if content:
-            if content.type == ContentType.series:
-                raise InternalException("Invalid content type")
-
-            task = download(content)
-            return {"id": task.id}
-
-        raise NotFoundException(f"Invalid uid '{uid}'")
-
 # Temporary
 @api.route("/<string:uid>/serve")
 class ServeContentResource(Resource):
@@ -175,25 +157,48 @@ class ServeContentResource(Resource):
     def get(self, uid):
         # First try to get the file from cache
         mp4_file = self.file_cache.get(uid)
+        logger.debug(mp4_file)
+        # Hot path
+        if mp4_file:
+            try:
+                return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
+            except (OSError, IOError) as e:
+                logger.error(f"Error while serving '{uid}': {e}")
+                del self.file_cache[uid]
 
         # Otherwise get it from torrent client
-        if not mp4_file:
-            info = self.torrent_client.get_torrent_info(uid)
-            if info:
-                logger.debug(f"Info: {info}")
-                mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
+        info = self.torrent_client.get_torrent_info(uid)
+        if info:
+            logger.debug(f"Info: {info}")
+            mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
+            # Check if file really exists
+            if os.path.isfile(mp4_file):
+                # Cache it
                 self.file_cache[uid] = mp4_file
-
-        if os.path.isfile(mp4_file):
-            logger.info(f"Serving file '{mp4_file}'")
-            return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
-        elif mp4_file:
-            try:
-                del self.file_cache[uid]
-            except KeyError:
-                pass
+                logger.info(f"Serving file '{mp4_file}'")
+                return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
 
         return api.abort(404)
+
+
+@api.route("/<string:uid>/download")
+class DownloadContentResource(Resource):
+
+    @auth.login_required
+    @api.marshal_with(task_id)
+    def get(self, uid):
+        content = Content.get_by_uid(uid)
+
+        if content:
+            if content.type == ContentType.series:
+                raise InternalException("Invalid content type")
+
+            if ServeContentResource.file_cache.get(uid):
+                return {"id": serve(content).id}
+
+            return {"id": download(content).id}
+
+        raise NotFoundException(f"Invalid uid '{uid}'")
 
 
 @api.route("/popular")
