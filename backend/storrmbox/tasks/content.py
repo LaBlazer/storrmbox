@@ -46,3 +46,8 @@ def download(content: Content):
     # Return the content serve url
     logger.debug("Done")
     return f"content/{content.uid}/serve"
+
+
+@task_queue.task()
+def serve(content: Content):
+    return f"content/{content.uid}/serve"
