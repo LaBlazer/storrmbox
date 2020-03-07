@@ -1,11 +1,14 @@
 import React from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { RouteComponentProps, withRouter, Redirect } from 'react-router-dom';
 import UserStore from 'stores/UserStore';
 import { ReactComponent as Logo } from '../../../assets/logo.svg';
 import "./RegisterPage.scss";
+import { observer } from 'mobx-react';
+import AuthStore from 'stores/AuthStore';
 
 
+@observer
 class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }>> {
 
     handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,7 +26,11 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
     }
 
     render() {
-        let bgImage = 'https://m.media-amazon.com/images/M/MV5BMzgxMmQxZjQtNDdmMC00MjRlLTk1MDEtZDcwNTdmOTg0YzA2XkEyXkFqcGdeQXVyMzQ2MDI5NjU@._V1_SX300.jpg';
+        if (AuthStore.auth) {
+            return <Redirect to="/" />
+        }
+
+        const bgImage = 'https://m.media-amazon.com/images/M/MV5BMzgxMmQxZjQtNDdmMC00MjRlLTk1MDEtZDcwNTdmOTg0YzA2XkEyXkFqcGdeQXVyMzQ2MDI5NjU@._V1_SX300.jpg';
 
         return (
             <div className="center-container">
