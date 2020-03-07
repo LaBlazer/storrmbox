@@ -90,7 +90,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                                 </NavLink>
                             </li>
                         </ul>
-                        <div className="nav navbar-nav ml-auto w-100 justify-content-end">
+                        <div className="right navbar-nav ml-auto w-100 justify-content-end">
                             <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
                                 <InputGroup>
                                     <FormControl
