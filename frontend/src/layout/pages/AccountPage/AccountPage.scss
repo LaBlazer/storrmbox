@@ -1,0 +1,33 @@
+@import "variables.scss";
+
+#account-page {
+    display: flex;
+
+    .sidebar {
+        width: 30%;
+
+        a {
+            text-decoration: none;
+        }
+
+        .list-group-item {
+            border-left: 3px solid transparent;
+            transition: background-color 0.1s ease-in;
+
+            &:hover {
+                background-color: gray; 
+            }
+        }
+
+        .active {
+            .list-group-item {
+                border-left: 3px solid $primary;
+            }
+        }
+    }
+
+    .main {
+        width: 100%;
+        padding: 2rem 3rem;
+    }
+}
