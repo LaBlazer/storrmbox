@@ -1,6 +1,5 @@
-import AxiosI from "./api";
 import qs from "qs";
-import { AxiosResponse } from "axios";
+import AxiosI from "./api";
 
 export interface UserModel {
     username: string,
