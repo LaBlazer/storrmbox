@@ -1,12 +1,12 @@
+import { faShieldAlt, faTicketAlt, faUserCog } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { Component } from "react";
 import { ListGroup } from "react-bootstrap";
+import { NavLink, Route, Switch } from "react-router-dom";
 import "./AccountPage.scss";
-import { NavLink, withRouter, RouteComponentProps, Switch, Route } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShieldAlt, faUserCog, faTicketAlt } from "@fortawesome/free-solid-svg-icons";
 import { AccountSecurity } from "./pages/AccountSecurity";
-import { Invites } from "./pages/Invites";
 import { AccountSettings } from "./pages/AccountSettings";
+import { Invites } from "./pages/Invites";
 
 export default class AccountPage extends Component {
     render() {
