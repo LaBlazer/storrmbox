@@ -31,7 +31,7 @@ export class UserService {
     }
 
     static invite() {
-        return AxiosI.get<any, AxiosResponse<{ invite: string }>>(`/invite`)
+        return AxiosI.get<{ invite: string }>(`/user/invite`)
             .then(response => response.data);
     }
 
