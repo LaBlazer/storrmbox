@@ -1,15 +1,17 @@
 import React from 'react';
 import { Container } from "react-bootstrap";
-import FadeIn from "react-fade-in/lib/FadeIn";
-import TopBar from '../TopBar/TopBar';
-import { Switch, Route, withRouter } from 'react-router-dom';
-import ModalUrlListener from '../ModalUrlListener';
-import MediaPage from '../MediaPage';
-import SearchResultPage from './SearchResultPage';
-import { Footer } from '../Footer/Footer';
-import ContentReloader from '../../components/ContentReloader'
+import FadeIn from "react-fade-in";
+import { Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
+import ContentReloader from './components/ContentReloader';
+import { Footer } from './layout/Footer/Footer';
+import ModalUrlListener from './layout/ModalUrlListener';
+import MediaPage from './layout/pages/MediaPage';
+import SearchResultPage from './layout/pages/SearchResultPage';
+import TopBar from './layout/TopBar/TopBar';
+import * as H from 'history';
+import AccountPage from 'layout/pages/AccountPage/AccountPage';
 
-class MainPage extends React.Component {
+class MainContentRouter extends React.Component<RouteComponentProps<any, any, { background?: H.Location }>> {
 
     render() {
         let location = this.props.location;
@@ -22,7 +24,7 @@ class MainPage extends React.Component {
         }
 
         return (
-            <Container className="pt-5">
+            <Container className="main-container">
                 <FadeIn>
                     {/* <hr /> */}
                     <Switch location={background || location}>
@@ -50,6 +52,12 @@ class MainPage extends React.Component {
                             <Footer />
                         </Route>
 
+                        <Route path="/account">
+                            <TopBar siteName={siteName} />
+                            <AccountPage />
+                            <Footer />
+                        </Route>
+
                         <Route path={["/", "/all"]}>
                             <TopBar siteName={siteName} />
                             <h3 className="pt-5">All</h3>
@@ -63,4 +71,4 @@ class MainPage extends React.Component {
     }
 }
 
-export default withRouter(MainPage);
+export default withRouter(MainContentRouter);

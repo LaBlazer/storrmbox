@@ -37,3 +37,13 @@ body {
 .transition {
     transition: all 0.3s;
 }
+
+.dropdown-toggle {
+    &.no-carret::after {
+        content: none;
+    }
+}
+
+.main-container {
+    padding-top: 5rem;
+}
