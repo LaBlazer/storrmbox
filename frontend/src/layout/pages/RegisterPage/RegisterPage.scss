@@ -1,0 +1,35 @@
+#register-form {
+    .left {
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        flex-direction: column-reverse;
+
+        .content {
+            padding: 3rem 1rem 57px 1rem;
+            background: rgb(52, 52, 52);
+            background: linear-gradient(
+                0deg,
+                #343434 0%,
+                rgba(52, 52, 52, 0.910802) 74%,
+                rgba(52, 52, 52, 0.25534) 93%,
+                rgba(52, 52, 52, 0) 100%
+            );
+        }
+
+        overflow: hidden;
+    }
+
+    .right {
+        padding: 1.25rem;
+    }
+
+    .moto {
+        color: gray;
+        font-size: 1.2em;
+    }
+
+    .col:nth-child(2) {
+        border-left: 1px solid rgba(92, 92, 92, 0.459);
+    }
+}
