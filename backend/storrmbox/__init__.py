@@ -2,7 +2,7 @@ from pathlib import Path
 
 from flask import Flask
 
-from storrmbox.extensions import logger, db, migrate, config
+from storrmbox.extensions import logger, db, config
 
 ROOT_PATH = Path(__file__).parent.parent
 

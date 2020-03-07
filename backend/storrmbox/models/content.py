@@ -14,6 +14,7 @@ from storrmbox.extensions.database import (
 from .popular import Popular
 from .top import Top
 
+
 class ContentType(int, Enum):
     movie = 1
     series = 2
@@ -59,16 +60,16 @@ class Content(Model):
     top = relationship(Top, backref=backref("content", cascade="all,delete"))
 
     def __init__(self, *args, **kwargs):
-        kwargs['uid'] = self.generate_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed
+        kwargs['uid'] = self._generate_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed
         db.Model.__init__(self, *args, **kwargs)
 
     def __repr__(self):
         return '<Content {}>'.format(repr(self.title))
 
-    @staticmethod
-    def generate_uid(seed: str):
-        Content._rand.seed(seed)
-        return ''.join(Content._rand.choices(string.ascii_letters + string.digits, k=Content.uid.type.length))
+    @classmethod
+    def _generate_uid(cls, seed: str):
+        cls._rand.seed(seed)
+        return ''.join(cls._rand.choices(string.ascii_letters + string.digits, k=cls.uid.type.length))
 
     def get_parent(self):
         return Content.get_by_uid(self.parent_uid)
