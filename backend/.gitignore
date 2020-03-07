@@ -5,3 +5,4 @@ __pycache__
 config.yml
 deluged_config
 downloads
+providers.txt

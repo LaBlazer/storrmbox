@@ -33,10 +33,12 @@ api = Api(api_blueprint,
 from .auth import api as auth
 from .content import api as content
 from .task import api as task
+from .user import api as user
 
 api.add_namespace(auth)
 api.add_namespace(content)
 api.add_namespace(task)
+api.add_namespace(user)
 
 
 def register_api(app):
@@ -45,7 +47,7 @@ def register_api(app):
     # Register error handlers
     @api.errorhandler(InternalException)
     def handle_internal_exception(error):
-        return {'message': 'Server has encountered an internal error: ' + str(error)}, 500
+        return {'message': str(error)}, 500
 
     @api.errorhandler
     def default_error_handler(error):

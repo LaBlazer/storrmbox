@@ -1,4 +1,4 @@
-from flask_migrate import Migrate
+
 from flask_sqlalchemy import SQLAlchemy
 from flask_sqlalchemy.model import BindMetaMixin
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
@@ -9,6 +9,7 @@ from datetime import timedelta, datetime
 import sqlalchemy as sa
 
 from storrmbox.exceptions import InternalException
+from storrmbox.extensions.logging import logger
 
 
 # Disable Table Name Generation
@@ -36,6 +37,9 @@ class CRUDMixin(object):
     operations.
     """
 
+    def __update__(self, attr, value):
+        setattr(self, attr, value)
+
     @classmethod
     def create(cls, **kwargs):
         """Create a new record and save it the database."""
@@ -60,7 +64,7 @@ class CRUDMixin(object):
         for attr, value in kwargs.items():
             # Flask-RESTful makes everything None by default :/
             if value is not None:
-                setattr(self, attr, value)
+                self.__update__(attr, value)
         return commit and self.save() or self
 
     def save(self, commit=True):
@@ -119,11 +123,12 @@ class Cache(SurrogatePK):
 
     @classmethod
     def fetch(cls, key, value, refresh_function=None, *refresh_function_args):
-        filtered = cls.query.filter(and_(and_(key == value, cls.created_at > time_past(24)))).order_by(cls.id.asc()).all()
+        filtered = cls.query.filter(and_(key == value, cls.created_at > time_past(24))).order_by(cls.id.asc()).all()
 
         if not filtered:
             if callable(refresh_function):
                 # Refreshing data
+                logger.debug(f"Refreshing {cls.__name__} cache")
                 filtered = refresh_function(*refresh_function_args)
 
                 # Check if function returned correct data
@@ -141,5 +146,3 @@ class Cache(SurrogatePK):
     def purge(self):
         pass
 
-
-migrate = Migrate()

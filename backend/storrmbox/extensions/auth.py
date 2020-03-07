@@ -1,5 +1,6 @@
 import base64
 import functools
+from enum import Enum
 
 from flask import request, g, abort
 from flask_httpauth import HTTPTokenAuth, MultiAuth
@@ -14,6 +15,10 @@ auth = HTTPTokenAuth()
 multi_auth = MultiAuth(basic_auth, auth)
 token_serializer = Serializer(config['flask_secret_key'], expires_in=config['auth_token_expire_time'] + 60)
 
+class PermissionLevel(Enum):
+    User = 0
+    Moderator = 1
+    Admin = 3
 
 @basic_auth.verify_token
 def verify_password(encoded_credentials):
@@ -39,6 +44,16 @@ def verify_token(token):
         g.user = User.query.filter_by(username=data['username'], token_nonce=data['n']).first()
         return g.user is not None
     return False
+
+
+def with_permission(permission_level: PermissionLevel):
+    def decorator(f):
+        def gen(*args, **kwargs):
+            if g.user.permission_level == permission_level.value:
+                return f(*args, **kwargs)
+            raise PermissionError("You do not have required permission level")
+        return gen
+    return decorator
 
 
 def self_only(func):
