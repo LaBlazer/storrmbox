@@ -11,7 +11,7 @@ import TopBar from './layout/TopBar/TopBar';
 import * as H from 'history';
 import AccountPage from 'layout/pages/AccountPage/AccountPage';
 
-class MainContentRouter extends React.Component<RouteComponentProps<any, any, { background?: H.Location }>> {
+class PostAuthRouter extends React.Component<RouteComponentProps<any, any, { background?: H.Location }>> {
 
     render() {
         let location = this.props.location;
@@ -71,4 +71,4 @@ class MainContentRouter extends React.Component<RouteComponentProps<any, any, { 
     }
 }
 
-export default withRouter(MainContentRouter);
+export default withRouter(PostAuthRouter);

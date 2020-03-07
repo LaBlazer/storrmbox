@@ -1,4 +1,5 @@
 import AxiosI from "./api";
+import qs from "qs";
 import { AxiosResponse } from "axios";
 
 export interface UserModel {
@@ -10,9 +11,9 @@ export interface UserModel {
 export class UserService {
 
     static register(username: string, email: string, password: string, invite_code: string): Promise<UserModel> {
-        return AxiosI.post<{ username: string, email: string, created: string }>(`/user`, {
-            params: { username, email, password, invite_code }
-        })
+        return AxiosI.post<{ username: string, email: string, created: string }>(`/user`, qs.stringify({
+            username, email, password, invite_code
+        }))
             .then(response => ({
                 username: response.data.username,
                 email: response.data.email,
