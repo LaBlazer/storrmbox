@@ -2,13 +2,15 @@ import string
 import random
 
 from flask_script import Manager, Shell
-from flask_migrate import MigrateCommand
+from flask_migrate import MigrateCommand, Migrate
 from storrmbox import create_app, db
 from storrmbox.models.user import User
 from storrmbox.extensions.logging import logger
 
 app = create_app()
 manager = Manager(app)
+migrate = Migrate()
+migrate.init_app(app, db)
 
 
 def _random_string(size=6, chars=string.printable):
@@ -23,15 +25,15 @@ def _make_context():
 
 
 @manager.command
-def createuser(username, password):
+def createuser(username, password, permission_level=0):
     """Creates an user"""
-    logger.info(f"Creating user with username: '{username}' and password: '{password}'")
+    logger.info(f"Creating user with username: '{username}' and password: '{password}' ({permission_level})")
     u = User()
     u.username = username
     u.email = _random_string() + "@test.com"
+    u.permission_level = permission_level
     u.set_password(password)
-    db.session.add(u)
-    db.session.commit()
+    u.save()
 
 
 manager.add_command('shell', Shell(make_context=_make_context))
