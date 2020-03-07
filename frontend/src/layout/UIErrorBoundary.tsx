@@ -1,21 +1,17 @@
 import React, { Component } from "react";
 import { Button, Container } from "react-bootstrap";
 
-export class UIErrorBoundary extends Component {
+export class UIErrorBoundary extends Component<any, { error: Error | null }> {
 
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            error: null
-        }
+    state = {
+        error: null
     }
 
-    componentDidCatch(error, info) {
+    componentDidCatch(error: Error, info: { componentStack: string }) {
         this.setState({ error });
 
-        window.onpopstate = function (event) {
-            window.location.href = document.location;
+        window.onpopstate = function () {
+            window.location.href = document.location.href;
         };
 
         console.error(error);

@@ -1,37 +1,44 @@
 @import "variables";
 
-.bg {
-    background: rgb(60,60,60);
-    background: linear-gradient(164deg, rgba(60,60,60,0.44021358543417366) 0%, rgba(60,60,60,0.7511379551820728) 25%, rgba(60,60,60,1) 56%);
-}
-
-.season-list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-
-    .item {
-        text-align: center;
-        color: #9e9e9e;
-        background-color: #00000030;
+.series-list {
+    .season-list {
+        flex-direction: row;
+        flex-wrap: wrap;
         border: 1px solid rgba(0, 0, 0, 0.3);
-        flex: auto;
-        flex-basis: 0;
-        border-radius: 0;
-        outline: none;
 
-        &.active {
-            color: #ececec;
-            background-color: $primary;
-        }
+        .item {
+            text-align: center;
+            color: #9e9e9e;
+            background-color: #00000030;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+            flex: auto;
+            flex-basis: 0;
+            border-radius: 0;
+            outline: none;
 
-        &:hover .icon {
-            display: inline-block;
-        }
+            &.active {
+                color: #ececec;
+                background-color: $primary;
+            }
 
-        .icon {
-            display: none;
+            &:hover .icon {
+                display: inline-block;
+            }
+
+            .icon {
+                display: none;
+            }
         }
+    }
+
+    &.bg {
+        background: rgb(60, 60, 60);
+        background: linear-gradient(
+            164deg,
+            rgba(60, 60, 60, 0.44021358543417366) 0%,
+            rgba(60, 60, 60, 0.7511379551820728) 25%,
+            rgba(60, 60, 60, 1) 56%
+        );
     }
 }
 
@@ -40,23 +47,30 @@
         padding: 0;
         background-color: transparent;
     }
-    
-    .item  {
+
+    .item {
         display: flex;
         align-items: center;
         padding: 0.45rem 1.25rem 0.45rem 1rem;
         border-left: 0.25rem solid transparent;
 
-        &:hover, &:focus, &.active {
+        &:hover,
+        &:focus,
+        &.active {
             border-left: 0.25rem solid $primary;
             outline: none;
             color: inherit;
             // background: linear-gradient(90deg, #272727 0%,#3c3c3c 56%);
-            background: linear-gradient(90deg, rgba(39,39,39,1) 0%, rgba(39,39,39,0.5466561624649859) 16%, rgba(0,0,0,0) 91%);
+            background: linear-gradient(
+                90deg,
+                rgba(39, 39, 39, 1) 0%,
+                rgba(39, 39, 39, 0.5466561624649859) 16%,
+                rgba(0, 0, 0, 0) 91%
+            );
         }
 
         &.active {
-            background: linear-gradient(90deg, rgba($primary, 0.20) 0%, rgba(0,0,0,0) 91%);
+            background: linear-gradient(90deg, rgba($primary, 0.2) 0%, rgba(0, 0, 0, 0) 91%);
         }
 
         .episode-number {

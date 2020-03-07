@@ -3,6 +3,7 @@ import { REMEMBER_ME_COOKIE_NAME, TOKEN_COOKIE_NAME } from '../configs/constants
 import AxiosI from '../endpoints/api';
 import { AuthService } from '../endpoints/auth';
 import { deleteCookie, getCookie, setCookie } from '../utils/CookieHelper';
+import UserStore from './UserStore';
 
 
 class AuthStore {
@@ -59,6 +60,7 @@ class AuthStore {
                 }
 
                 this.auth = true;
+                UserStore.loadUser();
             } else {
                 console.error("Bad status on login: ", response.status, response.statusText);
             }
@@ -102,6 +104,10 @@ class AuthStore {
                     this.setupTokenAutorefresh(data.expires_in);
                 }
 
+                if(!UserStore.user) {
+                    UserStore.loadUser();
+                }
+                
                 this.auth = true;
             }
         } catch (err) {
