@@ -11,6 +11,7 @@ from storrmbox.api.task import task_id
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
 from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db, task_queue, logger
+from storrmbox.extensions.auth import with_permission, PermissionLevel
 from storrmbox.models.content import Content, ContentType
 from storrmbox.models.popular import Popular
 from storrmbox.models.search import Search
@@ -155,10 +156,8 @@ class ServeContentResource(Resource):
     @api.response(200, description="returns content stream")
     @api.produces(["video/mp4"])
     def get(self, uid):
-        # First try to get the file from cache
+        # First try to get the file from cache (hot path)
         mp4_file = self.file_cache.get(uid)
-        logger.debug(mp4_file)
-        # Hot path
         if mp4_file:
             try:
                 return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
@@ -226,7 +225,7 @@ class PopularContentResource(Resource):
     @api.marshal_with(content_list_fields)
     @api.expect(popular_parser)
     def get(self):
-        args = PopularContentResource.popular_parser.parse_args()
+        args = self.popular_parser.parse_args()
         ctype = ContentType[args['type']]
 
         return {"uids": [c.content_id for c in Popular.fetch(Popular.type, ctype, self._get_popular, ctype)]}
@@ -257,7 +256,7 @@ class TopContentResource(Resource):
     @api.marshal_with(content_list_fields)
     @api.expect(top_parser)
     def get(self):
-        args = TopContentResource.top_parser.parse_args()
+        args = self.top_parser.parse_args()
         ctype = ContentType[args['type']]
 
         return {"uids": [c.content_id for c in Top.fetch(Top.type, ctype, self._get_top, ctype)]}
@@ -279,7 +278,7 @@ class SearchContentResource(Resource):
     @api.marshal_with(content_list_fields, as_list=True)
     @api.expect(search_parser)
     def get(self):
-        args = SearchContentResource.search_parser.parse_args()
+        args = self.search_parser.parse_args()
 
         # Store the search in db
         db.session.add(Search(
@@ -355,6 +354,7 @@ class ReloadContentResource(Resource):
 
     # TODO: make this admin-only
     @auth.login_required
+    @with_permission(PermissionLevel.Admin)
     def get(self):
         thread = Thread(target=self.update_data)
         thread.start()
