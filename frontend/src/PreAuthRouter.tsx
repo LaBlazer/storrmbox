@@ -1,13 +1,15 @@
 import React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
+import RegisterPage from 'layout/pages/RegisterPage/RegisterPage';
 
-class MainRouter extends React.Component<RouteComponentProps> {
+class PreAuthRouter extends React.Component<RouteComponentProps> {
 
     render() {
         return (
             <Switch>
 
-                <Route path="/invite">
+                <Route path={["/invite/:code", "/invite"]}>
+                    <RegisterPage />
                 </Route>
 
                 <Route path="/">
@@ -19,4 +21,4 @@ class MainRouter extends React.Component<RouteComponentProps> {
     }
 }
 
-export default withRouter(MainRouter);
+export default withRouter(PreAuthRouter);
