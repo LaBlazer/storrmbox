@@ -1,6 +1,5 @@
 from multiprocessing.dummy import Pool as ThreadPool
-from logging import getLogger
-from os import getenv, remove, path, rename
+from os import remove, path, rename
 import gzip
 import shutil
 import time
@@ -13,13 +12,15 @@ from requests import Session
 from storrmbox.content.helpers import Parser, DatasetReader
 from storrmbox.exceptions import InternalException
 from storrmbox.models.content import Content
-from storrmbox.torrent.scrapers import ContentType
+from storrmbox.torrent.scraper import ContentType
+from storrmbox.extensions.config import config
+from storrmbox.extensions.logging import logger
 
 
 class ContentScraper(object):
 
     def __init__(self):
-        self.log = getLogger("content_scraper")
+        self.log = logger
         self.req = Session()
         self.req.headers.update({
             "accept-language": "en-US,en"
@@ -37,7 +38,7 @@ class ContentScraper(object):
         resp = self.req.get(url=url, params=params)
 
         if resp.status_code == 401:
-            raise Exception("Invalid OMDB api key! Please set it in the .env file.")
+            raise Exception("Invalid OMDB api key! Please set it in the config file.")
 
         if resp.status_code != 200:
             self.log.error(f"Error while scraping content ({resp.status_code})")
@@ -61,10 +62,10 @@ class OmdbScraper(ContentScraper):
     def __init__(self):
         super().__init__()
         self.url = "https://www.omdbapi.com/"
-        self.api_key = getenv('OMDB_API_KEY')
+        self.api_key = config['omdb_api_key']
 
         if not self.api_key:
-            raise Exception("Invalid OMDB api key! Please set it in the .env file.")
+            raise Exception("Invalid OMDB api key! Please set it in the config file.")
 
     def search(self, query: str, page=1):
         resp = self.get({"s": query, "page": page}, True)
@@ -106,7 +107,6 @@ class ImdbScraper(ContentScraper):
         res = []
         for row in table.find_all("tr"):
             # title = row.find(class_="titleColumn").find("a").text
-            # print(title)
 
             # If the content has no rating skip it
             stars = row.find("td", class_="imdbRating").find("strong")
@@ -115,7 +115,7 @@ class ImdbScraper(ContentScraper):
 
             # If the release year is larger than current year skip it
             # year = row.find(class_="secondaryInfo").text[1:-1]
-            # print(year)
+
             # if datetime.date.today().year < int(year):
             #     continue
 
@@ -130,7 +130,7 @@ class ImdbScraper(ContentScraper):
         if path.isfile(f"datasets/{name}.tsv"):
             file_date = dt.datetime.fromtimestamp(path.getmtime(f"datasets/{name}.tsv")).date()
             if not force and file_date == dt.datetime.now().date():
-                print(f"Dataset '{name}' already up to date...")
+                logger.info(f"Dataset '{name}' already up to date...")
                 return
 
             # Rename the old dataset and delete the older dataset
@@ -139,7 +139,7 @@ class ImdbScraper(ContentScraper):
             rename(f"datasets/{name}.tsv", f"datasets/{name}_old.tsv")
             do_diff = True
 
-        print(f"Downloading and extracting dataset '{name}'...")
+        logger.info(f"Downloading and extracting dataset '{name}'...")
 
         # Download
         self.download(f"{ImdbScraper.dataset_url}title.{name}.tsv.gz", f"datasets/{name}.tsv.gz")
@@ -152,7 +152,7 @@ class ImdbScraper(ContentScraper):
         # Remove the archive
         remove(f"datasets/{name}.tsv.gz")
 
-        print(f"'{name}' downloaded!")
+        logger.info(f"'{name}' downloaded!")
         return do_diff
 
     def get_content(self, threads=3):
@@ -172,7 +172,7 @@ class ImdbScraper(ContentScraper):
         ratings = DatasetReader(f"datasets/ratings.tsv", self.dataset_parser, 0, True, str, float, int)
 
         # Get series and movies
-        print("Getting series and movies")
+        logger.debug("Getting series and movies")
         for iid, content_type, title, original_title, adult, start_year, end_year, runtime, genres in \
                 basics.iterate_data():
 
@@ -218,7 +218,7 @@ class ImdbScraper(ContentScraper):
             }
 
         # Get episodes
-        print("Getting episodes")
+        logger.debug("Getting episodes")
         for iid, parent_iid, season, episode in episodes.iterate_data():
 
             # Skip episodes without parent content

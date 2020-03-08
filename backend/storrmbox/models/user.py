@@ -3,13 +3,15 @@ import string
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from storrmbox.database import (
+from storrmbox.extensions.database import (
     sa,
     db,
     SurrogatePK,
     Model,
-    relationship
-)
+    relationship,
+    CRUDMixin, ReferenceCol)
+from storrmbox.models.invite import Invite
+from .search import Search
 
 
 class User(SurrogatePK, Model):
@@ -28,13 +30,21 @@ class User(SurrogatePK, Model):
     last_update = sa.Column(sa.DateTime, nullable=True, onupdate=func.now())
     last_login = sa.Column(sa.DateTime, nullable=True)
     permission_level = sa.Column(sa.SmallInteger, nullable=False, default=0)
+    invite_code = ReferenceCol("invites", pk_name="code", nullable=True)
     token_nonce = sa.Column(sa.String(5), unique=False, nullable=False, default=generate_token_nonce.__func__)
 
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
-    searches = relationship("Search", backref="user")
+    searches = relationship(Search, backref="user")
+    invites = relationship(Invite, backref="user", foreign_keys=[invite_code])
 
     def __init__(self, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)
+
+    def __update__(self, attr, value):
+        if attr == "password":
+            self.set_password(value)
+            return
+        CRUDMixin.__update__(self, attr, value)
 
     def set_password(self, password):
         """Create hashed password."""
