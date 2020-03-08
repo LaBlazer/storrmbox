@@ -15,8 +15,8 @@ type TBProps = RouteComponentProps<{ query?: string }> & {
 }
 
 type TBState = {
-    searchValue: string,
-    isSearchInvalid: boolean
+    searchQuery: string,
+    isQueryInvalid: boolean
 }
 
 @observer
@@ -30,31 +30,21 @@ class TopBar extends React.Component<TBProps, TBState> {
         super(props);
 
         this.state = {
-            searchValue: this.props.match.params.query || "",
-            isSearchInvalid: false
+            searchQuery: this.props.match.params.query || "",
+            isQueryInvalid: false
         }
 
         this.onSearch = this.onSearch.bind(this);
     }
 
-    componentDidUpdate(prevProps: TBProps) {
-        var prevQuery = prevProps.match.params.query,
-            currQuery = this.props.match.params.query;
-
-        if (this.state.searchValue !== "" && prevQuery !== undefined && prevQuery !== "" && currQuery === undefined) {
-            this.setState({ searchValue: "" });
-        }
-    }
-
     onSearch(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        var searched = this.state.searchValue.replace(/\s/g, ' ').trim();
-        if (searched) {
-            this.props.history.push(`/search/${encodeURIComponent(searched)}`);
+        if (this.state.searchQuery.trim()) {
+            this.props.history.push(`/search/${encodeURIComponent(this.state.searchQuery.trim())}`);
         }
         else {
-            this.setState({ isSearchInvalid: true })
-            setTimeout(() => this.setState({ isSearchInvalid: false }), 2000);
+            this.setState({ isQueryInvalid: true })
+            setTimeout(() => this.setState({ isQueryInvalid: false }), 1000);
         }
     }
 
@@ -96,15 +86,14 @@ class TopBar extends React.Component<TBProps, TBState> {
                                     <FormControl
                                         type="text"
                                         placeholder="Search text..."
-                                        value={this.state.searchValue}
+                                        value={this.state.searchQuery}
                                         onChange={
-                                            (e: React.ChangeEvent<HTMLInputElement>) =>
-                                                this.setState({ searchValue: e.currentTarget.value, isSearchInvalid: false })
+                                            (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })
                                         }
-                                        className={this.state.isSearchInvalid ? 'invalid-form' : ''}
+                                        className={this.state.isQueryInvalid ? 'invalid-form' : ''}
                                     />
                                     <InputGroup.Append>
-                                        <Button type="submit" variant={this.state.isSearchInvalid ? 'outline-danger' : 'outline-primary'}>
+                                        <Button type="submit" variant={this.state.isQueryInvalid ? 'outline-danger' : 'outline-primary'}>
                                             <FontAwesomeIcon icon={faSearch} />
                                         </Button>
                                     </InputGroup.Append>
