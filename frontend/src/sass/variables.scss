@@ -17,19 +17,20 @@ $list-group-bg: #3c3c3c;
 $list-group-color: #e4e4e4;
 $list-group-action-hover-color: $list-group-color;
 
+$input-bg: #666666;
+$input-disabled-bg: #414141;
+$input-color: #e4e4e4;
 $input-placeholder-color: #aaaaaa;
+$input-border-color: #2e2e2e;
 
 $enable-shadows: true;
 
-$input-bg: #666666;
-$input-color: #e4e4e4;
 
 $theme-colors: (
     primary: $primary,
     secondary: $secondary
 );
 
-$input-border-color: #2e2e2e;
 
 $modal-content-bg: $body-bg;
 $close-color: $body-color;

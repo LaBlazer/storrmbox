@@ -43,7 +43,7 @@ export class SeasonList extends React.Component<SLProps, SLState> {
                 }
             ));
 
-            return <div className="bg">
+            return <div className="bg series-list">
                 <Accordion className="season-list" items={seasons} onItemClick={this.onSeasonClicked} itemComponent={SeasonItem} />
                 <Accordion className="episode-list" items={episodes} itemComponent={EpisodeItem} />
             </div>
