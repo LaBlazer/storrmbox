@@ -1,4 +1,4 @@
-from storrmbox.database import (
+from storrmbox.extensions.database import (
     db,
     SurrogatePK,
     Model,

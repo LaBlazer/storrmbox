@@ -1,5 +1,15 @@
-from . import *
+import os
+import subprocess
+import time
+from typing import Optional, List
+
+from . import TorrentInfo, TorrentClient, implements, TrackerList
 from deluge_client import DelugeRPCClient
+
+from storrmbox.extensions.config import config
+from storrmbox.extensions.logging import logger
+from storrmbox import ROOT_PATH
+
 
 # add_paused (bool): Add the torrrent in a paused state.
 # auto_managed (bool): Set torrent to auto managed mode, i.e. will be started or queued automatically.
@@ -33,27 +43,122 @@ from deluge_client import DelugeRPCClient
 class Deluge(implements(TorrentClient)):
 
     def __init__(self):
-        self.client = None
+        self.client = DelugeRPCClient(config["deluge_hostname"],
+                                      config["deluge_port"],
+                                      config["deluge_username"],
+                                      config["deluge_password"],
+                                      decode_utf8=True,
+                                      automatic_reconnect=True)
 
-    def setup(self, seed_ratio) -> bool:
-        self.client = DelugeRPCClient("127.0.0.1", 58846, "storrmbox", "storrmbox")
-        self.connect()
+    def setup(self) -> bool:
+        daemon_path = config["deluge_daemon_path"]
+        if not os.path.isfile(daemon_path):
+            logger.error("Deluge daemon path is invalid, cannot setup")
+            return False
 
-        if self.connected:
-            return True
+        config_path = os.path.join(ROOT_PATH, "deluged_config")
+        logger.debug(f"Running deluge daemon with config path '{config_path}'")
+        logger.debug(f'"{daemon_path}" -c "{config_path}"')
+        subprocess.Popen(f'"{daemon_path}" -c "{config_path}"', stdout=subprocess.PIPE, shell=True)
+        time.sleep(6)
 
-        return False
+        # TODO: Check if deluge has correct settings, if not change them and restart it
+        # TODO: enable labels plugin
+        return True
 
-    #  returns list of downloaded files
-    def add_torrent(self, magnet_uri: str, uid: str) -> List[str]:
-        options = {
+    def connect(self) -> bool:
+        """Tries to connect to the service automatically"""
+        try:
+            self.client.connect()
+            return self.client.connected
+        except Exception as ex:
+            logger.error(f"Could not connect to deluge daemon: {ex}")
+            return False
 
-        }
-        return self.client.core.add_torrent_magnet(magnet_uri, )
-        pass
+    def run(self):
+        """Tries to setup and connect automatically"""
+        # Try to connect, maybe the daemon is already running
+        if self.connect():
+            logger.info("Deluge daemon is already running, skipping setup")
+            return
+
+        if self.setup() and self.connect():
+            logger.info("Deluge daemon is up")
+            return
+
+        raise Exception("Failed to run Deluge")
+
+    def add_torrent(self, magnet_uri: str, uid: str) -> TorrentInfo:
+        # uid = uid.lower() # Labels plugin is not case sensitive
+        # logger.debug(self.client.call('label.get_labels'))
+        torrent_info = self.get_torrent_info(uid)
+        if torrent_info:
+            return torrent_info
+
+        # https://github.com/deluge-torrent/deluge/blob/develop/deluge/core/torrent.py
+        infohash = self.client.core.add_torrent_magnet(magnet_uri, {
+            'download_location': os.path.abspath(config['download_folder']),
+            'stop_at_ratio': True,
+            'stop_ratio': config["deluge_share_ratio"],
+            'prioritize_first_last_pieces': True,
+            'sequential_download': True,
+            'name': uid})
+
+        logger.debug(f"Torrent infohash: {infohash}")
+
+        logger.debug(self.client.core.get_torrent_status(infohash, ["name", "paused"]))
+
+        if not infohash:
+            raise Exception("Unable to add torrent")
+
+        # Set more trackers (this can speed up download)
+        self.client.core.set_torrent_trackers(
+            infohash,
+            [{"url": t, "tier": i} for i, t in enumerate(TrackerList.get_list(TrackerList.Type.Best))]
+        )
+
+        return self.get_torrent_info(uid)
 
     def list_torrents(self) -> List[str]:
-        pass
+        logger.info('Getting a list of torrent hashes')
+        self._login()
+        result = self.rpcclient.call('core.get_torrents_status', {}, ['name'])
+        logger.debug(set(x.lower() for x in result.keys()))
+        return result
 
-    def get_torrent_info(self, uid: str) -> TorrentInfo:
+    def get_torrent_info(self, uid: str) -> Optional[TorrentInfo]:
+        # https://github.com/deluge-torrent/deluge/blob/develop/deluge/core/torrent.py#L1037
+        result = self.client.core.get_torrents_status({'name': uid}, [
+            "download_location",
+            "download_payload_rate",
+            "num_peers",
+            "num_seeds",
+            "ratio",
+            "total_size",
+            "progress",
+            "files"
+        ])
+
+        if len(result.keys()) > 1:
+            logger.error(f"More than one torrent with uid '{uid}'... This should not happen")
+
+        logger.debug(result)
+
+        if result:
+            hash = list(result.keys())[0]
+            return TorrentInfo(
+                hash=hash,
+                speed=result[hash]['download_payload_rate'],
+                peers=result[hash]['num_peers'],
+                seeders=result[hash]['num_seeds'],
+                ratio=result[hash]['ratio'],
+                size=result[hash]['total_size'],
+                progress=result[hash]['progress'] / 100.,
+                files=[os.path.join(result[hash]['download_location'], file['path'])
+                       for file in result[hash]['files']]
+            )
+
+        return None
+
+    def set_seed_ratio(self, seed_ratio):
         pass
