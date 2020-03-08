@@ -1,12 +1,13 @@
 import base64
 import functools
 from enum import Enum
+from http import HTTPStatus
 
-from flask import request, g, abort
+from flask import request, g
 from flask_httpauth import HTTPTokenAuth, MultiAuth
+from flask_restplus import abort
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
-from .database import db
 from .config import config
 from storrmbox.models.user import User
 
@@ -15,10 +16,12 @@ auth = HTTPTokenAuth()
 multi_auth = MultiAuth(basic_auth, auth)
 token_serializer = Serializer(config['flask_secret_key'], expires_in=config['auth_token_expire_time'] + 60)
 
+
 class PermissionLevel(Enum):
     User = 0
     Moderator = 1
-    Admin = 3
+    Admin = 2
+
 
 @basic_auth.verify_token
 def verify_password(encoded_credentials):
@@ -51,7 +54,7 @@ def with_permission(permission_level: PermissionLevel):
         def gen(*args, **kwargs):
             if g.user.permission_level == permission_level.value:
                 return f(*args, **kwargs)
-            raise PermissionError("You do not have required permission level")
+            return abort(HTTPStatus.FORBIDDEN, "You do not have required permission level")
         return gen
     return decorator
 
@@ -61,10 +64,9 @@ def self_only(func):
     def wrapper(*args, **kwargs):
         if kwargs.get('username', None):
             if g.user.username != kwargs['username']:
-                abort(403)
+                abort(HTTPStatus.FORBIDDEN)
         if kwargs.get('user_id', None):
             if g.user.id != kwargs['user_id']:
-                abort(403)
+                abort(HTTPStatus.FORBIDDEN)
         return func(*args, **kwargs)
-
     return wrapper

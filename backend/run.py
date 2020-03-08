@@ -1,3 +1,6 @@
+import os
+import sys
+
 import psutil
 import logging
 import argparse
@@ -9,30 +12,25 @@ class Storrmbox:
     def __init__(self):
         self.workers = None
 
-    # @staticmethod
-    # def output_reader(process):
-    #     while True:
-    #         output = process.stdout.readline()
-    #         if output == '' and process.poll() is not None:
-    #             break
-    #         if output:
-    #             print("--> " + output.strip().decode("utf-8"))
-    #     rc = process.poll()
-    #     return rc
-
     def start_workers(self, count: int):
         if not count:
             count = config["task_worker_count"]
 
         logging.info(f"Starting {count} workers")
-        cmd = f"huey_consumer.py storrmbox.tasks.task_queue -w {count}"
-        cmd += "" if config["flask_debug"] else " -q"
-        self.workers = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        huey_path = os.path.join(os.path.dirname(sys.executable), "huey_consumer")
+        cmd = [huey_path, 'storrmbox.tasks.task_queue', '-w', str(count)]
+        subprocess.Popen(cmd)
 
     def stop_workers(self):
         logging.info("Killing workers")
-        self.workers.kill()
-        self.workers.wait()
+        for proc in psutil.process_iter():
+            try:
+                # TODO: create a custom consumer script
+                if any("huey_consumer" in cmd for cmd in proc.cmdline()):
+                    logging.debug(f"Found worker with PID {proc.pid}, killing..")
+                    proc.kill()
+            except (psutil.AccessDenied, psutil.NoSuchProcess, OSError):
+                pass
 
     def run(self):
         parser = argparse.ArgumentParser(description='Storrmbox')
@@ -51,14 +49,7 @@ class Storrmbox:
         args.type == "dev" and config.set_type("dev")
 
         # Ugly hack for werkzeug reloader
-        for proc in psutil.process_iter():
-            try:
-                # TODO: create a custom consumer script
-                if any("huey_consumer.py" in cmd for cmd in proc.cmdline()):
-                    logging.warning(f"Found hanging worker with PID {proc.pid}, killing..")
-                    proc.kill()
-            except (psutil.AccessDenied, psutil.NoSuchProcess, OSError):
-                pass
+        self.stop_workers()
 
         # Start workers
         self.start_workers(args.workers)
