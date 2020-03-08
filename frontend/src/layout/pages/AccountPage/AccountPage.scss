@@ -1,0 +1,42 @@
+@import "variables.scss";
+
+#account-page {
+    max-width: map-get($map: $container-max-widths, $key: xl);
+    margin: 0 auto;
+    display: flex;
+
+    .sidebar {
+        width: 30%;
+
+        a {
+            text-decoration: none;
+            outline: none;
+        }
+
+        .list-group-item {
+            border-left: 3px solid transparent;
+            transition: background-color 0.1s ease-in;
+
+            &:hover {
+                background-color: rgba(128, 128, 128, 0.644);
+            }
+        }
+
+        .active {
+            .list-group-item {
+                border-left: 3px solid $primary;
+            }
+        }
+    }
+
+    .main {
+        width: 100%;
+        padding: 2rem 3rem;
+
+        font-size: 1.2em;
+
+        p {
+            color: #a3a3a3;
+        }
+    }
+}

@@ -1,12 +1,12 @@
 @import "variables.scss";
 @import "~bootstrap/scss/bootstrap";
 
-@import url('https://fonts.googleapis.com/css?family=Poppins:300,400,500,700&display=swap');
+@import url("https://fonts.googleapis.com/css?family=Poppins:300,400,500,700&display=swap");
 
-@import 'skeleton.scss';
+@import "skeleton.scss";
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
 }
 
 #root {
@@ -45,8 +45,22 @@ body {
     z-index: 10;
     display: inline-block;
     height: 50px;
-    transform: scale(.8);
+    transform: scale(0.8);
     width: 50px;
-    opacity: .2;
-    content: url('/logo.svg');
+    opacity: 0.2;
+    content: url("/logo.svg");
+}
+
+.dropdown-toggle {
+    &.no-carret::after {
+        content: none;
+    }
+}
+
+.main-container {
+    padding-top: 5rem;
+}
+
+.form-label {
+    font-weight: lighter;
 }

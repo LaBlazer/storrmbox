@@ -1,16 +1,32 @@
 import React from 'react';
-import { Navbar, Button, Container, Form, FormControl, InputGroup } from 'react-bootstrap';
+import { Navbar, Button, Container, Form, FormControl, InputGroup, Dropdown } from 'react-bootstrap';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faUser } from '@fortawesome/free-solid-svg-icons';
 import './TopBar.scss';
 import { ReactComponent as Logo } from '../../assets/logo.svg';
 import { ReactComponent as SmallLogo } from '../../assets/logo_icon.svg';
-import { NavLink, withRouter, Link } from 'react-router-dom';
+import { NavLink, withRouter, Link, RouteComponentProps } from 'react-router-dom';
 import AuthStore from '../../stores/AuthStore';
+import { observer } from 'mobx-react';
+import UserStore from 'stores/UserStore';
 
-class TopBar extends React.Component {
+type TBProps = RouteComponentProps<{ query?: string }> & {
+    siteName: string
+}
 
-    constructor(props) {
+type TBState = {
+    searchQuery: string,
+    isQueryInvalid: boolean
+}
+
+@observer
+class TopBar extends React.Component<TBProps, TBState> {
+
+    static defaultProps = {
+        siteName: "Web title"
+    }
+
+    constructor(props: TBProps) {
         super(props);
 
         this.state = {
@@ -21,7 +37,16 @@ class TopBar extends React.Component {
         this.onSearch = this.onSearch.bind(this);
     }
 
-    onSearch(e) {
+    componentDidUpdate(prevProps: TBProps) {
+        var prevQuery = prevProps.match.params.query,
+            currQuery = this.props.match.params.query;
+
+        if (this.state.searchQuery !== "" && prevQuery !== undefined && prevQuery !== "" && currQuery === undefined) {
+            this.setState({ searchQuery: "" });
+        }
+    }
+
+    onSearch(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (this.state.searchQuery) {
             this.props.history.push(`/search/${encodeURIComponent(this.state.searchQuery.trim())}`);
@@ -64,15 +89,18 @@ class TopBar extends React.Component {
                                 </NavLink>
                             </li>
                         </ul>
-                        <div className="nav navbar-nav ml-auto w-100 justify-content-end">
+                        <div className="right navbar-nav ml-auto w-100 justify-content-end">
                             <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
                                 <InputGroup>
                                     <FormControl
                                         type="text"
                                         placeholder="Search text..."
                                         value={this.state.searchQuery}
-                                        onChange={e => this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })}
-                                        className={this.state.isQueryInvalid && 'invalid-form'}
+                                        onChange={
+                                            (e: React.ChangeEvent<HTMLInputElement>) =>
+                                                this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })
+                                        }
+                                        className={this.state.isQueryInvalid ? 'invalid-form' : ''}
                                     />
                                     <InputGroup.Append>
                                         <Button type="submit" variant={this.state.isQueryInvalid ? 'outline-danger' : 'outline-primary'}>
@@ -81,17 +109,28 @@ class TopBar extends React.Component {
                                     </InputGroup.Append>
                                 </InputGroup>
                             </Form>
-                            <Button variant="outline-primary ml-md-3" onClick={AuthStore.logout}>Logout</Button>
+
+                            <Dropdown alignRight>
+                                <Dropdown.Toggle variant="outline-primary" className="ml-md-3 no-carret" id="user-menu-dropdown">
+                                    <FontAwesomeIcon icon={faUser} />
+                                </Dropdown.Toggle>
+
+                                <Dropdown.Menu>
+                                    <Dropdown.Header><FontAwesomeIcon icon={faUser} /> {UserStore.user?.username}</Dropdown.Header>
+                                    <Link to="/account" style={{ textDecoration: 'none' }}>
+                                        <Dropdown.Item as="button">
+                                            Account
+                                        </Dropdown.Item>
+                                    </Link>
+                                    <Dropdown.Item onClick={AuthStore.logout}>Logout</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
                         </div>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
         )
     }
-}
-
-TopBar.defaultProps = {
-    siteName: "Web title"
 }
 
 export default withRouter(TopBar);
