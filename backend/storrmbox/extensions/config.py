@@ -7,13 +7,6 @@ import yaml
 import logging
 
 
-def set_log_level(level: int):
-    logger = logging.getLogger()
-    logger.setLevel(level)
-    for handler in logger.handlers:
-        handler.setLevel(level)
-
-
 class AppConfig:
     default_config = {
         "default": {
@@ -116,7 +109,13 @@ class AppConfig:
             AppConfig._update(self.config[config_type], temp)
 
             # Set log level
-            set_log_level(logging.DEBUG if config["flask_debug"] else logging.INFO)
+            logging.root.handlers[0].setLevel(logging.DEBUG if self.get("flask_debug") else logging.INFO)
+            # print(logging.root.manager.loggerDict.values())
+            # for logger in logging.root.manager.loggerDict.values():
+            #     try:
+            #         logger.setLevel(logging.DEBUG)
+            #     except:
+            #         pass
 
     def get_dict(self, prefix: str, uppercase=True, strip_prefix=True):
         # Sorry
@@ -130,4 +129,3 @@ class AppConfig:
 
 
 config = AppConfig(Path("config.yml"))
-set_log_level(logging.DEBUG if config.get("flask_debug", bool) else logging.INFO)

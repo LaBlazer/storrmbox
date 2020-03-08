@@ -1,4 +1,5 @@
 import os
+from http import HTTPStatus
 from threading import Thread
 from typing import Dict
 
@@ -73,12 +74,12 @@ class ContentResource(Resource):
     @api.marshal_with(content_fields)
     def get(self, uid):
         if len(uid) > Content.uid.type.length:
-            raise NotFoundException(f"Invalid UID '{uid}'")
+            return api.abort(HTTPStatus.BAD_REQUEST, f"Invalid UID '{uid}'")
 
         content = Content.get_by_uid(uid)
 
         if not content:
-            raise NotFoundException(f"UID '{uid}' was not found")
+            return api.abort(HTTPStatus.BAD_REQUEST, f"UID '{uid}' was not found")
 
         # Fetch poster and plot from omdb
         if not content.fetched:
@@ -101,7 +102,7 @@ class ContentResource(Resource):
                 trailer_query = ("{} first season" if data['Type'] == "series" else "{} movie") + " official trailer"
                 trailer_result = yt_search.search(trailer_query.format(data['Title']))[0]["id"]
                 # if len(trailer_result) == 0:
-                #    raise InternalException("Unable to fetch trailer from yt")
+                #    return api.abort(HTTPStatus.BAD_REQUEST, "Unable to fetch trailer from yt")
 
             # Update the content with new data and set the fetched field to true if fetched correctly
             content.update(True,
@@ -126,10 +127,10 @@ class EpisodesContentResource(Resource):
         content = Content.get_by_uid(uid)
 
         if not content:
-            raise NotFoundException(f"Invalid uid '{uid}'")
+            return api.abort(HTTPStatus.BAD_REQUEST, f"Invalid uid '{uid}'")
 
         if content.type != ContentType.series:
-            raise InternalException("Invalid content type")
+            return api.abort(HTTPStatus.BAD_REQUEST, "Invalid content type")
 
         episodes = Content.query.options(
             load_only(Content.uid, Content.title, Content.rating, Content.episode, Content.season)) \
@@ -190,14 +191,14 @@ class DownloadContentResource(Resource):
 
         if content:
             if content.type == ContentType.series:
-                raise InternalException("Invalid content type")
+                return api.abort(HTTPStatus.BAD_REQUEST, "Invalid content type")
 
             if ServeContentResource.file_cache.get(uid):
                 return {"id": serve(content).id}
 
             return {"id": download(content).id}
 
-        raise NotFoundException(f"Invalid uid '{uid}'")
+        return api.abort(HTTPStatus.BAD_REQUEST, f"Invalid uid '{uid}'")
 
 
 @api.route("/popular")

@@ -1,4 +1,5 @@
 import re
+from http import HTTPStatus
 
 from flask import g
 from flask_restplus import Resource, Namespace, fields, inputs
@@ -18,7 +19,7 @@ user_fields = api.model("User", {
 })
 
 invite_fields = api.model("Invite", {
-    "invite": fields.String(example="aBcDeF")
+    "invite": fields.String(example="a4b2c0")
 })
 
 email_validator = inputs.email(check=True)
@@ -38,14 +39,14 @@ class UserResource(Resource):
         args = self.user_parser.parse_args()
 
         if not re.match("^[a-zA-Z0-9_.-]+$", args.username):
-            raise ValueError("Username contains invalid characters")
+            return api.abort(HTTPStatus.BAD_REQUEST, "Username contains invalid characters")
 
         invite = Invite.query.filter_by(code=args.invite_code).first()
         if not invite:
-            raise ValueError("Invite code is invalid")
+            return api.abort(HTTPStatus.BAD_REQUEST, "Invite code is invalid")
 
         if invite.user:
-            raise Exception("This invite code is already used")
+            return api.abort(HTTPStatus.BAD_REQUEST, "This invite code is already used")
 
         u = User(
             username=args.username,
@@ -69,8 +70,12 @@ class InviteResource(Resource):
     @auth.login_required
     @api.marshal_with(invite_fields)
     def get(self):
-        invite = Invite(
-            created_by_id=g.user.id
-        ).save()
+        invite = Invite.query.filter_by(
+            created_by_id=g.user.id).order_by(Invite.created_on.desc()).first()
+
+        if not invite or invite.user:
+            invite = Invite(
+                created_by_id=g.user.id
+            ).save()
 
         return {"invite": invite.code}
