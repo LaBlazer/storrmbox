@@ -12,16 +12,17 @@ class Storrmbox:
     def __init__(self):
         self.workers = None
 
-    def start_workers(self, count: int):
+    @staticmethod
+    def start_workers(count: int):
         if not count:
             count = config["task_worker_count"]
 
         logging.info(f"Starting {count} workers")
         huey_path = os.path.join(os.path.dirname(sys.executable), "huey_consumer")
-        cmd = [huey_path, 'storrmbox.tasks.task_queue', '-w', str(count)]
-        subprocess.Popen(cmd)
+        subprocess.Popen([huey_path, 'storrmbox.tasks.task_queue', '-w', str(count)])
 
-    def stop_workers(self):
+    @staticmethod
+    def stop_workers():
         logging.info("Killing workers")
         for proc in psutil.process_iter():
             try:

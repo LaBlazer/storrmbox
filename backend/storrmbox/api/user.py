@@ -15,7 +15,8 @@ api = Namespace('user', description='User profile/account')
 user_fields = api.model("User", {
     "username": fields.String(example="JoeMama69"),
     "email": fields.String(example="xxxskiller69@testmail.com"),
-    "created": fields.DateTime(attribute="created_on")
+    "created": fields.DateTime(attribute="created_on"),
+    "permission": fields.Integer(attribute="permission_level", description="0 = User; 1 = Moderator; 2 = Admin")
 })
 
 invite_fields = api.model("Invite", {
