@@ -11,6 +11,7 @@ from storrmbox.extensions.database import (
     relationship,
     CRUDMixin, ReferenceCol)
 from storrmbox.models.invite import Invite
+from storrmbox.models.login import Login
 from .search import Search
 
 
@@ -28,7 +29,6 @@ class User(SurrogatePK, Model):
     password = sa.Column(sa.String(120), unique=True, nullable=False)
     created_on = sa.Column(sa.DateTime, nullable=False, default=func.now())
     last_update = sa.Column(sa.DateTime, nullable=True, onupdate=func.now())
-    last_login = sa.Column(sa.DateTime, nullable=True)
     permission_level = sa.Column(sa.SmallInteger, nullable=False, default=0)
     invite_code = ReferenceCol("invites", pk_name="code", nullable=True)
     token_nonce = sa.Column(sa.String(5), unique=False, nullable=False, default=generate_token_nonce.__func__)
@@ -36,6 +36,7 @@ class User(SurrogatePK, Model):
     # torrents = relationship(Torrent, backref=db.backref("torrents"))
     searches = relationship(Search, backref="user")
     invites = relationship(Invite, backref="user", foreign_keys=[invite_code])
+    logins = relationship(Login, backref="user")
 
     def __init__(self, *args, **kwargs):
         db.Model.__init__(self, *args, **kwargs)
