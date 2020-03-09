@@ -4,8 +4,9 @@ from http import HTTPStatus
 from flask import g
 from flask_restplus import Resource, Namespace, fields, inputs
 
+from storrmbox.exceptions import abort
 from storrmbox.extensions.config import config
-from storrmbox.extensions.auth import token_serializer, multi_auth, auth
+from storrmbox.extensions.auth import auth
 from storrmbox.models.invite import Invite
 from storrmbox.models.user import User
 
@@ -40,14 +41,14 @@ class UserResource(Resource):
         args = self.user_parser.parse_args()
 
         if not re.match("^[a-zA-Z0-9_.-]+$", args.username):
-            return api.abort(HTTPStatus.BAD_REQUEST, "Username contains invalid characters")
+            return abort({"username": "Username contains invalid characters"})
 
         invite = Invite.query.filter_by(code=args.invite_code).first()
         if not invite:
-            return api.abort(HTTPStatus.BAD_REQUEST, "Invite code is invalid")
+            return abort({"invite_code": "Invite code is invalid"})
 
         if invite.user:
-            return api.abort(HTTPStatus.BAD_REQUEST, "This invite code is already used")
+            return abort({"invite_code": "This invite code is already used"})
 
         u = User(
             username=args.username,
