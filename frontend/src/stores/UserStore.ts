@@ -1,6 +1,5 @@
 import { UserModel, UserService } from "endpoints/user";
 import { observable } from "mobx";
-import AuthStore from "./AuthStore";
 
 class UserStore {
 
@@ -17,15 +16,6 @@ class UserStore {
             console.error(err);
 
             this.user = undefined;
-        }
-    }
-
-    public register = async (username: string, email: string, password: string, inviteCode: string) => {
-        try {
-            await UserService.register(username, email, password, inviteCode);
-            AuthStore.login(username, password);
-        } catch (err) {
-
         }
     }
 

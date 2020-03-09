@@ -29,11 +29,17 @@ class NotificationStore {
         //Add notifications on bad response
         AxiosI.interceptors.response.use(undefined, (error) => {
             if (error.response) {
+                
+                //Disable global error handling (notification) for this request
+                if (error.config.hasOwnProperty('errorHandle') && error.config.errorHandle === false) {
+                    return Promise.reject(error);
+                }
+                
                 // The request was made and the server responded with a status code
                 // that falls out of the range of 2xx
                 let { status } = error.response;
                 if (status >= 500 && status <= 504) {
-                    this.addNotification({ type: 'bug', title: 'Server error', text: 'Server has encountered an internal error' }, 5*60000);
+                    this.addNotification({ type: 'bug', title: 'Server error', text: 'Server has encountered an internal error' }, 5 * 60000);
                     console.log('Server error', error.response.data);
                 } else if (status === 401) {
                     this.addNotification({ type: 'error', title: error.response.data, text: 'You are tring to sign-in with bad credentials or your session has expired' })
@@ -54,19 +60,19 @@ class NotificationStore {
     }
 
     removeNotification(id: number) {
-        if(this.notifications[id]) {
+        if (this.notifications[id]) {
             delete this.notifications[id];
         }
     }
 
     addNotification(obj: NotificationData, hideAfter: number = 10000) {
         let id = this.idCounter++;
-        let notification = { 
+        let notification = {
             id,
             remove: this.removeNotification.bind(this, id),
-            created: new Date(), 
+            created: new Date(),
             hideAfter,
-            ...obj 
+            ...obj
         };
         this.notifications[id] = notification;
     }

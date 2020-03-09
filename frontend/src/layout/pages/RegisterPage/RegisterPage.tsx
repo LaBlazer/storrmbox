@@ -1,17 +1,24 @@
+import { UserService } from 'endpoints/user';
+import { observable } from 'mobx';
+import { observer } from 'mobx-react';
 import React from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
-import { RouteComponentProps, withRouter, Redirect } from 'react-router-dom';
-import UserStore from 'stores/UserStore';
+import { Link, Redirect, RouteComponentProps, withRouter } from 'react-router-dom';
+import AuthStore from 'stores/AuthStore';
 import { ReactComponent as Logo } from '../../../assets/logo.svg';
 import "./RegisterPage.scss";
-import { observer } from 'mobx-react';
-import AuthStore from 'stores/AuthStore';
 
 
 @observer
 class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }>> {
 
-    handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    @observable
+    passwordMatch: boolean = true;
+
+    @observable
+    registerResponseError: any = {};
+
+    handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         var formData = new FormData(e.currentTarget);
@@ -22,7 +29,22 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
         const inviteCode = formData.get("inviteCode") as string;
         const email = formData.get("email") as string;
 
-        UserStore.register(username, email, password, inviteCode);
+        if (password === reapeatedPassword) {
+            try {
+                await UserService.register(username, email, password, inviteCode, false);
+                AuthStore.login(username, password);
+            } catch (err) {
+                if (err.response?.status === 400) {
+                    this.registerResponseError = err.response.data;
+                    console.log(err.response.data);
+
+                }
+            }
+        }
+
+        if (this.passwordMatch !== (password === reapeatedPassword)) {
+            this.passwordMatch = password === reapeatedPassword;
+        }
     }
 
     render() {
@@ -37,11 +59,11 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
                 <Container>
                     <Row className="justify-content-center">
                         <Col md={12} lg={9} className="col-xxl-7">
-                            <Card>
+                            <Card className="my-3">
                                 <Form onSubmit={this.handleSubmit} id="register-form">
                                     <Row noGutters>
 
-                                        <Col className="left" style={{ backgroundImage: `url(${bgImage})` }}>
+                                        <Col sm={6} className="left" style={{ backgroundImage: `url(${bgImage})` }}>
 
                                             <div className="content pb-3">
                                                 <div className="text-center mb-3">
@@ -62,7 +84,7 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
                                             </div>
                                         </Col>
 
-                                        <Col className="right">
+                                        <Col sm={6} className="right">
 
                                             <Card.Title>Sign Up</Card.Title>
 
@@ -73,20 +95,27 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
 
                                             <Form.Group controlId="email">
                                                 <Form.Label>Email</Form.Label>
-                                                <Form.Control name="email" placeholder="Email" type="email" required />
+                                                <Form.Control name="email" placeholder="Email" type="email" required isInvalid={this.registerResponseError?.errors?.email} />
+                                                <div className="invalid-feedback">
+                                                    {this.registerResponseError?.errors?.email}
+                                                </div>
                                             </Form.Group>
 
                                             <Form.Group controlId="password">
                                                 <Form.Label>Password</Form.Label>
-                                                <Form.Control placeholder="Password" name="password" type="password" required />
+                                                <Form.Control placeholder="Password" name="password" type="password" required isInvalid={!this.passwordMatch} />
                                             </Form.Group>
 
                                             <Form.Group controlId="repeat-password">
                                                 <Form.Label>Repeat the password</Form.Label>
-                                                <Form.Control placeholder="Password" name="repeat-password" type="password" required />
+                                                <Form.Control placeholder="Password" name="repeat-password" type="password" required isInvalid={!this.passwordMatch} />
+                                                <div className="invalid-feedback">
+                                                    Entered passwords do not match!
+                                                </div>
                                             </Form.Group>
 
-                                            <div className="d-flex">
+                                            <div className="d-flex align-items-center">
+                                                <span className="small mr-2">Already have an account? <Link to="/">Sign in</Link></span>
                                                 <Button variant="outline-primary" className="ml-auto" type="submit">Register</Button>
                                             </div>
                                         </Col>
