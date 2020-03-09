@@ -10,7 +10,6 @@ from sqlalchemy.orm import load_only
 
 from storrmbox.api.task import task_id
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
-from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db, task_queue, logger
 from storrmbox.extensions.auth import with_permission, PermissionLevel
 from storrmbox.models.content import Content, ContentType
@@ -196,7 +195,7 @@ class DownloadContentResource(Resource):
             if ServeContentResource.file_cache.get(uid):
                 return {"id": serve(content).id}
 
-            return {"id": download(content).id}
+            return {"id": download(content, g.user.id).id}
 
         return api.abort(HTTPStatus.BAD_REQUEST, f"Invalid uid '{uid}'")
 
