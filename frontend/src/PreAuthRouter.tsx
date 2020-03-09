@@ -8,7 +8,7 @@ class PreAuthRouter extends React.Component<RouteComponentProps> {
         return (
             <Switch>
 
-                <Route path={["/invite/:code", "/invite"]}>
+                <Route path="/invite/:code([a-z0-9]{6})?">
                     <RegisterPage />
                 </Route>
 
