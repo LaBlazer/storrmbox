@@ -25,13 +25,14 @@ def _make_context():
 
 
 @manager.command
-def createuser(username, password, permission_level=0):
+def createuser(username, password, permission_level):
     """Creates an user"""
     logger.info(f"Creating user with username: '{username}' and password: '{password}' ({permission_level})")
+    clamp = lambda n, minn, maxn: max(min(maxn, int(n)), minn)
     u = User()
     u.username = username
     u.email = _random_string() + "@test.com"
-    u.permission_level = permission_level
+    u.permission_level = clamp(permission_level, 0, 2)
     u.set_password(password)
     u.save()
 
