@@ -2,7 +2,6 @@ import React from 'react';
 import { Container } from "react-bootstrap";
 import FadeIn from "react-fade-in";
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router-dom';
-import ContentReloader from './components/ContentReloader';
 import { Footer } from './layout/Footer/Footer';
 import ModalUrlListener from './layout/ModalUrlListener';
 import MediaPage from './layout/pages/MediaPage';

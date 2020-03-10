@@ -27,10 +27,10 @@ export default class AccountPage extends Component {
                     <NavLink to="/account/invite">
                         <ListGroup.Item><FontAwesomeIcon icon={faTicketAlt} className="mr-3" /> Invite friends</ListGroup.Item>
                     </NavLink>
-                    {UserStore.user?.permission &&
+                    {UserStore.user?.permission ? 
                     <NavLink to="/account/admin">
                         <ListGroup.Item><FontAwesomeIcon icon={faHammer} className="mr-3" /> Admin panel</ListGroup.Item>
-                    </NavLink>}
+                    </NavLink> : ""}
                 </ListGroup>
             </section>
 
