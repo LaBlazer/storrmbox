@@ -60,7 +60,7 @@ class PostAuthRouter extends React.Component<RouteComponentProps<any, any, { bac
 
                         <Route path={["/", "/all"]}>
                             <TopBar siteName={siteName} />
-                            <h3 className="pt-5">All</h3>
+                            <MediaPage key="all" categoryName="All" />
                             <Footer />
                         </Route>
                     </Switch>
