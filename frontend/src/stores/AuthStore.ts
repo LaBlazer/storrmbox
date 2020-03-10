@@ -77,6 +77,7 @@ class AuthStore {
         deleteCookie(TOKEN_COOKIE_NAME);
         deleteCookie(REMEMBER_ME_COOKIE_NAME);
         this.auth = false;
+        UserStore.user = undefined;
     }
 
     /**
@@ -104,15 +105,15 @@ class AuthStore {
                     this.setupTokenAutorefresh(data.expires_in);
                 }
 
-                if(!UserStore.user) {
+                if (!UserStore.user) {
                     UserStore.loadUser();
                 }
-                
+
                 this.auth = true;
             }
         } catch (err) {
             console.error(err);
-            
+
             this.logout();
         } finally {
             this.fetching = false;
