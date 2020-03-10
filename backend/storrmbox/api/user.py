@@ -4,6 +4,7 @@ from http import HTTPStatus
 from flask import g
 from flask_restplus import Resource, Namespace, fields, inputs
 
+from storrmbox import utils
 from storrmbox.exceptions import abort
 from storrmbox.extensions.config import config
 from storrmbox.extensions.auth import auth
@@ -41,6 +42,12 @@ class UserResource(Resource):
         if not re.match("^[a-zA-Z0-9_.-]+$", args.username):
             return abort({"username": "Username contains invalid characters"})
 
+        if len(args.password.strip()) < 7:
+            return abort({"password": "Your password is too short, it needs to have more than 6 characters"})
+
+        if args.password.strip() in utils.common_passwords:
+            return abort({"password": "Your password is too common"})
+
         invite = Invite.query.filter_by(code=args.invite_code).first()
         if not invite:
             return abort({"invite_code": "Invite code is invalid"})
@@ -48,15 +55,23 @@ class UserResource(Resource):
         if invite.user:
             return abort({"invite_code": "This invite code is already used"})
 
-        u = User(
+        user = User.query.filter_by(username=args.username).first()
+        if user:
+            return abort({"username": "This username is already used"})
+
+        user = User.query.filter(User.email.ilike(args.email)).first()
+        if user:
+            return abort({"email": "This email is already registered"})
+
+        user = User(
             username=args.username,
             email=args.email,
             invite_code=invite.code
         )
-        u.set_password(args.password)
-        u.save()
+        user.set_password(args.password)
+        user.save()
 
-        return u
+        return user
 
     @auth.login_required
     @api.marshal_with(user_fields)
