@@ -24,16 +24,14 @@ invite_fields = api.model("Invite", {
     "invite": fields.String(example="a4b2c0")
 })
 
-email_validator = inputs.email(check=True)
-
 
 @api.route("")
 class UserResource(Resource):
     user_parser = api.parser()
-    user_parser.add_argument('username', type=str, help='Users name', required=True, location='form')
-    user_parser.add_argument('email', type=email_validator, help='Users email', required=True, location='form')
-    user_parser.add_argument('password', type=str, help='Users password', required=True, location='form')
-    user_parser.add_argument('invite_code', type=str, help='Users invite code', required=True, location='form')
+    user_parser.add_argument('username', type=str, help='Name', required=True, location='form')
+    user_parser.add_argument('email', type=inputs.email(check=True), help='Email', required=True, location='form')
+    user_parser.add_argument('password', type=str, help='Password', required=True, location='form')
+    user_parser.add_argument('invite_code', type=str, help='Invite code', required=True, location='form')
 
     @api.marshal_with(user_fields)
     @api.expect(user_parser)

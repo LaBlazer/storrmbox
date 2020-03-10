@@ -37,18 +37,9 @@ class TopBar extends React.Component<TBProps, TBState> {
         this.onSearch = this.onSearch.bind(this);
     }
 
-    componentDidUpdate(prevProps: TBProps) {
-        var prevQuery = prevProps.match.params.query,
-            currQuery = this.props.match.params.query;
-
-        if (this.state.searchQuery !== "" && prevQuery !== undefined && prevQuery !== "" && currQuery === undefined) {
-            this.setState({ searchQuery: "" });
-        }
-    }
-
     onSearch(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (this.state.searchQuery) {
+        if (this.state.searchQuery.trim()) {
             this.props.history.push(`/search/${encodeURIComponent(this.state.searchQuery.trim())}`);
         }
         else {
@@ -97,8 +88,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                                         placeholder="Search text..."
                                         value={this.state.searchQuery}
                                         onChange={
-                                            (e: React.ChangeEvent<HTMLInputElement>) =>
-                                                this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })
+                                            (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })
                                         }
                                         className={this.state.isQueryInvalid ? 'invalid-form' : ''}
                                     />
