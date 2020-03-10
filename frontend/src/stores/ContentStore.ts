@@ -14,26 +14,31 @@ class ContentStore {
     @observable
     content: Dictionary<ContentModel | undefined | null> = {}
 
-    public getPopularList = async (type: ContentTypeNames) => {
-        if (this.popularList[type] === undefined) {
-            try {
-                this.popularList[type] = null;
-                this.popularList[type] = await ContentService.getPopularIDList(type);
-            } catch (err) {
-                this.popularList[type] = undefined;
+    public getPopularList = async (types: ContentTypeNames[]) => {
+        types.forEach(async (type) => {
+            if (this.popularList[type] === undefined) {
+                try {
+                    this.popularList[type] = null;
+                    this.popularList[type] = await ContentService.getPopularIDList(type);
+                }
+                catch (err) {
+                    this.popularList[type] = undefined;
+                }
             }
-        }
+        });
     }
 
-    public getTopList = async (type: ContentTypeNames) => {
-        if (this.topList[type] === undefined) {
-            try {
-                this.topList[type] = null;
-                this.topList[type] = await ContentService.getTopIDList(type);
-            } catch (err) {
-                this.topList[type] = undefined;
+    public getTopList = async (types: ContentTypeNames[]) => {
+        types.forEach(async (type) => {
+            if (this.topList[type] === undefined) {
+                try {
+                    this.topList[type] = null;
+                    this.topList[type] = await ContentService.getTopIDList(type);
+                } catch (err) {
+                    this.topList[type] = undefined;
+                }
             }
-        }
+        });
     }
 
     public getContent = async (uid: string) => {
