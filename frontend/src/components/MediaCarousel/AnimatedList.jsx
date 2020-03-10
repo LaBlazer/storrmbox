@@ -26,13 +26,17 @@ export default class AnimatedList extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.forceScrolling !== prevProps.forceScrolling) {
+            if (this.resizeTimeout) {
+                clearTimeout(this.resizeTimeout);
+            }
+
             this.resizeTimeout = setTimeout(() => {
                 const { itemSize, scrollToItem } = this.props;
                 if (this.listRef.current) {
                     this.listRef.current.scrollTo(scrollToItem * itemSize, 0);
                     this.resizeTimeout = null;
                 }
-            }, 100);
+            }, 300);
         } else if (this.props.scrollToItem !== prevProps.scrollToItem) {
             this._initAnimation();
         }
@@ -46,7 +50,7 @@ export default class AnimatedList extends Component {
     }
 
     render() {
-        return <List {...this.props} onScroll={this.onScroll} ref={this.listRef} />;
+        return <List {...this.props} className="slider-list" onScroll={this.onScroll} ref={this.listRef} />;
     }
 
     _animate() {

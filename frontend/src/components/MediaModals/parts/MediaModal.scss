@@ -1,0 +1,104 @@
+@import "variables.scss";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+
+.media-modal {
+
+    .modal-content {
+        background-color: #0D0D0D;
+    }
+
+    .media-modal-header {
+
+        .top-thumbnail {
+            height: 448px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            transition: margin-bottom 0.3s ease-out;
+
+            &.video {
+                height: auto;
+                margin-bottom: 73px;
+
+                .plyr {
+                    z-index: 100;
+                }
+            }
+
+            img {
+                width: 100%;
+                min-height: 100%;
+                min-width: 100%;
+                position: absolute;
+                left: 50%;
+                top: 0;
+                transform: translate(-50%, 0);
+                filter: blur(8px);
+                -webkit-filter: blur(8px);
+            }
+        }
+
+        .info {
+            position: relative;
+            margin-top: -117px;
+            padding: 45px 11px 13px;
+            background: linear-gradient(0deg, #0D0D0D 13%, rgba(13, 13, 13, 0) 95%);
+
+            .title {
+                font-size: 36px;
+                line-height: 54px;
+                text-transform: capitalize;
+                margin-bottom: 0;
+            }
+
+            .play-button {
+                font-size: 3em;
+                line-height: 1em;
+                cursor: pointer;
+
+                &:focus,  &:hover {
+                    color: $primary;
+                }
+            }
+
+            .loading-video {
+                font-size: 1em;
+                background-color: rgba($secondary, 0.4);
+            }
+
+            .spec {
+                display: flex;
+                align-items: center;
+
+                .type {
+                    font-size: 1rem;
+                }
+
+                @each $type, $color in $content-type-gradients {
+                    .type-#{$type} {
+                        background: $color;
+                    }
+                }
+
+                .year, .rating {
+                    font-size: 13px;
+                }
+            }
+        }
+
+    }
+
+    .media-modal-body {
+        position: relative;
+        padding: 0 1rem 1rem;
+
+        .description {
+            text-align: justify;
+            font-size: 16px;
+            line-height: 24px;
+        }
+    }
+
+}

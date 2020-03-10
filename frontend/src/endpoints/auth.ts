@@ -1,8 +1,7 @@
-import AxiosI from "./api"
-import qs from "qs"
-import { getCookie } from "../utils/CookieHelper";
+import qs from "qs";
 import { TOKEN_COOKIE_NAME } from "../configs/constants";
-import { AxiosResponse } from "axios";
+import { getCookie } from "../utils/CookieHelper";
+import AxiosI from "./api";
 
 
 interface AuthResponse {
@@ -19,11 +18,10 @@ export class AuthService {
      * @param {Boolean} extended 
      */
     static login(username: string, password: string, extended: boolean) {
-        return AxiosI.post<any, AxiosResponse<AuthResponse>>('/auth',
+        return AxiosI.post<AuthResponse>('/auth',
             qs.stringify({ extended }), {
-            auth: {
-                username,
-                password
+            headers: {
+                Authorization: `Auth ${btoa(`${username}:${password}`)}`
             }
         });
     }
@@ -37,7 +35,7 @@ export class AuthService {
      * @returns
      */
     static refreshToken(extended = false) {
-        return AxiosI.post<any, AxiosResponse<AuthResponse>>('/auth', qs.stringify({ extended }));
+        return AxiosI.post<AuthResponse>('/auth', qs.stringify({ extended }));
     }
 }
 

@@ -5,7 +5,11 @@ export function getEpisodeStringRepresentation(season: number, episode: number) 
 }
 
 export function getYearsInterval(releaseYear: number, endYear: number | undefined) {
-    let year = `${releaseYear} –`;
+    let year = `${releaseYear} –\u00A0`;
 
-    return (endYear) ? `${year} ${endYear}` : year;
+    return (endYear) ? `${year}${endYear}` : year;
+}
+
+export function contetTypeToClass(typeName: string) {
+    return typeName.toLowerCase().replace(" ", "-");
 }

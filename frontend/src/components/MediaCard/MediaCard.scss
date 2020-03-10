@@ -6,93 +6,134 @@
 .media-card {
 
     cursor: pointer;
-    transition: 0.15s box-shadow ease-in;
+    transition: all 0.3s;
 
-    width: 100%;
-    height: 200px;
-    display: inline-block;
+    width: 174px;
+    height: 272px;
+    display: block;
+    text-align: initial;
     overflow: hidden;
+    background-color: black;
+    position: relative;
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        visibility: hidden;
+        opacity: 0;
+        background-color: #000000b6;
+        transition: visibility 0.3s, opacity 0.3s ease-in-out;
+        padding: 5px;
+
+        .plot {
+            font-size: 0.95em;
+            display: -webkit-box;
+            -webkit-line-clamp: 7;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+            margin-bottom: 0;
+            color: #c0c0c0;
+            margin: 1em;
+        }
+    }
+
+    .hidden {
+        opacity: 0;
+        transition: opacity 0.4s ease-in;
+    }
+
+    .bottom-info {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        padding: 20px 5px 5px;
+        width: 100%;
+        max-width: 100%;
+        background: rgb(0,0,0);
+        background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5466561624649859) 44%, rgba(0,0,0,0) 91%);
+        z-index: 10;
+
+        .info {
+            display: flex;
+            align-items: center;
+
+            .type {
+                color: gray;
+                font-size: 0.8em;
+            }
+
+            .year {
+                color: gray;
+                font-size: 0.8em;
+            }
+
+            .rating {
+                font-size: .8em;
+                position: relative;
+            }
+        }
+
+        .title {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            margin-bottom: 0;
+            line-height: 1.3rem;
+            margin-top: -0.2rem;
+            position: relative;
+        }
+    }
 
     &:hover {
         box-shadow: 3px 5px 4px rgba(0, 0, 0, 0.25);
 
-        .watch-overlay {
+        .overlay {
             visibility: visible;
             opacity: 1;
         }
 
-        .title {
-            color: $primary
+        .hidden {
+            opacity: 1;
         }
     }
 
-    .image {
-        height: 200px;
+    .type-bar {
+        z-index: 10;
+        height: 5px;
+        width: 100%;
         position: relative;
-        background-color: black;
+    }
 
-        img {
-            width: 134px;
-            position: relative;
-            top: 50%;
-            transform: translateY(-50%);
+    @each $type, $color in $content-type-colors {
+        .type-bar-#{$type} {
+            background: $color;
         }
-    }
-
-    .title {
-        font-size: 1.2em;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;  
-        overflow: hidden;
-        margin-bottom: 0.5rem;
-        word-break: break-word;
-
-        &.small {
-            font-size: 1em;
-        }
-    }
-
-    .rating {
-        font-size: .8em;
-    }
-
-    .plot {
-        font-size: .8em;
-        display: -webkit-box;
-        -webkit-line-clamp: 5;
-        -webkit-box-orient: vertical;  
-        overflow: hidden;
-        margin-bottom: 0;
-        color: #c0c0c0;
-    }
-
-    .downloading {
-        .watch-overlay {
-            visibility: visible;
-            opacity: 1;
-        }
-    }
-
-    .watch-overlay {
-        visibility: hidden;
-        opacity: 0;
-        transition: visibility 0s, opacity 0.2s linear;
     }
 
     @include media-breakpoint-up(sm) { 
-        width: 494px;
+        width: 154px;
+        height: 230px;
     }
 
     @include media-breakpoint-up(md) { 
-        width: 328px;
+        width: 154px;
+        height: 230px;
     }
 
     @include media-breakpoint-up(lg) { 
-        width: 294px;
+        width: 169px;
     }
 
     @include media-breakpoint-up(xl) { 
-        width: 354px;
+        width: 169px;
+        height: 257px;
+    }
+
+    @include media-breakpoint-up(xxl) { 
+        width: 195px;
+        height: 275px;
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
-import { ListGroup } from 'react-bootstrap';
 import "./SeasonList.scss"
-import { getEpisodeStringRepresentation } from '../../utils/string-formater';
+import { getEpisodeStringRepresentation } from 'utils/string-formater';
+import ModalLink from '../ModalLink';
 
 type EIProps = {
     season: number,
@@ -14,14 +14,20 @@ type EIProps = {
 
 export class EpisodeItem extends React.Component<EIProps> {
     render() {
-        let { season, episode, title, active } = this.props;
+        let { season, episode, title, active, uid } = this.props;
 
-        return <ListGroup.Item className="item" action active={active}>
-            <div className="mr-auto">
-                <small className="episode-number">{getEpisodeStringRepresentation(season, episode)}</small>
-                <div>{title}</div>
-            </div>
-            <span className="episode-number">#{episode}</span>
-        </ListGroup.Item>
+        return <div className="list-group-item">
+            <ModalLink
+                to={`/m/${uid}`}
+                className={(active) ? "item active" : "item"}
+                style={{ color: "inherit", textDecoration: "none" }}
+            >
+                <div className="mr-auto">
+                    <small className="episode-number">{getEpisodeStringRepresentation(season, episode)}</small>
+                    <div>{title}</div>
+                </div>
+                <span className="episode-number">#{episode}</span>
+            </ModalLink>
+        </div>
     }
 }

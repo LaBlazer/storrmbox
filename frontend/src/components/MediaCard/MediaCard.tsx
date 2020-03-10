@@ -1,17 +1,16 @@
+import { ColoredNumberRating } from 'components/ColoredNumberRating/ColoredNumberRating';
+import { MediaYear } from 'components/MediaYear';
+import { ContentModel, ContenTypeMap } from 'endpoints/content';
 import React from 'react';
+import { Card, Image } from 'react-bootstrap';
+import { contetTypeToClass } from 'utils/string-formater';
+import { MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
+import ModalLink from '../ModalLink';
 import './MediaCard.scss';
-import { Card, Row, Col, Image } from 'react-bootstrap';
-import { MediaDownloadButton, MDBStates } from '../MediaDownloadButton/MediaDownloadButton';
-import StarRating from '../StarRating/StarRating';
-import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
 
-type MediaCardProps = RouteComponentProps<{}> & {
+type MediaCardProps = {
     loading?: boolean,
-    uid?: string,
-    title?: string,
-    poster?: string,
-    rating?: number,
-    plot?: string
+    content?: ContentModel
 }
 
 type MediaCardState = {
@@ -19,7 +18,7 @@ type MediaCardState = {
     downloaded: number
 }
 
-class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
+export default class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
 
     constructor(props: MediaCardProps) {
         super(props);
@@ -57,43 +56,41 @@ class MediaCard extends React.Component<MediaCardProps, MediaCardState> {
 
     render() {
 
-        let { poster, title, rating, plot } = this.props;
+        let { uid, poster, title, rating, plot, type, year_released, year_end } = this.props.content ?? {};
+        let typeName = (type) ? ContenTypeMap[type] : "";
 
         var card = (
-            <div className="p-2">
-                <Card className="media-card">
-                    <Row className="no-gutters">
-                        <div className={this.state.state === MDBStates.IS_DOWNLOADING ? "image downloading" : "image"} >
-                            <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
-                            <MediaDownloadButton
-                                state={this.state.state}
-                                onDownloadClick={this.handleDownloadClick}
-                                percentsDownloaded={this.state.downloaded} />
-                        </div>
-                        <Col className="info p-2 pt-3">
-                            {this.props.loading ?
-                                <p className='skeleton title'>&nbsp;</p>
-                                :
-                                <p className={title?.length ?? 0 > 25 ? "small title" : "title"}>{title}</p>
-                            }
-                            <StarRating className="rating" stars={(rating ?? 0) * 0.5} />
-                            {!this.props.loading && <p className="plot">{plot}</p>}
-                        </Col>
-                    </Row>
-                </Card>
-            </div>
+            <Card className={"media-card " + (this.props.loading ? "loading" : "")}>
+
+                <div className={`type-bar type-bar-${contetTypeToClass(typeName)}`}>&nbsp;</div>
+                <Image className={this.props.loading ? 'skeleton' : ''} src={poster} alt={title} fluid />
+
+
+                <div className="overlay">
+                    <div className="plot hidden">{plot}
+                    </div>
+                </div>
+
+
+                <div className="bottom-info">
+                    <div className="info mb-2">
+                        <ColoredNumberRating className="rating mr-2" rating={(rating ?? -1) * 10} />
+                        <span className="year hidden">{!this.props.loading && <MediaYear type={type as 1 | 2 | 3} year_released={year_released as number} year_end={year_end} />}</span>
+                    </div>
+                    <p title={title} className={(title?.length ?? 0) > 25 ? "small title" : "title"}>{title ?? "..."}</p>
+                </div>
+
+            </Card>
         );
 
-        if (this.props.uid) {
+        if (uid) {
             return (
-                <Link to={{ pathname: `/m/${this.props.uid}`, state: { background: this.props.location } }} style={{ color: "inherit" }}>
+                <ModalLink to={`/m/${uid}`} className="mx-2 mt-1 mb-1 d-inline-block" style={{ textDecoration: 'none', color: "inherit" }}>
                     {card}
-                </Link>
+                </ModalLink>
             )
         } else {
-            return card;
+            return <div className="mx-2 mt-1 mb-1">{card}</div>;
         }
     }
 }
-
-export default withRouter(MediaCard);

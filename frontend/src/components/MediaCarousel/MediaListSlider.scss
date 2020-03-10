@@ -1,0 +1,55 @@
+@import "variables";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+
+
+.media-card-slider {
+    position: relative;
+    
+    .slider {
+        overflow: hidden;
+
+        .slider-list {
+            overflow-y: hidden !important;
+
+            @include media-breakpoint-up(sm) { 
+                overflow: hidden !important;
+            }
+        }
+    }
+ 
+    .slider-button {
+        padding: 0px;
+        font-size: 4rem;
+        background-color: transparent;
+        position: absolute;
+        top: 0;
+        height: 100%;
+        border: none;
+        outline: none;
+        color: #595959;
+        transition: opacity .2s;
+        opacity: .5;
+
+        &:disabled {
+            opacity: 0.1 !important;
+        }
+
+        &:hover {
+            opacity: .9;
+        }
+
+        &.hide {
+            display: none;
+        }
+
+        &.left {
+            left: -3rem;
+        }
+
+        &.right {
+            right: -3rem;
+        }
+    }
+}

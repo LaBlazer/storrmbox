@@ -24,6 +24,7 @@ export class AutoSizingAnimatedList extends Component {
             animating: false,
             listWidth: 500,
             itemWidth: 100,
+            itemHeight: 100,
             scrollToItem: 0,
             forceScrolling: 0
         }
@@ -49,16 +50,21 @@ export class AutoSizingAnimatedList extends Component {
     }
 
     handleItemWidthUpdate(contentRect) {
-        const { width } = contentRect.bounds;
+        const { width, height } = contentRect.bounds;
 
         if (this.state.itemWidth !== width) {
             //If list is samller than itemFillMaxWidth, then resize Items to list width
             //This happens on content loading
-            if (width <= this.state.listWidth && this.state.listWidth <= this.props.itemFillMaxWidth) {
-                this.setState({ itemWidth: this.state.listWidth });
-            } else {
+            // if (width <= this.state.listWidth && this.state.listWidth <= this.props.itemFillMaxWidth) {
+            //     this.setState({ itemWidth: this.state.listWidth });
+            // }
+            // } else {
                 this.setState({ itemWidth: width });
-            }
+            // }
+        }
+        
+        if(this.state.itemHeight !== height) {
+            this.setState({ itemHeight: height });
         }
     }
 
@@ -85,18 +91,22 @@ export class AutoSizingAnimatedList extends Component {
             const itemsPerScreen = Math.round(this.state.listWidth / this.state.itemWidth);
 
             let scrollTo = this.state.scrollToItem + itemsPerScreen * this.props.scrollDirection;
-            if (scrollTo >= 0 && scrollTo <= this.props.itemCount - itemsPerScreen) {
-                this.moveTo(scrollTo);
-            } else {
-                if (this.props.onAnimationComplete) this.props.onAnimationComplete();
-            }
+            scrollTo = Math.min(this.props.itemCount - itemsPerScreen, Math.max(0, scrollTo));
+
+            this.moveTo(scrollTo);
         }
     }
 
     animationComplete = () => {
+        const itemsPerScreen = Math.round(this.state.listWidth / this.state.itemWidth);
+        const { scrollToItem } = this.state;
+
+        const canMoveLeft = scrollToItem > 0;
+        const canMoveRight = (scrollToItem + itemsPerScreen) < this.props.itemCount;
+
         this.setState({
             animating: false
-        }, this.props.onAnimationComplete);
+        }, () => this.props.onAnimationComplete?.(this.state.scrollToItem, canMoveLeft, canMoveRight));
     }
 
 
@@ -135,6 +145,7 @@ export class AutoSizingAnimatedList extends Component {
                     <div ref={measureRef}>
                         <AnimatedList
                             {...this.props}
+                            height={this.state.itemHeight}
                             width={this.state.listWidth}
                             itemSize={this.state.itemWidth}
                             scrollToItem={this.state.scrollToItem}

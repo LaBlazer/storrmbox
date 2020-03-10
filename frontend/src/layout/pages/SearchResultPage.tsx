@@ -21,11 +21,15 @@ class SearchResultPage extends React.Component<SRPProps> {
 
     render() {
         if (SearchStore.fetching) {
-            return <p className="pt-5 text-center">Searching...</p>;
+            return <p className="pt-3 text-center">Searching...</p>;
         }
 
+        if (!SearchStore.results.length) {
+            return <p className="pt-3 text-center">No results</p>; 
+        }
+        
         return <>
-            <h3 className="pt-5">Search results:</h3>
+            <h3 className="pt-3">Search results:</h3>
             <MediaCardList uidList={SearchStore.results} />
         </>
     }

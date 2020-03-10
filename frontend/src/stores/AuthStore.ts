@@ -1,8 +1,9 @@
-import { observable, runInAction } from 'mobx'
-import { setCookie, getCookie, deleteCookie } from '../utils/CookieHelper';
-import { TOKEN_COOKIE_NAME, REMEMBER_ME_COOKIE_NAME } from '../configs/constants';
+import { observable } from 'mobx';
+import { REMEMBER_ME_COOKIE_NAME, TOKEN_COOKIE_NAME } from '../configs/constants';
 import AxiosI from '../endpoints/api';
 import { AuthService } from '../endpoints/auth';
+import { deleteCookie, getCookie, setCookie } from '../utils/CookieHelper';
+import UserStore from './UserStore';
 
 
 class AuthStore {
@@ -24,9 +25,7 @@ class AuthStore {
         }, (error) => {
             if (error.response) {
                 if (error.response.status === 401) {
-                    runInAction(() => {
-                        this.auth = false;
-                    })
+                    this.logout();
                 }
             }
 
@@ -61,13 +60,14 @@ class AuthStore {
                 }
 
                 this.auth = true;
+                UserStore.loadUser();
             } else {
                 console.error("Bad status on login: ", response.status, response.statusText);
             }
         } catch (err) {
             console.error(err);
 
-            this.auth = false;
+            this.logout();
         } finally {
             this.fetching = false;
         }
@@ -90,21 +90,33 @@ class AuthStore {
 
         if (!exists) return;
         this.fetching = true;
-        let response = await AuthService.refreshToken(extended);
 
-        if (response.status === 200) {
-            let { data } = response;
-            setCookie(TOKEN_COOKIE_NAME, data.token, new Date(data.expires_in * 1000));
+        try {
+            let response = await AuthService.refreshToken(extended);
 
-            if (extended === true) {
-                setCookie(REMEMBER_ME_COOKIE_NAME, 1, new Date(data.expires_in * 1000));
-            } else {
-                this.setupTokenAutorefresh(data.expires_in);
+            if (response.status === 200) {
+                let { data } = response;
+                setCookie(TOKEN_COOKIE_NAME, data.token, new Date(data.expires_in * 1000));
+
+                if (extended === true) {
+                    setCookie(REMEMBER_ME_COOKIE_NAME, 1, new Date(data.expires_in * 1000));
+                } else {
+                    this.setupTokenAutorefresh(data.expires_in);
+                }
+
+                if(!UserStore.user) {
+                    UserStore.loadUser();
+                }
+                
+                this.auth = true;
             }
-
-            this.auth = true;
+        } catch (err) {
+            console.error(err);
+            
+            this.logout();
+        } finally {
+            this.fetching = false;
         }
-        this.fetching = false;
     }
 
     //Refresh token if it's going to expire
