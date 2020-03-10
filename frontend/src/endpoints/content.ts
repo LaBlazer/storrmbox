@@ -1,4 +1,5 @@
 import AxiosI from "./api";
+import { API_URL } from "configs/constants";
 
 export type ContentTypeNames = "movie" | "series" | "episode";
 
@@ -65,10 +66,10 @@ export class ContentService {
     }
 
     static task(taskID: string) {
-        return AxiosI.get<{ type: string, data: string }>(`/content/task/${taskID}`)
+        return AxiosI.get<{ type: string, data: string }>(`/task/${taskID}`)
             .then((response) => {
                 if (response.data.data) {
-                    return { type: response.data.type, data: `${window.location.origin}/${response.data.data}` };
+                    return { type: response.data.type, data: `${API_URL}/${response.data.data}` };
                 } else {
                     return response.data;
                 }

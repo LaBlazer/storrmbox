@@ -10,7 +10,6 @@ from sqlalchemy.orm import load_only
 
 from storrmbox.api.task import task_id
 from storrmbox.content.scraper import OmdbScraper, ImdbScraper
-from storrmbox.exceptions import NotFoundException, InternalException
 from storrmbox.extensions import auth, db, task_queue, logger
 from storrmbox.extensions.auth import with_permission, PermissionLevel
 from storrmbox.models.content import Content, ContentType
@@ -152,7 +151,7 @@ class ServeContentResource(Resource):
     torrent_client.run()
     file_cache: Dict[str, str] = {}
 
-    # TODO: Add auth
+    # TODO: Add auth, maybe a token in query string?
     @api.doc(description='Serves the content')
     @api.response(200, description="returns content stream")
     @api.produces(["video/mp4"])
@@ -196,7 +195,7 @@ class DownloadContentResource(Resource):
             if ServeContentResource.file_cache.get(uid):
                 return {"id": serve(content).id}
 
-            return {"id": download(content).id}
+            return {"id": download(content, g.user.id).id}
 
         return api.abort(HTTPStatus.BAD_REQUEST, f"Invalid uid '{uid}'")
 
@@ -204,7 +203,7 @@ class DownloadContentResource(Resource):
 @api.route("/popular")
 class PopularContentResource(Resource):
     popular_parser = api.parser()
-    popular_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
+    popular_parser.add_argument('type', type=str, choices=("movie", "series"),
                                 help='Type of the content', required=True)
 
     def _get_popular(self, ctype):
@@ -213,7 +212,7 @@ class PopularContentResource(Resource):
         for iid in imdb_scraper.get_popular(ctype):
             content = Content.get_by_imdb_id(iid)
 
-            # If the content is not already in db skip it
+            # If the content is not in db skip it
             if content:
                 cache.append(Popular(
                     content_id=content.uid,
@@ -227,7 +226,7 @@ class PopularContentResource(Resource):
     @api.expect(popular_parser)
     def get(self):
         args = self.popular_parser.parse_args()
-        ctype = ContentType[args['type']]
+        ctype = ContentType[args.type]
 
         return {"uids": [c.content_id for c in Popular.fetch(Popular.type, ctype, self._get_popular, ctype)]}
 
@@ -235,7 +234,7 @@ class PopularContentResource(Resource):
 @api.route("/top")
 class TopContentResource(Resource):
     top_parser = api.parser()
-    top_parser.add_argument('type', type=str, choices=tuple(t.name for t in ContentType),
+    top_parser.add_argument('type', type=str, choices=("movie", "series"),
                             help='Type of the content', required=True)
 
     def _get_top(self, ctype):
@@ -244,7 +243,7 @@ class TopContentResource(Resource):
         for iid in imdb_scraper.get_top(ctype):
             content = Content.get_by_imdb_id(iid)
 
-            # If the content is not already in db skip it
+            # If the content is not in db skip it
             if content:
                 cache.append(Top(
                     content_id=content.uid,
@@ -258,7 +257,7 @@ class TopContentResource(Resource):
     @api.expect(top_parser)
     def get(self):
         args = self.top_parser.parse_args()
-        ctype = ContentType[args['type']]
+        ctype = ContentType[args.type]
 
         return {"uids": [c.content_id for c in Top.fetch(Top.type, ctype, self._get_top, ctype)]}
 
@@ -284,29 +283,29 @@ class SearchContentResource(Resource):
         # Store the search in db
         db.session.add(Search(
             user=g.user,
-            query=args['query']
+            query=args.query
         ))
 
         # Search the query in db first
         results = Content.query.options(load_only("uid"))\
-            .filter(Content.title.ilike(f"%{args['query']}%"), Content.votes.isnot(None))\
+            .filter(Content.title.ilike(f"%{args.query}%"), Content.votes.isnot(None))\
             .order_by(Content.votes.desc()).all()
 
         # Filter content if type is specified
         uids = []
         for r in results:
-            if not args['type'] or r.type.name == args['type']:
+            if not args.type or r.type.name == args.type:
                 uids.append(r.uid)
 
         # We have enough data, return already
-        if len(uids) >= int(args['amount']):
+        if len(uids) >= int(args.amount):
             return {"uids": uids}
 
         # Query the api until we have enough results, maximum up to page 5
         continue_search = True
         current_page = 1
         while continue_search and current_page <= 5:
-            content = content_scraper.search(args['query'], current_page)
+            content = content_scraper.search(args.query, current_page)
             # Break if no content was found
             if not content:
                 break
@@ -318,7 +317,7 @@ class SearchContentResource(Resource):
                     continue
 
                 # Skip content with different type
-                if args['type'] and args['type'] != c['Type']:
+                if args.type and args.type != c['Type']:
                     continue
 
                 # Check if the object is not already in the db/result and skip it
@@ -341,7 +340,7 @@ class SearchContentResource(Resource):
 
             # If we are on the last page or we have enough results exit the loop
             current_page += 1
-            if (current_page * 10) > total_results or len(uids) >= int(args['amount']):
+            if (current_page * 10) > total_results or len(uids) >= int(args.amount):
                 continue_search = False
 
         # Commit all new data
