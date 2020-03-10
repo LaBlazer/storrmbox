@@ -32,12 +32,11 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
         if (password === reapeatedPassword) {
             try {
                 await UserService.register(username, email, password, inviteCode, false);
-                AuthStore.login(username, password);
+                setTimeout(() => AuthStore.login(username, password), 1000);
             } catch (err) {
                 if (err.response?.status === 400) {
                     this.registerResponseError = err.response.data;
                     console.log(err.response.data);
-
                 }
             }
         }
@@ -77,7 +76,14 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
                                                         :
                                                         <Form.Group controlId="inviteCode">
                                                             <Form.Label>Invite code</Form.Label>
-                                                            <Form.Control name="inviteCode" placeholder="XXX-XXX" type="text" required />
+                                                            <Form.Control name="inviteCode"
+                                                                placeholder="XXX-XXX"
+                                                                type="text"
+                                                                isInvalid={this.registerResponseError?.errors?.invite_code}
+                                                                required />
+                                                            <div className="invalid-feedback">
+                                                                {this.registerResponseError?.errors?.invite_code}
+                                                            </div>
                                                         </Form.Group>
                                                 }
 
@@ -90,12 +96,23 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
 
                                             <Form.Group controlId="username">
                                                 <Form.Label>Username</Form.Label>
-                                                <Form.Control name="username" placeholder="Username" type="text" required />
+                                                <Form.Control name="username"
+                                                    placeholder="Username"
+                                                    type="text"
+                                                    isInvalid={this.registerResponseError?.errors?.username}
+                                                    required />
+                                                <div className="invalid-feedback">
+                                                    {this.registerResponseError?.errors?.username}
+                                                </div>
                                             </Form.Group>
 
                                             <Form.Group controlId="email">
                                                 <Form.Label>Email</Form.Label>
-                                                <Form.Control name="email" placeholder="Email" type="email" required isInvalid={this.registerResponseError?.errors?.email} />
+                                                <Form.Control name="email"
+                                                    placeholder="Email"
+                                                    type="email"
+                                                    isInvalid={this.registerResponseError?.errors?.email}
+                                                    required />
                                                 <div className="invalid-feedback">
                                                     {this.registerResponseError?.errors?.email}
                                                 </div>
@@ -103,14 +120,21 @@ class RegisterPage extends React.Component<RouteComponentProps<{ code?: string }
 
                                             <Form.Group controlId="password">
                                                 <Form.Label>Password</Form.Label>
-                                                <Form.Control placeholder="Password" name="password" type="password" required isInvalid={!this.passwordMatch} />
+                                                <Form.Control name="password"
+                                                    placeholder="Password"
+                                                    type="password"
+                                                    isInvalid={(!this.passwordMatch) || this.registerResponseError?.errors?.password}
+                                                    required />
+                                                <div className="invalid-feedback">
+                                                    {this.registerResponseError?.errors?.password}
+                                                </div>
                                             </Form.Group>
 
                                             <Form.Group controlId="repeat-password">
                                                 <Form.Label>Repeat the password</Form.Label>
                                                 <Form.Control placeholder="Password" name="repeat-password" type="password" required isInvalid={!this.passwordMatch} />
                                                 <div className="invalid-feedback">
-                                                    Entered passwords do not match!
+                                                    Passwords do not match!
                                                 </div>
                                             </Form.Group>
 
