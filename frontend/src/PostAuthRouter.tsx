@@ -28,12 +28,6 @@ class PostAuthRouter extends React.Component<RouteComponentProps<any, any, { bac
                 <FadeIn>
                     {/* <hr /> */}
                     <Switch location={background || location}>
-
-                        {/* DELETE IN PRODUCTION */}
-                        <Route path="/content/reload">
-                            <ContentReloader />
-                        </Route>
-
                         <Route path="/movies">
                             <TopBar siteName={siteName} />
                             <MediaPage key="movie" category="movie" categoryName="Movies" />

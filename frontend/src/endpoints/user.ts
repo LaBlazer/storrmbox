@@ -4,28 +4,31 @@ import AxiosI from "./api";
 export interface UserModel {
     username: string,
     email: string,
-    created: Date
+    created: Date,
+    permission: number
 }
 
 export class UserService {
 
     static register(username: string, email: string, password: string, invite_code: string, errorHandle = true): Promise<UserModel> {
-        return AxiosI.post<{ username: string, email: string, created: string }>(`/user`, qs.stringify({
+        return AxiosI.post<{ username: string, email: string, created: string, permission: number }>(`/user`, qs.stringify({
             username, email, password, invite_code
         }), { errorHandle })
             .then(response => ({
                 username: response.data.username,
                 email: response.data.email,
-                created: new Date(response.data.created)
+                created: new Date(response.data.created),
+                permission: response.data.permission
             }));
     }
 
     static getUser(): Promise<UserModel> {
-        return AxiosI.get<{ username: string, email: string, created: string }>(`/user`)
+        return AxiosI.get<{ username: string, email: string, created: string, permission: number }>(`/user`)
             .then(response => ({
                 username: response.data.username,
                 email: response.data.email,
-                created: new Date(response.data.created)
+                created: new Date(response.data.created),
+                permission: response.data.permission
             }));
     }
 
