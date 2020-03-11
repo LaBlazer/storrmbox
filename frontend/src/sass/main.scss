@@ -11,7 +11,6 @@ body {
 
 #root {
     overflow-x: hidden;
-    min-height: 100vh;
 }
 
 input:disabled {
@@ -96,6 +95,9 @@ input:disabled {
 
 .main-container {
     padding-top: 5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .form-label {
