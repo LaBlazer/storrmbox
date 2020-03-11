@@ -15,7 +15,7 @@
 
         .list-group-item {
             border-left: 3px solid transparent;
-            transition: background-color 0.1s ease-in;
+            transition: background-color 0.1s ease-in, border 0.2s linear;
 
             &:hover {
                 background-color: rgba(128, 128, 128, 0.644);
