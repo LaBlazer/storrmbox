@@ -1,12 +1,13 @@
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from logging import getLogger
-from typing import List, ClassVar, Iterator, Tuple
+from typing import List, ClassVar, Iterator, Tuple, Union, Optional
 
 from requests import Session
 
 from storrmbox.models.content import ContentType, Content
+from storrmbox.extensions.logging import logger
 
 
 @dataclass
@@ -27,6 +28,7 @@ class TorrentDetails:
     torrent: Torrent
     magnet: str
     files: List[str]
+    entire_season: bool = False
 
 
 class TimeRange(Enum):
@@ -59,32 +61,28 @@ class TorrentScraper(object):
             'Pragma': 'no-cache',
             'Cache-Control': 'no-cache'
         })
-        self.log = getLogger("TorrentScraper")
 
     def add_provider(self, provider: ClassVar):
         p = provider(self.req)
 
         if p.caps is not None and len(p.caps.content_types) > 0:
-            # self.log.debug(f"Adding {provider.__name__}.")
-            # self.log.debug(" ├── Content types: {}".format(
-            #     ", ".join([content_type.name for content_type in ContentType if p.caps.serves_content(content_type)])
-            # ))
-            # self.log.debug(" └── Time range: {}".format(p.caps.time_range.name))
             self._providers.append(p)
             return True
         else:
-            self.log.error("Provider does not serve any content types")
+            logger.error("Provider does not serve any content types")
             return False
 
-    def search(self, query: str, content_type: ContentType) -> Iterator[Tuple[Torrent, 'TorrentProvider']]:
+    from storrmbox.torrent.scraper.providers import TorrentProvider
+
+    def search(self, query: str, content_type: ContentType) -> Iterator[Tuple[Torrent, TorrentProvider]]:
         for p in self._providers:
             if p.caps.serves_content(content_type):
-                self.log.debug(f"Searching '{query}' using provider {p.__class__.__name__}")
+                logger.debug(f"Searching '{query}' using provider {p.__class__.__name__}")
 
                 for torr in p.search(query, content_type):
                     yield (torr, p)
             else:
-                self.log.error(f"{p.__class__.__name__} does not serve content type '{content_type}'")
+                logger.error(f"{p.__class__.__name__} does not serve content type '{content_type}'")
 
 
 class VideoQuality(Enum):
@@ -95,37 +93,86 @@ class VideoQuality(Enum):
 
 
 class ContentTorrentScraper(TorrentScraper):
+    STREAMABLE_FILES = [".mp4", ".mkv"]
+    EPISODE_PATTERN = re.compile(r'.*s\d{1,2}[.\w]?e\d{2}.*\.(mp4|mkv)$', re.IGNORECASE)
 
-    def search_content(self, content: Content, quality=VideoQuality.HD) -> TorrentDetails:
+    @staticmethod
+    def _strip_title(title):
+        return re.sub('[^A-Za-z0-9]+', '', title)
+
+    @staticmethod
+    def _is_streamable(filename: str) -> bool:
+        return any([filename.endswith(ext) for ext in ContentTorrentScraper.STREAMABLE_FILES])
+
+    @staticmethod
+    def _has_streamable_file(torrent: TorrentDetails) -> bool:
+        return any([ContentTorrentScraper._is_streamable(file) for file in torrent.files])
+
+    @staticmethod
+    def _get_episodes(torrent: TorrentDetails) -> List[str]:
+        # Return list of episode files
+        return [f for f in torrent.files if ContentTorrentScraper.EPISODE_PATTERN.match(f)]
+
+    def search_content(self, content: Content, quality=VideoQuality.HD) -> Optional[TorrentDetails]:
         # Build the query based on content type
-        query = None
+        queries = []
         if content.type == ContentType.episode:
-            query = f"{content.get_parent().title} S{content.season:02d}E{content.episode:02d}"
+            # If the requested episode is from the latest season download single episode
+            title = self._strip_title(content.parent.title)
+            if content.parent.season and content.parent.season <= content.season:
+                queries = [
+                    f"{title} S{content.season:02d}E{content.episode:02d}",
+                    f"{title} S{content.season:02d}"
+                ]
+            else:
+                # Else download the whole season
+                queries = [
+                    f"{title} S{content.season:02d}",
+                    f"{title} S{content.season:02d}E{content.episode:02d}"
+                ]
         elif content.type == ContentType.movie:
-            query = f"{content.title} {content.year_released}"
+            title = self._strip_title(content.title)
+            queries = [
+                title + (' ' + content.year_released if content.year_released else ''),
+                title,
+                content.original_title if content.original_title else content.title
+            ]
 
         # Iterate over the results and filter unwanted torrents
-        for torr, provider in self.search(query.lower(), content.type):
-            self.log.debug(f"Processing {torr}")
+        for query in queries:
+            for torr, provider in self.search(query.lower(), content.type):
+                logger.debug(f"Processing {torr}")
+    
+                if torr.seeders < 5:
+                    continue
+    
+                # 3 = best quality, 0 = worst
+                qual = VideoQuality.NONE
+                name = torr.name.upper()
+                if any(tag in name for tag in VideoQuality.FULLHD.value[1]):
+                    qual = VideoQuality.FULLHD
+                elif any(tag in name for tag in VideoQuality.HD.value[1]):
+                    qual = VideoQuality.HD
+                elif any(tag in name for tag in VideoQuality.SD.value[1]):
+                    qual = VideoQuality.SD
 
-            if torr.seeders < 5:
-                continue
+                # Torrent quality is better or same as we requested
+                if qual.value[0] >= quality.value[0]:
+                    details = provider.get_details(torr)
 
-            # 3 = best quality, 0 = worst
-            qual = VideoQuality.NONE
-            name = torr.name.upper()
-            if any(tag in name for tag in VideoQuality.FULLHD.value[1]):
-                qual = VideoQuality.FULLHD
-            elif any(tag in name for tag in VideoQuality.HD.value[1]):
-                qual = VideoQuality.HD
-            elif any(tag in name for tag in VideoQuality.SD.value[1]):
-                qual = VideoQuality.SD
+                    # Has required episode
+                    if content.type == ContentType.episode:
+                        episodes = self._get_episodes(details)
+                        logger.debug(episodes)
+                        if len(episodes) > 0:
+                            if len(episodes) > 1:
+                                details.entire_season = True
+                            return details
+                    else:
+                        if self._has_streamable_file(details):
+                            return details
 
-            if qual.value[0] >= quality.value[0]:
-                details = provider.get_details(torr)
+                    logger.debug(f"No serveable files found for {content.uid}")
 
-                if any(file.endswith(".mp4") for file in details.files):
-                    return details
-
-        self.log.error(f"No torrent found for content {content.uid}: {content.title} with quality {quality.name}")
+        logger.error(f"No torrent found for content {content.uid}: '{content.title}' with quality {quality.name}")
         return None

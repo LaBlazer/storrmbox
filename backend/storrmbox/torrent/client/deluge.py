@@ -147,6 +147,7 @@ class Deluge(implements(TorrentClient)):
         if result:
             hash = list(result.keys())[0]
             return TorrentInfo(
+                name=uid,
                 hash=hash,
                 speed=result[hash]['download_payload_rate'],
                 peers=result[hash]['num_peers'],

@@ -1,7 +1,8 @@
 import os
+import re
 from http import HTTPStatus
 from threading import Thread
-from typing import Dict
+from typing import Dict, List, Optional
 
 from flask import g, send_file, Response
 from flask_restplus import Resource, Namespace, fields
@@ -17,7 +18,9 @@ from storrmbox.models.popular import Popular
 from storrmbox.models.search import Search
 from storrmbox.models.top import Top
 from storrmbox.tasks.content import download, serve
+from storrmbox.torrent.client import TorrentInfo
 from storrmbox.torrent.client.deluge import Deluge
+from storrmbox.torrent.scraper import TorrentDetails
 
 api = Namespace('content', description='Content serving')
 
@@ -147,35 +150,72 @@ class EpisodesContentResource(Resource):
 # Temporary
 @api.route("/<string:uid>/serve")
 class ServeContentResource(Resource):
+    episode_pattern = re.compile(r'.*s(?P<season>\d{1,2})[.\w]?e(?P<episode>\d{2}).*\.(mp4|mkv)$', re.IGNORECASE)
     torrent_client = Deluge()
     torrent_client.run()
     file_cache: Dict[str, str] = {}
+
+    @staticmethod
+    def _get_episode(files: List[str], season: int, episode: int) -> str:
+        for file in files:
+            match = ServeContentResource.episode_pattern.match(file)
+            if match and int(match.group('episode')) == episode and int(match.group('season')) == season:
+                return file
+        return ""
+
+    def _update_cache(self, uid: str) -> Optional[str]:
+        content = Content.get_by_uid(uid)
+        if not content:
+            return None
+
+        info = self.torrent_client.get_torrent_info(content.uid)
+        if info:
+            logger.debug(f"Info: {info}")
+            file = self._get_episode(info.files, content.season, content.episode)
+
+            # Check if file really exists
+            if os.path.isfile(file):
+                # Cache it if it does
+                self.file_cache[content.uid] = file
+                return file
+        # Try getting whole season
+        info = self.torrent_client.get_torrent_info(f"{content.parent.uid}_s{content.season}")
+        if info:
+            logger.debug(f"Info: {info}")
+            for episode in content.parent.episodes:
+                if episode.season == content.season:
+                    logger.debug(f"Ep: {episode.title}")
+                    file = self._get_episode(info.files, content.season, episode.episode)
+
+                    # Check if file really exists
+                    if os.path.isfile(file):
+                        # Cache it if it does
+                        self.file_cache[episode.uid] = file
+
+            return self.file_cache[content.uid]
+        return None
 
     # TODO: Add auth, maybe a token in query string?
     @api.doc(description='Serves the content')
     @api.response(200, description="returns content stream")
     @api.produces(["video/mp4"])
     def get(self, uid):
-        # First try to get the file from cache (hot path)
-        mp4_file = self.file_cache.get(uid)
-        if mp4_file:
-            try:
-                return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
-            except (OSError, IOError) as e:
-                logger.error(f"Error while serving '{uid}': {e}")
-                del self.file_cache[uid]
+        # First try to get the file(s) from cache (hot path)
+        file = self.file_cache.get(uid)
+        if not file:
+            # Otherwise get it from torrent client
+            file = self._update_cache(uid)
+            logger.debug(self.file_cache)
 
-        # Otherwise get it from torrent client
-        info = self.torrent_client.get_torrent_info(uid)
-        if info:
-            logger.debug(f"Info: {info}")
-            mp4_file = next(filter(lambda f: f.endswith(".mp4"), info.files), None)
-            # Check if file really exists
-            if os.path.isfile(mp4_file):
-                # Cache it
-                self.file_cache[uid] = mp4_file
-                logger.info(f"Serving file '{mp4_file}'")
-                return send_file(mp4_file, mimetype="video/mp4", conditional=True, add_etags=False)
+            if not file:
+                return api.abort(404)
+
+            logger.info(f"Serving file '{file}'")
+        try:
+            return send_file(file, mimetype="video/mp4", conditional=True, add_etags=False)
+        except (OSError, IOError) as e:
+            logger.error(f"Error while serving '{uid}': {e}")
+            del self.file_cache[uid]
 
         return api.abort(404)
 
@@ -192,10 +232,10 @@ class DownloadContentResource(Resource):
             if content.type == ContentType.series:
                 return api.abort(HTTPStatus.BAD_REQUEST, "Invalid content type")
 
-            if ServeContentResource.file_cache.get(uid):
+            if ServeContentResource.file_cache.get(content.uid):
                 return {"id": serve(content).id}
 
-            return {"id": download(content, g.user.id).id}
+            return {"id": download(uid, g.user.id).id}
 
         return api.abort(HTTPStatus.BAD_REQUEST, f"Invalid uid '{uid}'")
 

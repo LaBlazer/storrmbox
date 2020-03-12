@@ -55,7 +55,8 @@ class Content(Model):
     # Auto
     last_updated = sa.Column(sa.DateTime, nullable=False, default=time_now, onupdate=time_now)
 
-    episodes = relationship("Content", cascade="all,delete-orphan")
+    episodes = relationship("Content", backref=backref("parent", uselist=False, remote_side=[uid]),
+                            cascade="all,delete-orphan", single_parent=True)
     popular = relationship(Popular, backref=backref("content", cascade="all,delete"))
     top = relationship(Top, backref=backref("content", cascade="all,delete"))
 
@@ -63,21 +64,21 @@ class Content(Model):
         kwargs['uid'] = self._generate_uid(str(kwargs['imdb_id']))  # Generate the uid with imdb_id as seed
         db.Model.__init__(self, *args, **kwargs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<Content {}>'.format(repr(self.title))
 
     @classmethod
-    def _generate_uid(cls, seed: str):
+    def _generate_uid(cls, seed: str) -> str:
         cls._rand.seed(seed)
         return ''.join(cls._rand.choices(string.ascii_letters + string.digits, k=cls.uid.type.length))
 
-    def get_parent(self):
+    def get_parent(self) -> 'Content':
         return Content.get_by_uid(self.parent_uid)
 
     @classmethod
-    def get_by_uid(cls, uid: str):
+    def get_by_uid(cls, uid: str) -> 'Content':  # Use postponed annotations in the future
         return cls.query.filter_by(uid=uid).first()
 
     @classmethod
-    def get_by_imdb_id(cls, iid: str):
+    def get_by_imdb_id(cls, iid: str) -> 'Content':
         return cls.query.filter_by(imdb_id=iid).first()

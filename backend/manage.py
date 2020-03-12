@@ -3,7 +3,8 @@ import random
 
 from flask_script import Manager, Shell
 from flask_migrate import MigrateCommand, Migrate
-from storrmbox import create_app, db
+from storrmbox import create_app
+from storrmbox.extensions import db
 from storrmbox.models.user import User
 from storrmbox.extensions.logging import logger
 

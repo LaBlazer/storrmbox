@@ -88,6 +88,9 @@ class AppConfig:
     def __getitem__(self, key: str):
         return self.config[self.config_type][key]
 
+    def __call__(self, *args, **kwargs):
+        pass
+
     def get(self, key: str, type_=None, default=None):
         val = self.config[self.config_type].get(key, default)
         if type_ and type_ in [int, str, float, bool, dict, list]:
