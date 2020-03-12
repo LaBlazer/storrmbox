@@ -27,6 +27,7 @@
         .active {
             .list-group-item {
                 border-left: 3px solid $primary;
+                background-color: $bg-color-dark;
             }
         }
     }
