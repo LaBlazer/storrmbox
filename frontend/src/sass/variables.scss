@@ -2,7 +2,10 @@ $body-bg: #1D1D1D;
 // $body-color: #e4e4e4;
 $body-color: #ececec;
 
-$card-bg: #343434;
+$bg-color-dark: #343434;
+$bg-color-light: #3c3c3c;
+
+$card-bg: $bg-color-dark;
 $card-border-radius: 0;
 
 $border-radius: .15rem;
@@ -16,7 +19,7 @@ $info:      #17a2b8;
 $warning:   #ffc107;
 $danger:    #f44336;
 
-$list-group-bg: #3c3c3c;
+$list-group-bg: $bg-color-light;
 $list-group-color: #e4e4e4;
 $list-group-action-hover-color: $list-group-color;
 
@@ -35,7 +38,6 @@ $theme-colors: (
     primary: $primary,
     secondary: $secondary
 );
-
 
 $modal-content-bg: $body-bg;
 $close-color: $body-color;

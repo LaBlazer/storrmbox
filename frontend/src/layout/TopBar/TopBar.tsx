@@ -94,7 +94,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                                 <InputGroup>
                                     <FormControl
                                         type="text"
-                                        placeholder="Search text..."
+                                        placeholder="Search for content..."
                                         value={this.state.searchQuery}
                                         onChange={
                                             (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -122,7 +122,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                                             Account
                                         </Dropdown.Item>
                                     </Link>
-                                    <Dropdown.Item onClick={AuthStore.logout}>Logout</Dropdown.Item>
+                                    <Dropdown.Item onClick={AuthStore.logout}>Sign out</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>

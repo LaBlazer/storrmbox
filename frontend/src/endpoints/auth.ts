@@ -4,9 +4,14 @@ import { getCookie } from "../utils/CookieHelper";
 import AxiosI from "./api";
 
 
-interface AuthResponse {
+export interface AuthResponse {
     token: string,
     expires_in: number
+}
+
+export interface LoginItemModel {
+    time: Date,
+    ip: string
 }
 
 export class AuthService {
@@ -36,6 +41,27 @@ export class AuthService {
      */
     static refreshToken(extended = false) {
         return AxiosI.post<AuthResponse>('/auth', qs.stringify({ extended }));
+    }
+
+    /**
+     * List all login history
+     *
+     * @static
+     * @memberof AuthService
+     */
+    static list() {
+        return AxiosI.get<{ time: string, ip: string }[]>('/auth/list')
+            .then((list) => list.data.map((item) => ({ time: new Date(item.time), ip: item.ip }) as LoginItemModel));
+    }
+
+    /**
+     *  Purge all logins.
+     *
+     * @static
+     * @memberof AuthService
+     */
+    static purge() {
+        return AxiosI.post('/auth/purge');
     }
 }
 

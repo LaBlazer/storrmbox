@@ -10,9 +10,33 @@ import { Invites } from "./pages/Invites";
 import UserStore from "stores/UserStore";
 import { AdminPanel } from "./pages/AdminPanel";
 import { observer } from "mobx-react";
+import { LoginItemModel, AuthService } from "endpoints/auth";
+import { observable } from "mobx";
+import { fetchGeoIPInfo } from "utils/geotool";
+
+type PromiseReturn<T> = T extends Promise<infer U> ? U : T;
+
+export interface LoginInfo extends LoginItemModel {
+    geo: PromiseReturn<ReturnType<typeof fetchGeoIPInfo>>
+}
 
 @observer
 export default class AccountPage extends Component {
+
+    @observable
+    loginList: LoginInfo[] | null = null;
+
+    async componentDidMount() {
+        let logins = await AuthService.list();
+
+        let list = await Promise.all(logins.map((login) => new Promise<LoginInfo>(async (resolve) => {
+            let geo = await fetchGeoIPInfo(login.ip);
+            resolve({ geo, ...login });
+        })))
+
+        this.loginList = list;
+    }
+
     render() {
         return <div id="account-page" className="pt-3">
 
@@ -27,10 +51,10 @@ export default class AccountPage extends Component {
                     <NavLink to="/account/invite">
                         <ListGroup.Item><FontAwesomeIcon icon={faTicketAlt} className="mr-3" /> Invite friends</ListGroup.Item>
                     </NavLink>
-                    {UserStore.user?.permission ? 
-                    <NavLink to="/account/admin">
-                        <ListGroup.Item><FontAwesomeIcon icon={faHammer} className="mr-3" /> Admin panel</ListGroup.Item>
-                    </NavLink> : ""}
+                    {UserStore.user?.permission ?
+                        <NavLink to="/account/admin">
+                            <ListGroup.Item><FontAwesomeIcon icon={faHammer} className="mr-3" /> Admin panel</ListGroup.Item>
+                        </NavLink> : ""}
                 </ListGroup>
             </section>
 
@@ -38,7 +62,7 @@ export default class AccountPage extends Component {
                 <Switch>
 
                     <Route path="/account/security">
-                        <AccountSecurity />
+                        <AccountSecurity loginList={this.loginList} />
                     </Route>
 
                     <Route path="/account/invite">

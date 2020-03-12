@@ -23,8 +23,8 @@ export class Invites extends Component {
 
     render() {
         return <div>
-            <h2>Invite friends</h2>
-            <p>Does anybody from your friends wish to join and watch anything for free too?</p>
+            <h2 className="title">Invite friends</h2>
+            <p className="big">Does anybody from your friends wish to join and watch anything for free too?</p>
 
             {
                 (this.inviteCode) ?

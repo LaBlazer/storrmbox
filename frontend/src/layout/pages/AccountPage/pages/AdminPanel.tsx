@@ -25,7 +25,7 @@ export class AdminPanel extends Component {
         }
 
         return <div>
-            <h2>Admin Panel</h2>
+            <h2 className="title">Admin Panel</h2>
             <Button variant="danger" onClick={this.reloadContent__UNSAFE}>
                 <FontAwesomeIcon icon={faRadiation} />&nbsp;&nbsp;Reload content
             </Button>

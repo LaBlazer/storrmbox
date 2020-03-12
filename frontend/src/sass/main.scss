@@ -98,6 +98,10 @@ input:disabled {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+
+    & > div {
+        width: 100%;
+    }
 }
 
 .form-label {

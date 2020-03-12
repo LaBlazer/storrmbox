@@ -40,13 +40,13 @@ class LoginPage extends React.Component {
                                             <Form.Control placeholder="Password" name="password" type="password" required />
                                         </Form.Group>
                                         <Form.Row className="align-items-center">
-                                        <Col>
-                                            <Form.Group controlId="rememberMeCheckBox">
-                                                <Form.Check type="switch" name="rememberme" label="Remember me" className="mb-2" />
-                                            </Form.Group>
+                                            <Col>
+                                                <Form.Group controlId="rememberMeCheckBox">
+                                                    <Form.Check type="switch" name="rememberme" label="Remember me" className="mb-2" />
+                                                </Form.Group>
                                             </Col>
                                             <Col>
-                                            <Button variant="outline-primary" className="float-right" type="submit">Login</Button>
+                                                <Button variant="outline-primary" className="float-right" type="submit">Login</Button>
                                             </Col>
                                         </Form.Row>
                                     </Form>
