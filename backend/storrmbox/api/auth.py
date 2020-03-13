@@ -2,13 +2,13 @@ from time import time
 
 from flask import g, request
 from flask_restplus import Resource, Namespace, fields, inputs
+from werkzeug.useragents import UserAgent
 
-from storrmbox.extensions.config import config
+from storrmbox.extensions.logging import config, logger
 from storrmbox.extensions.auth import token_serializer, multi_auth, auth
 from storrmbox.models.login import Login
 
 api = Namespace('auth', description='Web app authentication')
-
 
 token_fields = api.model("Auth", {
     "token": fields.String,
@@ -17,7 +17,10 @@ token_fields = api.model("Auth", {
 
 login_fields = api.model("Login", {
     "time": fields.DateTime,
-    "ip": fields.String
+    "ip": fields.String,
+    "browser": fields.String(attribute="browser_name"),
+    "browser_version": fields.String,
+    "platform": fields.String(attribute="browser_platform")
 })
 
 
@@ -40,13 +43,23 @@ class AuthResource(Resource):
         token = token_serializer.dumps({"username": g.user.username, "n": g.user.token_nonce},
                                        salt=request.remote_addr).decode('utf-8')
 
-        # Track the login if we changed ip
-        login = Login.query.filter_by(user_id=g.user.id).order_by(Login.time.desc()).first()
-        if not login or login.ip != request.remote_addr:
-            Login(
-                user_id=g.user.id,
-                ip=request.remote_addr
-            ).save()
+        # Track the login if we changed ip and we are not on localhost
+        if request.remote_addr != "127.0.0.1":
+            login = Login.query.filter_by(user_id=g.user.id).order_by(Login.time.desc()).first()
+            if not login or login.ip != request.remote_addr:
+                # Parse the user agent
+                ua = UserAgent(request.user_agent.string)
+                Login(
+                    user_id=g.user.id,
+                    ip=request.remote_addr,
+                    token_nonce=g.user.token_nonce,
+                    browser_platform=ua.platform,
+                    browser_name=ua.browser,
+                    browser_version=ua.version
+                ).save()
+        elif config["flask_hostname"] not in ["127.0.0.1", "localhost"]:
+            logger.warn("Remote IP is 127.0.0.1 but flask is not run locally. " +
+                        "Maybe wrong reverse proxy configuration?")
 
         return {"token": token, "expires_in": time() + expire_time}
 
@@ -58,7 +71,8 @@ class AuthListResource(Resource):
     @api.marshal_list_with(login_fields)
     @api.doc(description="Lists 10 last login times and IPs")
     def get(self):
-        return Login.query.filter_by(user_id=g.user.id).order_by(Login.time.desc()).limit(10).all()
+        return Login.query.filter_by(user_id=g.user.id, token_nonce=g.user.token_nonce) \
+            .order_by(Login.time.desc()).limit(10).all()
 
 
 @api.route("/purge")

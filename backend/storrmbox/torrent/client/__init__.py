@@ -10,6 +10,7 @@ from storrmbox.torrent.scraper import *
 
 @dataclass
 class TorrentInfo:
+    name: str
     hash: str
     speed: int  #bytes per second
     peers: int
