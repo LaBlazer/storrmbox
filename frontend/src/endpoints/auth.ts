@@ -11,7 +11,10 @@ export interface AuthResponse {
 
 export interface LoginItemModel {
     time: Date,
-    ip: string
+    ip: string,
+    browser: string,
+    browser_version: string,
+    platform: string
 }
 
 export class AuthService {
@@ -50,8 +53,8 @@ export class AuthService {
      * @memberof AuthService
      */
     static list() {
-        return AxiosI.get<{ time: string, ip: string }[]>('/auth/list')
-            .then((list) => list.data.map((item) => ({ time: new Date(item.time), ip: item.ip }) as LoginItemModel));
+        return AxiosI.get<{ time: string, ip: string, platform: string, browser: string, browser_version: string}[]>('/auth/list')
+            .then((list) => list.data.map((item) => ({ ...item, time: new Date(item.time) }) as LoginItemModel));
     }
 
     /**

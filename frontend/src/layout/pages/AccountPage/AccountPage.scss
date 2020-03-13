@@ -51,7 +51,7 @@
             font-size: 1.2em;
         }
 
-        p {
+        *:not(.alert) > p {
             color: #a3a3a3;
         }
     }
