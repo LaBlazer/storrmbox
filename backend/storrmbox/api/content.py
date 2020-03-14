@@ -178,21 +178,22 @@ class ServeContentResource(Resource):
                 # Cache it if it does
                 self.file_cache[content.uid] = file
                 return file
-        # Try getting whole season
-        info = self.torrent_client.get_torrent_info(f"{content.parent.uid}_s{content.season}")
-        if info:
-            logger.debug(f"Info: {info}")
-            for episode in content.parent.episodes:
-                if episode.season == content.season:
-                    logger.debug(f"Ep: {episode.title}")
-                    file = self._get_episode(info.files, content.season, episode.episode)
+        # Try getting whole season if content is episode
+        if content.type == ContentType.episode:
+            info = self.torrent_client.get_torrent_info(f"{content.parent.uid}_s{content.season}")
+            if info:
+                logger.debug(f"Info: {info}")
+                for episode in content.parent.episodes:
+                    if episode.season == content.season:
+                        logger.debug(f"Ep: {episode.title}")
+                        file = self._get_episode(info.files, content.season, episode.episode)
 
-                    # Check if file really exists
-                    if os.path.isfile(file):
-                        # Cache it if it does
-                        self.file_cache[episode.uid] = file
+                        # Check if file really exists
+                        if os.path.isfile(file):
+                            # Cache it if it does
+                            self.file_cache[episode.uid] = file
 
-            return self.file_cache[content.uid]
+                return self.file_cache[content.uid]
         return None
 
     # TODO: Add auth, maybe a token in query string?

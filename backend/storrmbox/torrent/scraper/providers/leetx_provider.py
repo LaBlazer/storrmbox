@@ -29,21 +29,21 @@ class LeetxProvider(implements(TorrentProvider)):
             table = soup.find("table")
 
             # self.log.debug(resp.text)
-
-            for row in table.find_all("tr")[1:]:  # Skip the table header
-                try:
-                    yield Torrent(
-                        name=self.get_column_text(row, "name"),
-                        seeders=int(self.get_column_text(row, "seeds")),
-                        leechers=int(self.get_column_text(row, "leeches")),
-                        date_added=parse_date(self.get_column_text(row, "coll-date"), ["%b. %d '%y", "%I%p %b. %d"]),
-                        size=parse_file_size(self.get_column_text(row, "size", False)),
-                        uploader=self.get_column_text(row, "coll-5"),
-                        url=self.get_column_link(row, "name")
-                    )
-                except Exception as ex:
-                    self.log.error(f"Error while scraping: {ex}")
-                    self.log.error(row)
+            if table:
+                for row in table.find_all("tr")[1:]:  # Skip the table header
+                    try:
+                        yield Torrent(
+                            name=self.get_column_text(row, "name"),
+                            seeders=int(self.get_column_text(row, "seeds")),
+                            leechers=int(self.get_column_text(row, "leeches")),
+                            date_added=parse_date(self.get_column_text(row, "coll-date"), ["%b. %d '%y", "%I%p %b. %d"]),
+                            size=parse_file_size(self.get_column_text(row, "size", False)),
+                            uploader=self.get_column_text(row, "coll-5"),
+                            url=self.get_column_link(row, "name")
+                        )
+                    except Exception as ex:
+                        self.log.error(f"Error while scraping: {ex}")
+                        self.log.error(row)
 
         self.log.error(f"Page returned status code {resp.status_code}")
 
