@@ -98,7 +98,7 @@ class ContentTorrentScraper(TorrentScraper):
 
     @staticmethod
     def _strip_title(title):
-        return re.sub('[^A-Za-z0-9]+', '', title)
+        return re.sub('[^A-Za-z0-9 ]+', '', title)
 
     @staticmethod
     def _is_streamable(filename: str) -> bool:
