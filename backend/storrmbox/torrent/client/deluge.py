@@ -58,8 +58,10 @@ class Deluge(implements(TorrentClient)):
 
         config_path = os.path.join(ROOT_PATH, "deluged_config")
         logger.debug(f"Running deluge daemon with config path '{config_path}'")
-        logger.debug(f'"{daemon_path}" -c "{config_path}"')
-        subprocess.Popen(f'"{daemon_path}" -c "{config_path}"', stdout=subprocess.PIPE, shell=True)
+        log_path = os.path.join(config['logs_folder'], "deluge_log.txt")
+        cmd = f'"{daemon_path}" -L {"debug" if config["flask_debug"] else "info"} -l {log_path} -c "{config_path}"'
+        logger.debug(cmd)
+        subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
         time.sleep(6)
 
         # TODO: Check if deluge has correct settings, if not change them and restart it
@@ -163,3 +165,6 @@ class Deluge(implements(TorrentClient)):
 
     def set_seed_ratio(self, seed_ratio):
         pass
+
+    def ping(self):
+        return self.client.core.get_libtorrent_version()

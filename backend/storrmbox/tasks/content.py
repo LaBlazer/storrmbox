@@ -1,6 +1,8 @@
 import time
 from typing import Optional
 
+from huey import crontab
+
 from storrmbox.extensions import task_queue, logger, db
 from storrmbox.models.download import Download
 from .base import Tasks
@@ -17,6 +19,11 @@ torrent_scraper.add_provider(LeetxProvider)
 
 torrent_client = Deluge()
 torrent_client.run()
+
+
+@task_queue.periodic_task(crontab(minute='*/2'))
+def ping_deluge():
+    torrent_client.ping()
 
 
 @task_queue.task()
