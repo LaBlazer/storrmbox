@@ -1,8 +1,7 @@
 import { observable } from "mobx";
 import { ContentService } from "../endpoints/content";
 import { Dictionary } from "../types/Dictionary";
-
-const FETCH_WAIT_TIME = 1000;
+import { TASK_FETCH_WAIT_TIME } from "configs/constants";
 
 class DownloadStore {
 
@@ -25,7 +24,7 @@ class DownloadStore {
             if (result.data !== null) {
                 this.downloads[uid] = result;
             } else {
-                setTimeout(() => this.fetch(uid, taskID), FETCH_WAIT_TIME);
+                setTimeout(() => this.fetch(uid, taskID), TASK_FETCH_WAIT_TIME);
             }
         } catch (err) {
             this.downloads[uid] = undefined;
