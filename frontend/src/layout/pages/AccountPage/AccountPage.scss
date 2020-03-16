@@ -40,31 +40,39 @@
             outline: none;
         }
 
-        .list-group-item {
-            border-top: 3px solid transparent;
-            transition: background-color 0.1s ease-in, border 0.2s linear;
-            background-color: transparent;
-            display: flex;
-            align-items: center;
+        .list-group {
             flex-direction: row;
 
             @include media-breakpoint-up(sm) {
                 flex-direction: column;
-                border-left: 3px solid transparent;
             }
 
-            &:hover {
-                background-color: rgba(128, 128, 128, 0.644);
-            }
-        }
-
-        .active {
             .list-group-item {
-                border-top: 3px solid $primary;
-                background-color: $bg-color-dark;
+                border-top: 3px solid transparent;
+                transition: background-color 0.1s ease-in, border 0.2s linear;
+                background-color: transparent;
+                display: flex;
+                align-items: center;
 
                 @include media-breakpoint-up(sm) {
-                    border-left: 3px solid $primary;
+                    border-left: 3px solid transparent;
+                    border-top: none;
+                }
+
+                &:hover {
+                    background-color: rgba(128, 128, 128, 0.644);
+                }
+            }
+
+            .active {
+                .list-group-item {
+                    border-top: 3px solid $primary;
+                    background-color: $bg-color-dark;
+
+                    @include media-breakpoint-up(sm) {
+                        border-left: 3px solid $primary;
+                        border-top: none;
+                    }
                 }
             }
         }
