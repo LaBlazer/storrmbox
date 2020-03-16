@@ -1,13 +1,39 @@
 @import "variables.scss";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
 
 #account-page {
     max-width: map-get($map: $container-max-widths, $key: xl);
     margin: 0 auto;
     display: flex;
+    flex-direction: column;
+
+    @include media-breakpoint-up(sm) {
+        flex-direction: row;
+    }
 
     .sidebar {
-        width: 30%;
         background-color: $bg-color-light;
+
+        .item-text {
+            display: none;
+        }
+
+        @include media-breakpoint-up(md) {
+            .item-text {
+                display: inline;
+                font-size: 0.8em;
+            }
+        }
+
+        @include media-breakpoint-up(lg) {
+            width: 30%;
+
+            .item-text {
+                font-size: 1em;
+            }
+        }
 
         a {
             text-decoration: none;
@@ -15,9 +41,17 @@
         }
 
         .list-group-item {
-            border-left: 3px solid transparent;
+            border-top: 3px solid transparent;
             transition: background-color 0.1s ease-in, border 0.2s linear;
             background-color: transparent;
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+
+            @include media-breakpoint-up(sm) {
+                flex-direction: column;
+                border-left: 3px solid transparent;
+            }
 
             &:hover {
                 background-color: rgba(128, 128, 128, 0.644);
@@ -26,25 +60,41 @@
 
         .active {
             .list-group-item {
-                border-left: 3px solid $primary;
+                border-top: 3px solid $primary;
                 background-color: $bg-color-dark;
+
+                @include media-breakpoint-up(sm) {
+                    border-left: 3px solid $primary;
+                }
             }
         }
     }
 
     .main {
         width: 100%;
-        padding: 2rem 3rem;
+        padding: 1em 2em;
         background-color: $bg-color-dark;
         min-height: 300px;
 
+        font-size: 0.8em;
+
+        @include media-breakpoint-up(sm) {
+            font-size: 0.9em;
+        }
+
+        @include media-breakpoint-up(md) {
+            font-size: 1em;
+            padding: 2em 3em;
+        }
+
         .title {
+            font-size: 2em;
             border-bottom: 2px solid #414141;
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.5em;
         }
 
         h3 {
-            font-size: 1.3rem;
+            font-size: 1.3em;
         }
 
         p.big {
