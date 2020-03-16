@@ -99,7 +99,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                                 </InputGroup>
                             </Form>
 
-                            <Dropdown alignRight>
+                            <Dropdown className='autoDrop' alignRight>
                                 <Dropdown.Toggle variant="outline-primary" className="m-2 ml-md-3 no-carret" id="user-menu-dropdown">
                                     <FontAwesomeIcon icon={faUser} />
                                 </Dropdown.Toggle>

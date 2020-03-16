@@ -38,22 +38,34 @@ export default class AccountPage extends Component {
     }
 
     render() {
-        return <div id="account-page" className="pt-3">
+        return <div id="account-page" className="pt-md-3">
 
             <section className="sidebar">
                 <ListGroup variant="flush">
                     <NavLink to="/account" exact>
-                        <ListGroup.Item><FontAwesomeIcon icon={faUserCog} className="mr-3" /> Account overview</ListGroup.Item>
+                        <ListGroup.Item>
+                            <FontAwesomeIcon icon={faUserCog} />
+                            <span className="item-text ml-3">Account overview</span>
+                        </ListGroup.Item>
                     </NavLink>
                     <NavLink to="/account/security">
-                        <ListGroup.Item><FontAwesomeIcon icon={faShieldAlt} className="mr-3" /> Security</ListGroup.Item>
+                        <ListGroup.Item>
+                            <FontAwesomeIcon icon={faShieldAlt} />
+                            <span className="item-text ml-3">Security</span>
+                        </ListGroup.Item>
                     </NavLink>
                     <NavLink to="/account/invite">
-                        <ListGroup.Item><FontAwesomeIcon icon={faTicketAlt} className="mr-3" /> Invite friends</ListGroup.Item>
+                        <ListGroup.Item>
+                            <FontAwesomeIcon icon={faTicketAlt} />
+                            <span className="item-text ml-3">Invite friends</span>
+                        </ListGroup.Item>
                     </NavLink>
                     {UserStore.user?.permission ?
                         <NavLink to="/account/admin">
-                            <ListGroup.Item><FontAwesomeIcon icon={faHammer} className="mr-3" /> Admin panel</ListGroup.Item>
+                            <ListGroup.Item>
+                                <FontAwesomeIcon icon={faHammer} />
+                                <span className="item-text ml-3">Admin panel</span>
+                            </ListGroup.Item>
                         </NavLink> : ""}
                 </ListGroup>
             </section>
