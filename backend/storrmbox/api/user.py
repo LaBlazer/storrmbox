@@ -34,6 +34,14 @@ class UserResource(Resource):
     user_parser.add_argument('password', type=str, help='Password', required=True, location='form')
     user_parser.add_argument('invite_code', type=str, help='Invite code', required=True, location='form')
 
+    @staticmethod
+    def validate_password(password: str, password_field: str):
+        if len(password.strip()) < 7:
+            return abort({password_field: "Your password is too short, it needs to have more than 6 characters"})
+
+        if password.strip() in utils.common_passwords:
+            return abort({password_field: "Your password is too common"})
+
     @api.marshal_with(user_fields)
     @api.expect(user_parser)
     def post(self):
@@ -42,11 +50,7 @@ class UserResource(Resource):
         if not re.match("^[a-zA-Z0-9_.-]+$", args.username):
             return abort({"username": "Username contains invalid characters"})
 
-        if len(args.password.strip()) < 7:
-            return abort({"password": "Your password is too short, it needs to have more than 6 characters"})
-
-        if args.password.strip() in utils.common_passwords:
-            return abort({"password": "Your password is too common"})
+        self.validate_password(args.password, "password")
 
         invite = Invite.query.filter_by(code=args.invite_code).first()
         if not invite:
@@ -77,6 +81,31 @@ class UserResource(Resource):
     @api.marshal_with(user_fields)
     def get(self):
         return g.user
+
+
+@api.route("/password")
+class UserPasswordResource(Resource):
+    reset_parser = api.parser()
+    reset_parser.add_argument('current_password', type=str, help='Current password',
+                              required=True, location='form')
+    reset_parser.add_argument('new_password', type=str, help='New password',
+                              required=True, location='form')
+
+    @auth.login_required
+    @api.doc(description="Changes user password to a new one")
+    def post(self):
+        args = self.reset_parser.parse_args()
+
+        if not g.user.check_password(args.current_password):
+            return abort({"current_password": "Invalid password"})
+
+        UserResource.validate_password(args.new_password, "new_password")
+
+        g.user.set_password(args.new_password, save=True)
+
+        g.user.regenerate_token_nonce()
+
+        return {"success": True}
 
 
 @api.route("/invite")
