@@ -2,7 +2,10 @@ $body-bg: #1D1D1D;
 // $body-color: #e4e4e4;
 $body-color: #ececec;
 
-$card-bg: #343434;
+$bg-color-dark: #343434;
+$bg-color-light: #3c3c3c;
+
+$card-bg: $bg-color-dark;
 $card-border-radius: 0;
 
 $border-radius: .15rem;
@@ -16,24 +19,25 @@ $info:      #17a2b8;
 $warning:   #ffc107;
 $danger:    #f44336;
 
-$list-group-bg: #3c3c3c;
+$list-group-bg: $bg-color-light;
 $list-group-color: #e4e4e4;
 $list-group-action-hover-color: $list-group-color;
 
-$input-bg: #666666;
+$input-bg: transparent;
 $input-disabled-bg: #414141;
 $input-color: #e4e4e4;
 $input-placeholder-color: #aaaaaa;
-$input-border-color: #2e2e2e;
-
-$enable-shadows: true;
-
+$input-border-color: #666666;
+$input-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 0.15rem adjust-color($color: $input-border-color, $alpha: -0.7);
+$input-danger-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 0.15rem adjust-color($color: $danger, $alpha: -0.7);
+$input-btn-focus-box-shadow: $input-shadow;
+$input-focus-border-color: $input-border-color;
+$input-focus-bg: $input-disabled-bg;
 
 $theme-colors: (
     primary: $primary,
     secondary: $secondary
 );
-
 
 $modal-content-bg: $body-bg;
 $close-color: $body-color;

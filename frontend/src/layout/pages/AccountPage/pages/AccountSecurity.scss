@@ -1,0 +1,38 @@
+@import "variables.scss";
+
+#login-list {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+
+    .item {
+        padding: 0.2rem 0;
+        display: grid;
+        grid-template-columns: min-content 5fr 3fr;
+        grid-template-areas: "flag location_name time" "flag ip time";
+        align-items: center;
+        border-top: 2px solid $bg-color-light;
+
+        &:nth-child(1) {
+            border-top: none;
+        }
+
+        .time {
+            grid-area: time;
+        }
+
+        .flag {
+            grid-area: flag;
+            padding: 0.2rem 0.3rem;
+        }
+
+        .location-name {
+            grid-area: location_name;
+        }
+
+        .ip {
+            grid-area: ip;
+            font-size: 0.9em;
+            color: gray;
+        }
+    }
+}

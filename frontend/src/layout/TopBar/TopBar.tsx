@@ -22,10 +22,6 @@ type TBState = {
 @observer
 class TopBar extends React.Component<TBProps, TBState> {
 
-    static defaultProps = {
-        siteName: "Web title"
-    }
-
     constructor(props: TBProps) {
         super(props);
 
@@ -50,10 +46,10 @@ class TopBar extends React.Component<TBProps, TBState> {
 
     render() {
         return (
-            <Navbar bg="coal" variant="dark" className="top-bar" fixed="top" expand="lg">
-                <Container className="justify-content-center">
+            <Navbar bg="coal" variant="dark" expand="lg">
+                <Container className="">
 
-                    <div className="navbar-brand w-50 mr-auto">
+                    <div className="navbar-brand">
                         <Link to="/" className="d-inline-block" >
                             <Logo className="d-none d-md-inline fullsize" height="100%" width="100%" />
                             <p className="motd d-none d-md-block noselect">alpha</p>
@@ -61,9 +57,8 @@ class TopBar extends React.Component<TBProps, TBState> {
                         </Link>
                     </div>
 
-                    <Navbar.Toggle aria-controls="navbar-nav" />
-                    <Navbar.Collapse id="navbar-nav" className="w-100">
-                        <ul className="navbar-nav w-100 justify-content-center noselect">
+                    
+                    <ul id="navbar-nav" className="navbar-nav noselect">
                             <li className="nav-item">
                                 <NavLink to="/series" exact className="nav-link" activeClassName="active">
                                     Series
@@ -80,12 +75,16 @@ class TopBar extends React.Component<TBProps, TBState> {
                                 </NavLink>
                             </li>
                         </ul>
-                        <div className="right navbar-nav ml-auto w-100 justify-content-end">
-                            <Form inline onSubmit={this.onSearch} className="mb-2 mb-md-0">
+                        <Navbar.Toggle aria-controls="navbar-nav" />
+                    <Navbar.Collapse className="w-100">
+                    
+                        
+                        <div className="right navbar-nav ml-auto w-100">
+                            <Form inline onSubmit={this.onSearch} className="m-2 m-md-1">
                                 <InputGroup>
                                     <FormControl
                                         type="text"
-                                        placeholder="Search text..."
+                                        placeholder="Search for content..."
                                         value={this.state.searchQuery}
                                         onChange={
                                             (e: React.ChangeEvent<HTMLInputElement>) => this.setState({ searchQuery: e.target.value.replace(/^\s|(?<=\s)\s+/g, ''), isQueryInvalid: false })
@@ -101,7 +100,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                             </Form>
 
                             <Dropdown alignRight>
-                                <Dropdown.Toggle variant="outline-primary" className="ml-md-3 no-carret" id="user-menu-dropdown">
+                                <Dropdown.Toggle variant="outline-primary" className="m-2 ml-md-3 no-carret" id="user-menu-dropdown">
                                     <FontAwesomeIcon icon={faUser} />
                                 </Dropdown.Toggle>
 
@@ -112,7 +111,7 @@ class TopBar extends React.Component<TBProps, TBState> {
                                             Account
                                         </Dropdown.Item>
                                     </Link>
-                                    <Dropdown.Item onClick={AuthStore.logout}>Logout</Dropdown.Item>
+                                    <Dropdown.Item onClick={AuthStore.logout}>Sign out</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>

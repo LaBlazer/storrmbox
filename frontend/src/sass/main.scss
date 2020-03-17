@@ -11,7 +11,43 @@ body {
 
 #root {
     overflow-x: hidden;
-    min-height: 100vh;
+}
+
+input:disabled {
+    background: repeating-linear-gradient(
+        -45deg, $input-disabled-bg, 
+        $input-disabled-bg 10px, 
+        adjust-color($input-disabled-bg, $lightness: -3%) 10px, 
+        adjust-color($input-disabled-bg, $lightness: -3%) 20px) !important;
+}
+
+.btn-outline-primary {
+    color: $input-color;
+    border-color: $input-border-color;
+
+    &:focus {
+        box-shadow: $input-shadow !important;
+    }
+}
+
+.btn-outline-danger {
+    border-color: $input-border-color;
+    
+    &:focus {
+        box-shadow: $input-danger-shadow !important;
+    }
+}
+
+.custom-switch {
+    padding-top: 1em;
+    
+    .custom-control-label::before {
+        border-color: $input-border-color;
+    }
+
+    .custom-control-input:checked ~ .custom-control-label::after {
+        background-color: $input-color;
+    }
 }
 
 .card {
@@ -59,6 +95,13 @@ body {
 
 .main-container {
     padding-top: 5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    & > div {
+        width: 100%;
+    }
 }
 
 .form-label {

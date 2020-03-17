@@ -7,6 +7,7 @@
 
     .sidebar {
         width: 30%;
+        background-color: $bg-color-light;
 
         a {
             text-decoration: none;
@@ -15,7 +16,8 @@
 
         .list-group-item {
             border-left: 3px solid transparent;
-            transition: background-color 0.1s ease-in;
+            transition: background-color 0.1s ease-in, border 0.2s linear;
+            background-color: transparent;
 
             &:hover {
                 background-color: rgba(128, 128, 128, 0.644);
@@ -25,6 +27,7 @@
         .active {
             .list-group-item {
                 border-left: 3px solid $primary;
+                background-color: $bg-color-dark;
             }
         }
     }
@@ -32,10 +35,23 @@
     .main {
         width: 100%;
         padding: 2rem 3rem;
+        background-color: $bg-color-dark;
+        min-height: 300px;
 
-        font-size: 1.2em;
+        .title {
+            border-bottom: 2px solid #414141;
+            padding-bottom: 0.5rem;
+        }
 
-        p {
+        h3 {
+            font-size: 1.3rem;
+        }
+
+        p.big {
+            font-size: 1.2em;
+        }
+
+        *:not(.alert) > p {
             color: #a3a3a3;
         }
     }

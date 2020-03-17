@@ -6,7 +6,10 @@ import { GlobalNotificationHandler } from './layout/GlobalNotificationHandler/Gl
 import { UIErrorBoundary } from './layout/UIErrorBoundary';
 import PostAuthRouter from './PostAuthRouter';
 import './sass/main.scss';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
 
+library.add(fab);
 
 class App extends React.Component {
 
