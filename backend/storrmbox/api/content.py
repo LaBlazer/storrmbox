@@ -193,7 +193,7 @@ class ServeContentResource(Resource):
                             # Cache it if it does
                             self.file_cache[episode.uid] = file
 
-                return self.file_cache[content.uid]
+                return self.file_cache.get(content.uid)
         return None
 
     # TODO: Add auth, maybe a token in query string?

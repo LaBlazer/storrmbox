@@ -47,9 +47,11 @@ class User(SurrogatePK, Model):
             return
         CRUDMixin.__update__(self, attr, value)
 
-    def set_password(self, password):
+    def set_password(self, password: str, save=False):
         """Create hashed password."""
         self.password = generate_password_hash(password, method='sha256')
+        if save:
+            self.save()
 
     def check_password(self, password):
         """Check hashed password."""
