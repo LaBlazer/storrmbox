@@ -32,6 +32,10 @@ export class UserService {
             }));
     }
 
+    static changePassword(current_password: string, new_password: string, errorHandle = true) {
+        return AxiosI.post(`/user/password`, qs.stringify({ current_password, new_password }), { errorHandle });
+    }
+
     static invite() {
         return AxiosI.get<{ invite: string }>(`/user/invite`)
             .then(response => response.data);
