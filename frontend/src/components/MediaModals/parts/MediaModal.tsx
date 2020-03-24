@@ -12,6 +12,8 @@ import { ModalTopThumbnail } from './ModalTopThumbnail';
 
 type MMProps = {
     content: ContentModel,
+    title?: React.ReactNode,
+    className?: string,
     playContent?: boolean,
     onHide?: () => void
 }
@@ -31,13 +33,13 @@ export class MediaModal extends Component<MMProps, MMState> {
     }
 
     componentDidUpdate() {
-        if(this.props.playContent) {
+        if (this.props.playContent) {
             this.onPlayClicked();
         }
     }
 
     componentDidMount() {
-        if(this.props.playContent) {
+        if (this.props.playContent) {
             this.onPlayClicked();
         }
     }
@@ -54,7 +56,7 @@ export class MediaModal extends Component<MMProps, MMState> {
             <Modal
                 show={true}
                 onHide={this.props.onHide}
-                dialogClassName="media-modal"
+                dialogClassName={`media-modal ${this.props.className}`}
                 size="xl"
                 centered
             >
@@ -68,9 +70,14 @@ export class MediaModal extends Component<MMProps, MMState> {
                     />
 
                     <div className="info">
-                        <div className="d-flex align-items-center">
-                            <span className="title mr-auto">{title}</span>
-                            <ModalPlayButton uid={uid} onButtonClick={this.onPlayClicked} />
+                        <div className="d-flex align-items-end">
+                            {
+                                this.props.title ?
+                                    this.props.title
+                                    :
+                                    <span className="title">{title}</span>
+                            }
+                            <ModalPlayButton uid={uid} className="ml-auto p-2" onButtonClick={this.onPlayClicked} />
                         </div>
                         <div className="spec">
                             <Badge className={`type type-${contetTypeToClass(typeName)} mr-2`}>{typeName}</Badge>

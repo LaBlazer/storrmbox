@@ -13,12 +13,21 @@ body {
     overflow-x: hidden;
 }
 
+a {
+    transition: color 0.1s ease-out;
+    &:hover {
+        text-decoration: none;
+    }
+}
+
 input:disabled {
     background: repeating-linear-gradient(
-        -45deg, $input-disabled-bg, 
-        $input-disabled-bg 10px, 
-        adjust-color($input-disabled-bg, $lightness: -3%) 10px, 
-        adjust-color($input-disabled-bg, $lightness: -3%) 20px) !important;
+        -45deg,
+        $input-disabled-bg,
+        $input-disabled-bg 10px,
+        adjust-color($input-disabled-bg, $lightness: -3%) 10px,
+        adjust-color($input-disabled-bg, $lightness: -3%) 20px
+    ) !important;
 }
 
 .btn-outline-primary {
@@ -32,7 +41,7 @@ input:disabled {
 
 .btn-outline-danger {
     border-color: $input-border-color;
-    
+
     &:focus {
         box-shadow: $input-danger-shadow !important;
     }
@@ -40,7 +49,7 @@ input:disabled {
 
 .custom-switch {
     padding-top: 1em;
-    
+
     .custom-control-label::before {
         border-color: $input-border-color;
     }
