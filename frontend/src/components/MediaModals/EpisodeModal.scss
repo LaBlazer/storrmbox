@@ -1,0 +1,72 @@
+@import "variables.scss";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins";
+
+.media-modal {
+    &.episode-modal .media-modal-header {
+        overflow: hidden;
+
+        .info {
+            margin-top: -290px;
+            padding: 63px 11px 13px;
+        }
+    }
+
+    .episode-top-info {
+        display: flex;
+        align-items: flex-end;
+        font-size: 1.4em;
+
+        @include media-breakpoint-up(sm) {
+            font-size: 1.5em;
+        }
+
+        @include media-breakpoint-up(lg) {
+            font-size: 2em;
+        }
+
+        .title {
+            font-size: 1em !important;
+        }
+
+        img {
+            max-height: 150px;
+            display: none;
+
+            @include media-breakpoint-up(sm) {
+                display: inline;
+            }
+
+            @include media-breakpoint-up(lg) {
+                max-height: 210px;
+            }
+
+            -webkit-box-shadow: 0px 0px 14px -3px rgba(0, 0, 0, 0.75);
+            -moz-box-shadow: 0px 0px 14px -3px rgba(0, 0, 0, 0.75);
+            box-shadow: 0px 0px 14px -3px rgba(0, 0, 0, 0.75);
+        }
+
+        .series-name {
+            margin-bottom: 0;
+            font-size: 0.7em;
+            line-height: 1em;
+            text-shadow: 2px 0px 6px rgba(0, 0, 0, 0.83);
+
+            a {
+                color: map-get($content-type-colors, tv-series);
+                transition: opacity 0.1s ease-out;
+                &:hover {
+                    opacity: 0.7;
+                }
+            }
+        }
+
+        .episode {
+            .number {
+                font-size: 0.9em;
+                color: #a7a7a7;
+            }
+        }
+    }
+}

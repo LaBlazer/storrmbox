@@ -7,20 +7,21 @@ import { observer } from "mobx-react";
 
 type MPBProps = {
     uid: string,
-    onButtonClick: () => void
+    onButtonClick: () => void,
+    className?: string
 }
 
 @observer
 export default class ModalPlayButton extends Component<MPBProps> {
     render() {
-        let { uid, onButtonClick } = this.props;
+        let { uid, onButtonClick, className } = this.props;
 
         if (DownloadStore.downloads[uid] === undefined) {
-            return <span className="play-button" >
+            return <span className={`play-button ${className}`} >
                 <FontAwesomeIcon icon={faPlayCircle} onClick={onButtonClick} />
             </span>
         } else if (DownloadStore.downloads[uid] === null) {
-            return <span className="badge loading-video"><GrowLoader size={2} />  Video is being prepared...</span>
+            return <span className={`badge loading-video ${className}`}><GrowLoader size={2} />  Video is being prepared...</span>
         }
 
         return null;
